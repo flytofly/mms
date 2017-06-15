@@ -1,0 +1,99 @@
+#@layout()
+#define main()
+
+
+
+        <div class="crumbs">
+            <a href="javascript:history.back()" class="back">< 返回</a>
+            <span class="title">详情</span>
+        </div>
+        
+        <div class="main-box">
+            <div class="material">
+                <dl>
+                    <dt>任务名</dt>
+                    <dd><input type="text" placeholder="请输入任务名称"  value=" #(record.detail_name)" class="txt"></dd>
+                    <dt>选择人群</dt>
+                    <dd id="selectRq">
+                        <div class="select-rq">
+                            <div class="click-box">选择人群<span class="arr-icon"></span></div>
+                            <div class="drop-down-box">
+                                <div class="search-rq">
+                                    <input type="text" placeholder="按人群名搜索">
+                                    <input type="submit" value="" class="s-btn">
+                                </div>
+                                <div class="s-result">
+                                    <ul>
+                                        <li>李雷的人群1</li>
+                                        <li>专车类人群</li>
+                                        <li>场景人群</li>
+                                        <li>有钱的人</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="selected">已选择：<span class="t"> #for(record:crowdList)
+			              	#(record.cname)&nbsp;&nbsp;&nbsp;
+			              #end&nbsp;</span></div>
+			              
+                    </dd>
+                    <dt>选择投放方式</dt>
+                    <dd>
+                        <ul>
+                            <li><label><input type="radio"  #if(record.out_type==1)  checked="checked"  #end name="m_type" >外呼坐席</label></li>
+                            <li><label><input type="radio"  #if(record.out_type==2)  checked="checked"  #end  name="m_type">短信</label></li>
+
+                        </ul>
+                    </dd>
+                    <dt>选择投放素材</dt>
+                    <dd class="choose-sc clearfix">
+                        <div class="select-box fl">
+                            <div class="choose-data" style="width:120px;">
+                                <span>选择素材</span>
+                                <i class="arr-icon"></i>
+                            </div>
+                            <div class="drop-datas">
+                                <ul>
+                                    <li>选择素材</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </dd>
+                    <dt>素材预览</dt>
+                    <dd>
+                       <div class="material-preview">#(record.content)</div>
+<!--                         <iframe src="" frameborder="0" class="material-preview">  #(record.content)</iframe>
+ -->                    </dd>
+                </dl>
+                <div class="people-num">
+                    预计可触达人数<span class="num">100000</span>
+                </div>
+                <dl>
+                    <dt>设置任务开始日期</dt>
+                    <dd>
+                        <input type="text" placeholder="选择时间的控件（精确到日期）" class="date" id="startDate"  value="#(record.begindate)" >
+                    </dd>
+                    <dt>设置任务结束日期</dt>
+                    <dd>
+                        <input type="text" placeholder="选择时间的控件（精确到日期）" class="date" id="endDate" value="#(record.enddate)">
+                    </dd>
+                 <!--    <dt>设置任务每日执行时间段</dt>
+                    <dd>
+                        <input type="text" placeholder="选择时间的控件（精确到小时）" class="date" id="time">
+                    </dd> -->
+                    <dt>设置每日上限</dt>
+                    <dd>
+                        <input type="text" placeholder="请输入大于0的整数" class="txt" value="#(record.canpick_day)">
+                    </dd>
+                    <dt>设置优先级</dt>
+                    <dd>
+                        <input type="text" placeholder="请输入0~99整数" class="txt" value="#(record.priority)">
+                    </dd>
+                </dl>
+            </div>
+           <!--  <div class="create-renqun-submit">
+                <input type="submit" value="确认提交">
+            </div> -->
+        </div>
+
+#end

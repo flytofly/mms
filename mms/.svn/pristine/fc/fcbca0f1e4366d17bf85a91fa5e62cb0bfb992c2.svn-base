@@ -1,0 +1,586 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>用户生命周期</title>
+<script src="#(BasePath)/public/jquery/js/jqsel.js"></script>
+<script src="#(BasePath)/public/echarts/js/jquery.min.js"></script>
+<script src="#(BasePath)/public/echarts/js/highcharts.js"></script>
+<script src="#(BasePath)/public/echarts/js/switch_menu.js"></script>
+<!-- <script src="#(BasePath)/public/echarts/js/highcharts-3d.js"></script> -->
+<link href="#(BasePath)/public/css/css.css" rel="stylesheet" type="text/css"/>
+<!-- echarts -->
+</head>
+
+<body>
+	<div class="tx-con">
+	  <!-- 页面的标题 -->
+		<div class="tx-con-bt">
+			<ul>
+				<li><a href="#"><span>用户生命周期</span></a></li>
+			</ul>
+		</div>
+	 <!-- 条件筛选框的位置 -->
+	 <input type="hidden" id="nodes_enter" value="#(nodes_enter)"/>
+	 <input type="hidden" id="links_enter" value="#(links_enter)"/>
+	  <input type="hidden" id="nodes_out" value="#(nodes_out)"/>
+	 <input type="hidden" id="links_out" value="#(links_out)"/>
+	 <input type="hidden" id="hourData" value="#(hourData)"/>
+	 <input type="hidden" id="weekData" value="#(weekData)"/>
+	
+	  <form action="#(BasePath)/analysis/host/hostdetail" id="form" method="post">
+		<div class="tx-con-form">
+				<input style="margin-left:0;" type="text" name="domain" maxlength="50" value="#(keyword)" placeholder="按域名搜索" id="domain" class="tx-con-form-tet" />			              
+				<input class="tx-con-form-sub" style="margin-left: 20px;" type="submit" value="查询" />
+			<!--  占位的横线  -->
+		  <div class="cle"></div>
+        </div>
+      </form>
+	 </div>
+	 	<div class="g-nr-left-right">
+			<div class="g-nr-left" style="width:100%;">
+				<div class="g-kuang g-yhgk-1">
+					<div class="g-kuang-bt">
+						<img src="#(BasePath)/public/images/btxs.png" />网站概要
+
+						<!-- help begin -->
+						<span class="r">
+					<div ng-mouseover="flag10=true" ng-mouseout="flag10=false" class="relative l ng-isolate-scope" indexs-api="">
+					<a class="bottun4" href="javascript:void(0)" onclick="javascript:wt_tip1()"><font>?</font></a>
+					
+					<div class="server"  id = "website_tip"   style="display:none;" ng-show="flag10"><div class="ser_title">
+					<b class="l ng-binding">字段说明</b>
+					<a href="javascript:void(0)" onclick="javascript:wt_tip2()" class="r" ng-click="flag1=false"><img style="margin-bottom:16px;" src="#(BasePath)/public/images/server_close.gif"></a></div>
+					<div class="ser_txt" >
+	                    <dt style="height:110px;" class="ng-scope ng-binding">网站排名：基于网站的日独立用户量计算全网的网站排名<br/>日覆盖用户量：与网站的日独立用户量正相关<br/>次日留存：前一天访问用户在当天继续有访问的用户比率<br/>人均停留时长：按照用户访问会话数和频度计算用户的日均访问时长
+                    </dt>
+                </div>
+				</div></div>
+						</span>
+						<!-- help end -->
+
+					</div>
+					<div class="g-kuang-nr">
+					   <div style="height:105px;line-height:80px;margin-top: 10px;margin-bottom: 10px;">
+					    <div id="webdiv"><span class="web_">网站排名<span id="" style="margin-left: 10px;"><img style="margin-bottom:-6px;" src="#(BasePath)/public/images/question_img.png"></span><span class="resu_span">#(rank)</span></span></div>
+					    <div id="webdiv"><span class="web_">日覆盖用户量<span id="" style="margin-left: 10px;"><img style="margin-bottom:-6px;" src="#(BasePath)/public/images/question_img.png"></span><span class="resu_span" style="margin-left: -104px;">#(day_uv)万</span></span></div>
+					    <div id="webdiv"><span class="web_">次日留存<span id="" style="margin-left: 10px;"><img style="margin-bottom:-6px;" src="#(BasePath)/public/images/question_img.png"></span><span class="resu_span">#(retention)</span></span></div>
+					    <div id="webdiv"><span class="web_">&nbsp;人均月访时长<span id="" style="margin-left: 10px;"><img style="margin-bottom:-6px;" src="#(BasePath)/public/images/question_img.png"></span><span class="resu_span" style="margin-left: -104px;">#(per_dura)分钟</span></span></div>
+					    </div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 时段分布与周访问天数分布 -->
+		<div class="g-nr-left-right">
+			<div class="g-nr-left">
+				<div class="g-kuang g-yhgk-1">
+					<div class="g-kuang-bt">
+						<img src="#(BasePath)/public/images/btxs-4.png" />时段分布
+					</div>
+					<div class="g-kuang-nr-tao">
+						<div id="hour-container" style="min-width: 310px; height: 250px; margin: 0 auto"></div>
+					</div>
+				</div>
+			</div>
+			<div class="g-nr-right">
+				<div class="g-kuang g-yhgk-1">
+					<div class="g-kuang-bt">
+						<img src="#(BasePath)/public/images/btxs-5.png" />周访频度
+
+						<!-- help begin -->
+						<span class="r">
+			<div ng-mouseover="flag0=true" ng-mouseout="flag0=false" class="relative l ng-isolate-scope" indexs-api="">
+			<a class="bottun4" href="javascript:weektime_s()"><font>?</font></a>
+			
+			<div class="server" id="week_chart" style="display:none;" ng-show="flag0"><div class="ser_title">
+			<b class="l ng-binding">图表说明</b>
+			<a href="javascript:void(0)" class="r" onclick="javascript:weektime_c()" ng-click="flag0=false"><img style="margin-bottom:16px;" src="#(BasePath)/public/images/server_close.gif"></a></div>
+			<div class="ser_txt">
+			                    <dt style="height:60px;" class="ng-scope ng-binding">周访频度评估用户每周的活跃天数，例如访问3天表示本周只访问任意3天的用户指数（访问3天以上的用户不计入在内)。
+			                    </dt>
+			                </div>
+							</div></div>
+									</span>
+									<!-- help end -->
+			
+								</div>
+								<div class="g-kuang-nr-tao">
+									<div id="week-freq-container" style="min-width: 310px; height: 250px; margin: 0 auto"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+	 
+	 <!-- 流量来源与流量去向 -->
+      <div class="g-nr-left-right">
+			<div class="g-nr-right">
+				<div class="g-kuang g-yhgk-1">
+					<div class="g-kuang-bt">
+						<img src="#(BasePath)/public/images/btxs-5.png" />时序来源
+
+						<!-- help begin -->
+						<span class="r">
+<div ng-mouseover="flag1=true" ng-mouseout="flag1=false" class="relative l ng-isolate-scope" indexs-api="">
+<a class="bottun4"  href="javascript:serShow1()"><font>?</font></a>
+
+<div class="server"  id="server1" style="display:none;" ng-show="flag1"><div class="ser_title">
+<b class="l ng-binding">图表说明</b>
+<a href="javascript:void(0)"  class="r" onclick="javascript:serClose1()" ng-click="flag1=false"><img style="margin-bottom:16px;" src="#(BasePath)/public/images/server_close.gif"></a></div>
+<div class="ser_txt">
+                    <dt style="height:70px;" class="ng-scope ng-binding">用户每日访问各类网站/APP有前后时序关系，"时序来源"指用户访问特定网站/APP之前的时序状态，针对上一次访问的网站列表做用户数量统计，箭头方向表示访问时序关系，圆圈大小与用户数量成正比。
+                    </dt>
+                </div>
+				</div></div>
+						</span>
+						<!-- help end -->
+
+					</div>
+					<div class="g-kuang-nr-tao">
+						<div id="traffic-src-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+					</div>
+				</div>
+			</div>
+			<div class="g-nr-left">
+				<div class="g-kuang g-yhgk-1">
+					<div class="g-kuang-bt">
+						<img src="#(BasePath)/public/images/btxs-4.png" />时序去向
+
+						<!-- help begin -->
+						<span class="r">
+<div ng-mouseover="flag2=true" ng-mouseout="flag2=false" class="relative l ng-isolate-scope" indexs-api="">
+<a class="bottun4" href="javascript:serShow2()"><font>?</font></a>
+
+<div class="server" id="server2" style="display:none;" ng-show="flag2"><div class="ser_title">
+<b class="l ng-binding">图表说明</b>
+<a href="javascript:void(0)" class="r" onclick="javascript:serClose2()"  ng-click="flag2=false"><img style="margin-bottom:16px;" src="#(BasePath)/public/images/server_close.gif"></a></div>
+<div class="ser_txt">
+                    <dt style="height:70px;" class="ng-scope ng-binding">用户每日访问各类网站/APP有前后时序关系，"时序去向"指用户访问特定网站/APP之后的时序状态，针对下一次访问的网站列表做用户数量统计，箭头方向表示访问时序关系，圆圈大小与用户数量成正比。
+                    </dt>
+                </div>
+				</div></div>
+						</span>
+						<!-- help end -->
+
+					</div>
+					<div class="g-kuang-nr-tao">
+						<div id="traffic-dst-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	<!-- 子域名用户分布 -->
+		<div class="g-nr-left-right">
+				<div class="g-kuang g-yhgk-1">
+					<div class="g-kuang-bt">
+						<img src="#(BasePath)/public/images/btxs-7.png" />子域分布
+					</div>
+					<div class="g-kuang-nr-wk" style="height:26px;">
+				        <table width="1300px" border="0" bgcolor="#d2d2d2" cellspacing="1" cellpadding="5" style="table-layout:fixed;word-wrap:break-word;">
+				          <tr style="height:31px;line-height: 26px;">
+				            <td width="8%" align="left" bgcolor="#e8f7fc">&nbsp;&nbsp;序号</td>
+				            <td width="18%" align="left" bgcolor="#e8f7fc">&nbsp;&nbsp;子域名</td>
+				            <td width="15%" align="left" bgcolor="#e8f7fc">&nbsp;&nbsp;用户指数</td>
+				            <td width="15%" align="left" bgcolor="#e8f7fc">&nbsp;&nbsp;次日留存</td>
+				            <td width="13%" align="left" bgcolor="#e8f7fc">&nbsp;&nbsp;人均请求</td>
+				            <td width="13%" align="left" bgcolor="#e8f7fc">&nbsp;&nbsp;人均时长</td>
+				          </tr>
+						</table>
+					</div>
+
+					<div class="g-kuang-nr-wk" style="height:435px; overflow-y:scroll; overflow-x:hidden;">
+        <table   width="1300px" border="0" bgcolor="#d2d2d2" cellspacing="1" cellpadding="5" style="table-layout:fixed;word-wrap:break-word;">		
+			  #for(record:records)
+			  <tr bgcolor="#ffffff">
+				<td width="8%"  style="height:31px;margin-left: 2px;" align="left">&nbsp;&nbsp;#(record.id)</td>
+				<td width="18%" style="height:31px;" align="left">&nbsp;&nbsp;#(record.rule)</td>
+				<td width="15%" style="height:31px;" align="left">&nbsp;&nbsp;#(record.daily_uv)</td>
+				#if(record.day_ratio == null)
+				<td width="15%" style="height:31px;" align="left">&nbsp;&nbsp;0.0%</td>
+				 #end
+				 #if(record.day_ratio != null)
+				<td width="15%" style="height:31px;" align="left">&nbsp;&nbsp;#(record.day_ratio)</td>
+				 #end
+				<td width="13%" style="height:31px;" align="left">&nbsp;&nbsp;#(record.uv_req)</td>
+				 #if(record.per_duration != 0)
+				<td width="13%" style="height:31px;" align="left">&nbsp;&nbsp;#(record.per_duration)</td>
+				 #end
+				 #if(record.per_duration == 0)
+				<td width="13%" style="height:31px;" align="left">&nbsp;&nbsp;1</td>
+				 #end
+			  </tr>
+		   #end
+		</table>
+					</div>
+
+
+				</div>
+			</div>
+
+</body>
+    <script src="#(BasePath)/public/echarts/js/jquery.min.js"></script>
+ 
+    <script src="#(BasePath)/public/echarts/js/echarts.js"></script>
+    <script src="#(BasePath)/public/echarts/js/jquery-1.11.1.js"></script>
+<script type="text/javascript">
+
+	
+	
+	function wt_tip1(){ $("#website_tip").show();}
+
+    function wt_tip2(){ $("#website_tip").hide();}
+
+    function serClose1(){ $("#server1").hide();}
+
+    function serShow1(){ $("#server1").show();}
+    
+    function serClose2(){ $("#server2").hide();}
+    
+    function serShow2(){ $("#server2").show();}
+    
+    function weektime_s(){$("#week_chart").show();}
+    
+    function weektime_c(){$("#week_chart").hide();}
+     
+    var url = '#(BasePath)/build/dist';
+	 require.config({
+            paths: {
+                echarts: url
+            }
+        });
+        require(
+            [
+                'echarts',
+                'echarts/chart/force',
+            ],
+ 
+		function (ecrank) {
+		        var domain = $("#domain").val();
+		        var nodes =$("#nodes_enter").val();
+		        var nodesArr = eval("("+nodes+")");
+		        var links =$("#links_enter").val();
+		        var linksArr = eval("("+links+")");
+                var rankChart = ecrank.init(document.getElementById('traffic-src-container'));
+				rankoption = {
+			    title : {
+			        text: '',
+			        subtext:domain,
+			        x:'right',
+			        y:'bottom'
+			    },
+			    tooltip : {
+			        trigger: 'item',
+			        formatter: '{a} : {b}'
+			    },
+			    toolbox: {
+			        show : true,
+			        feature : {
+			            restore : {show: true},
+			            magicType: {show: true, type: ['force', 'chord']},
+			            saveAsImage : {show: true}
+			        }
+			    },
+			    legend: {
+			        x: 'left',
+			        data:['一级','二级'],
+			        selected: {
+			            '二级' : false
+			        },
+			    },
+			    series : [
+			        {
+			            type:'force',
+			            name : "来源网站",
+			            ribbonType: false,
+			            categories : [
+			                {
+			                    name: '一级'
+			                },
+			                {
+			                    name: '二级',
+			                }
+			            ],
+			            itemStyle: {
+			                normal: {
+			                    label: {
+			                        show: true,
+			                        textStyle: {
+			                            color: '#333'
+			                        }
+			                    },
+			                    nodeStyle : {
+			                        brushType : 'both',
+			                        borderColor : 'rgba(255,215,0,0.4)',
+			                        borderWidth : 1
+			                    },
+			                    linkStyle: {
+			                        type: 'curve'
+			                    }
+			                },
+			                emphasis: {
+			                    label: {
+			                        show: false
+			                        // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+			                    },
+			                    nodeStyle : {
+			                        //r: 30
+			                    },
+			                    linkStyle : {}
+			                }
+			            },
+			            useWorker: false,
+			            minRadius : 20,
+			            maxRadius : 40,
+						coolDown: 0.995,
+			            gravity: 1.5,
+			            scaling: 1.1,
+						linkSymbol: 'arrow',
+						draggable: true,
+			            nodes:nodesArr,
+			            links:linksArr,
+			        }
+			    ]
+				};
+							rankChart.setOption(rankoption);
+			            }
+				
+			        );
+
+</script>
+<script type="text/javascript">
+	 var url = '#(BasePath)/build/dist';
+	 require.config({
+            paths: {
+                echarts: url
+            }
+        });
+        require(
+            [
+                'echarts',
+                'echarts/chart/force',
+            ],
+ 
+		function (ecrank) {
+		            
+		            var domain = $("#domain").val();
+		            var nodes =$("#nodes_out").val();
+			        var nodesArr_ = eval("("+nodes+")");
+			        var links =$("#links_out").val();
+			        var linksArr_ = eval("("+links+")");
+                    var rankChart = ecrank.init(document.getElementById('traffic-dst-container'));
+
+					rankoption = {
+				    title : {
+				        text: '',
+				        subtext: domain,
+				        x:'right',
+				        y:'bottom'
+				    },
+				    tooltip : {
+				        trigger: 'item',
+				        formatter: '{a} : {b}'
+				    },
+				    toolbox: {
+				        show : true,
+				        feature : {
+				            restore : {show: true},
+				            magicType: {show: true, type: ['force', 'chord']},
+				            saveAsImage : {show: true}
+				        }
+				    },
+				    legend: {
+				        x: 'left',
+				        data:['一级','二级'],
+				        selected: {
+				            '二级' : false
+				        },
+				    },
+				    series : [
+				        {
+				            type:'force',
+				            name : "去向网站",
+				            ribbonType: false,
+				            categories : [
+				                {
+				                    name: '一级'
+				                },
+				                {
+				                    name: '二级',
+				                }
+				            ],
+				            itemStyle: {
+				                normal: {
+				                    label: {
+				                        show: true,
+				                        textStyle: {
+				                            color: '#333'
+				                        }
+				                    },
+				                    nodeStyle : {
+				                        brushType : 'both',
+				                        borderColor : 'rgba(255,215,0,0.4)',
+				                        borderWidth : 1
+				                    },
+				                    linkStyle: {
+				                        type: 'curve'
+				                    }
+				                },
+				                emphasis: {
+				                    label: {
+				                        show: false
+				                        // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+				                    },
+				                    nodeStyle : {
+				                        //r: 30
+				                    },
+				                    linkStyle : {}
+				                }
+				            },
+				            useWorker: false,
+				            minRadius : 20,
+				            maxRadius : 40,
+							coolDown: 0.995,
+				            gravity: 1.5,
+				            scaling: 1.1,
+							linkSymbol: 'arrow',
+							draggable: true,
+				            nodes:nodesArr_,
+				            links:linksArr_
+				        }
+				    ]
+					};
+
+				rankChart.setOption(rankoption);
+            }
+	
+        );
+        
+        
+        
+     
+
+</script>
+
+<script type="text/javascript">
+	// 时段分布
+	    var chart;
+	    var hour_ = $("#hourData").val();
+	    var hourArr_ = eval("("+hour_+")");
+        chart = new Highcharts.Chart({ 
+            chart: {
+             		renderTo: 'hour-container',  
+                	type: 'column'
+            },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                type: 'category',
+                labels: {
+                    rotation: -45,
+                    style: {
+                        fontSize: '13px',
+                        fontFamily: 'Verdana, sans-serif'
+                    }
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: '用户指数'
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            tooltip: {
+                pointFormat: '用户指数: <b>{point.y}</b>',
+            },
+			credits: {
+				enabled: false
+			},
+            series: [{
+                name: '时段分布',
+                data: hourArr_,
+                dataLabels: {
+                    enabled: false,
+                    rotation: -90,
+                    color: '#FFFFFF',
+                    align: 'right',
+                    x: 4,
+                    y: 10,
+                    style: {
+                        fontSize: '10px',
+                        fontFamily: 'Verdana, sans-serif',
+                        textShadow: '0 0 3px black'
+                    }
+                }
+            }]
+        });
+
+// 周访频度
+        var chart;
+        var week_ = $("#weekData").val();
+	    var weekArr_ = eval("("+week_+")");
+        chart = new Highcharts.Chart({ 
+            chart: {
+            	renderTo: 'week-freq-container',
+                type: 'column'
+            },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                type: 'category',
+                labels: {
+                    rotation: -45,
+                    style: {
+                        fontSize: '13px',
+                        fontFamily: 'Verdana, sans-serif'
+                    }
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: '用户指数'
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            tooltip: {
+                pointFormat: '用户指数: <b>{point.y}</b>',
+            },
+			credits: {
+				enabled: false
+			},
+            series: [{
+                name: '周访频度',
+                data: weekArr_,
+                dataLabels: {
+                    enabled: false,
+                    rotation: -90,
+                    color: '#FFFFFF',
+                    align: 'right',
+                    x: 4,
+                    y: 10,
+                    style: {
+                        fontSize: '10px',
+                        fontFamily: 'Verdana, sans-serif',
+                        textShadow: '0 0 3px black'
+                    }
+                }
+            }]
+        });
+</script>
+
+#end

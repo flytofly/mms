@@ -1,0 +1,211 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>规则列表</title>
+<link href="<%=request.getContextPath()%>/resource/templates/basic/css/css.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/resource/templates/basic/css/style.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/resource/templates/basic/css/mainframe.css" rel="stylesheet" type="text/css" />
+<script src="<%=request.getContextPath()%>/resource/jquery/jquery-1.9.1.js"></script>
+<script src="<%=request.getContextPath()%>/resource/js/My97DatePicker/WdatePicker.js"></script>
+<link href="<%=request.getContextPath()%>/resource/jquery/jquery-validation/css/validationEngine.jquery.css" rel="stylesheet" type="text/css"/>
+<script src="<%=request.getContextPath()%>/resource/jquery/jquery-validation/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+<script src="<%=request.getContextPath()%>/resource/jquery/jquery-validation/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+  <style type="text/css">
+ td {overflow:hidden; text-overflow:ellipsis;}
+ </style>
+</head>
+<body onload="on_load();">
+<div id="mainpage" class="glist_main">
+ <div id="divOverflown">
+	<form name="form" id="form"  method="post" action="<%=request.getContextPath()%>/domain/urlrule/rlist" style="position:relative;">
+	 <h1>
+		<img src="<%=request.getContextPath()%>/resource/templates/basic/images/ico07.gif" /> 
+          <label>规则：</label>  
+          <input type="text" name="rule" size="12" value="${record.rule}" id="rule" class="input"/>  
+           <label style="padding: 0;">规则说明：</label>  
+          <input type="text" name="desc" size="12" value="${record.desc}" id="desc" class="input"/>  
+        	 <select id = "level1Id" name="level1Id" class="validate[required]" onchange="loadlevel2();">
+		    		<option selected="selected" value="">一级分类</option>
+		    	</select>
+		    	<select id = "level2Id" name="level2Id" class="validate[required]"  onchange="loadlevel3();">
+		    		<option selected="selected" value="">二级分类</option>
+		    	</select>
+		    	<select id = "level3Id" name="record.level3Id" class="validate[required]">
+		    		<option selected="selected" value="">三级分类</option>
+		    	</select>
+        <input name="Submit" type="submit" class="right-button02" value="查 询"  onclick="return clickSubmit();" />&nbsp;
+    </h1> 
+    <div class="list">
+      <table width="100%" border="0" style="table-layout:fixed">
+              <tr>
+              <th width="5%">选择</th>
+	           <th width="20%">规则</th>
+	           <th width="20%">规则说明</th>
+	           <th width="15%">行业</th> 
+	           <th width="25%">添加时间</th>
+	           <th width="10%">状态</th> 
+	           <c:if test="${suser.customer_type==9 || suser.customer_type==1 }">
+	           <th width="10%">操作</th> 
+	           </c:if>
+              </tr>
+	 
+	 <c:forEach items="${records.list}" var="r">
+	          <tr>
+	          <td><input type="checkbox" class="chk"  onclick="addRules(this,'${r.desc }','${r.ruleId }','${r.rule }','${r.status }');"/></td>
+	           <td title="${r.rule }">${r.rule }</td>
+	           <td title="${r.desc }">${r.desc }</td>
+	           <td>${r.level3Name }</td>
+	           <td>${r.createDate }</td>
+	          <td >
+	          <c:if test="${r.status==0}">未审核</c:if>
+	          <c:if test="${r.status==1}">有效</c:if>
+	          <c:if test="${r.status==2}">审核不通过</c:if>
+			 </td>
+			 <c:if test="${suser.customer_type==9 || suser.customer_type==1 }">
+			 <td>
+			 <a class="green" onclick="return deleteRule(${r.level4Id},${r.ruleId});" href="#" >删除</a>
+			 </td>
+			 </c:if>
+	          </tr>
+	</c:forEach>
+        </table>
+        &nbsp;<input type="button" onclick="checkAll();" value="全选" />
+        &nbsp;<input type="button" onclick="closeOpen();" value="关闭" />
+      </div>  
+       <!--分页-->
+   	    <!--分页 END-->
+    </form>
+    </div>
+   	 
+<script type="text/javascript">
+$(function(){
+	jQuery('#form').validationEngine('attach', {
+	    relative: true,
+	    overflownDIV: '#divOverflown',
+	    promptPosition: 'bottomLeft'
+	  });
+	//获取一级列表
+	if($("#level1Id").children("option").length == 1){
+		$.post("<%=request.getContextPath()%>/getLevel1ByBid?bid=1",function(data){
+			var records = data.level1s;
+			var length = records.length;
+			$("#level1Id").children("option[value!='']").remove();
+			if(records != null){
+				for(var i=0;i<length;i++){
+					$("<option/>").attr("value",records[i].level1Id).text(records[i].level1Name).appendTo($("#level1Id"));
+				}
+				$("#level1Id").val('${record.level1Id}');
+				loadlevel2();
+			}
+		},"JSON");
+	}
+	 
+});
+/*
+加载二级
+*/
+function loadlevel2(){
+		var level1Id = $("#level1Id").val();
+		$.post("<%=request.getContextPath()%>/getLevel2ByLevel1Id?level1Id="+level1Id,function(data){
+			var records = data.level2s;
+			var length = records.length;
+			$("#level2Id").children("option[value!='']").remove();
+			if(records != null){
+				for(var i=0;i<length;i++){
+					$("<option/>").attr("value",records[i].level2Id).text(records[i].level2Name).appendTo($("#level2Id"));
+				}
+				$("#level2Id").val('${record.level2Id}');
+				loadlevel3();
+			}
+		},"JSON");
+		$("#level3Id").children("option[value!='']").remove();
+}
+
+/*
+加载三级
+*/
+function loadlevel3(){
+		var level2Id = $("#level2Id").val();
+		$.post("<%=request.getContextPath()%>/getLevel3ByLevel2Id?level2Id="+level2Id,function(data){
+			var records = data.level3s;
+			var length = records.length;
+			$("#level3Id").children("option[value!='']").remove();
+			if(records != null){
+				for(var i=0;i<length;i++){
+					$("<option/>").attr("value",records[i].level3Id).text(records[i].level3Name).appendTo($("#level3Id"));
+				}
+				$("#level3Id").val('${record.level3Id}');
+			}
+		},"JSON");
+}
+
+	function addRules(t,desc,ruleId,urlRule,status){
+ 		var chked = $(t).attr("checked");
+		if(chked!="checked"){
+			return;
+		}
+		var statusName = '';
+		if(status==0){
+			statusName='未审核';
+		 }else if(status==1){
+			statusName='有效'; 
+		 }else if(status==2){
+			statusName='审核不通过';
+		 }
+		var tbodyurlrules = window.opener.document.getElementById("tbodyurlrules");
+		var str = '<tr><td>&nbsp;'+desc+'<input  type="hidden" name="urlRuleIds" value="'+ruleId+'" /> <input  type="hidden" name="descs" value="'+desc+'" /></td>';
+		str+='<td title="'+urlRule+'">&nbsp;<input type="text" name="urlRules" readonly="readonly" size="45" value="'+urlRule+'"/> </td>';
+		str+='<td style="text-align: center;">&nbsp;'+
+		statusName  +'<input  type="hidden" name="statuss" value="'+status+'" /></td>'; 
+		str+='<td>&nbsp;<input type="button" value="删除" onclick="removerule(this)"></td></tr>'; 
+		 $(tbodyurlrules).append(str);
+	}
+	
+	function checkAll(){ 
+			$(".chk").each(function(i,item){ 
+				var chk = $(item).attr("checked");
+				if(chk!="checked"){
+					 $(item).attr("checked","checked");
+				}else{
+					$(item).removeAttr("checked");
+				};
+				if($(item).attr("checked")=="checked"){
+ 					$(item).click();
+ 					$(item).attr("checked","checked");
+				}
+			});
+	}
+	
+	function closeOpen(){
+		window.close();
+	}
+	
+	function clickSubmit(){
+		if(jQuery('#form').validationEngine('validate')){
+		    var hasClick = $("#has_clicked").val();
+			if("1"== hasClick){
+			    window.alert("表单页面不能重复提交，30秒钟后请提交该页面！");
+			    setTimeout('if($("#has_clicked")){ $("#has_clicked").val("0");}',10000);
+			    return false;
+			}
+			$("#has_clicked").val("1");
+			$('#form').submit();
+		}
+	}
+	
+	function deleteRule(level4Id,ruleId){
+		var paras = $("form").serialize();
+		paras+="&level4Id="+level4Id;
+		paras+="&ruleId="+ruleId;
+		alert(paras);
+		location.href="<%=request.getContextPath()%>/domain/urlrule/delrule?"+paras;
+	}
+</script>   	 
+   	 
+</body>
+</html> 

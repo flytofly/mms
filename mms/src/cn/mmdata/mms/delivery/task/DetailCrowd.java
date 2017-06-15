@@ -1,0 +1,36 @@
+package cn.mmdata.mms.delivery.task;
+
+import java.util.List;
+
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Model;
+import com.jfinal.plugin.activerecord.Record;
+
+public class DetailCrowd extends Model<DetailCrowd>{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	public static DetailCrowd dao = new DetailCrowd();
+	public List<Record> findByDetailID(int detailid){
+		String sql ="select b.cid,b.cname from  cy_business.cy_business_project_detail_crowd a,"
+				+ "mms.crowd b where a.detail_id =? and a.cid=b.cid";
+		return Db.find(sql,detailid);
+	}
+	
+	public boolean deleteTaskCrowdByTaskId(int detail_id) {
+		boolean flag =true;
+		try{
+			String sql = "delete from cy_business.cy_business_project_detail_crowd where detail_id = ?";
+			Db.use("zhijian").update(sql, detail_id);
+			String sql1= "delete from cy_business.cy_business_project_sskw where detail_id =?";
+			Db.use("zhijian").update(sql1,detail_id);
+		}catch(Exception e){
+			flag =false;
+			e.printStackTrace();
+		}
+		return flag;
+	}
+	
+}

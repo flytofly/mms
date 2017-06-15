@@ -1,0 +1,17 @@
+#define header()
+<!--头部-->
+	<div class="topbg">
+    <div class="topinfo">
+        <div class="system-name">#(URLTitle)</div>
+        <div class="top-link">
+            <ul>
+                <li class="welcome">
+                    <h5>#(session.suser.customer_name)</h5>
+                    <p>#(session.suserBusiness.business_name)</p>
+                </li>
+                <li><a href="location.href='#(BasePath)/loginout'">注销</a></li>
+            </ul>            
+        </div>
+    </div>
+	</div>
+#end

@@ -1,0 +1,49 @@
+#define paginate(currentPage, totalPage, link)
+<script>
+var totalRow = #(records.totalRow); 
+var pageSize = #(records.pageSize);
+function gotoPage(page){
+	setPage(page);
+	document.getElementById("form").submit();
+}
+function setPage(page){
+	var pageCount = parseInt(totalRow/pageSize) + 1;
+	if(totalRow%pageSize==0){
+		pageCount=parseInt(totalRow/pageSize);
+	}
+	if(page <= 0){
+		page = 1;
+	}
+	if(page > pageCount){
+		page = pageCount;
+	}
+	document.getElementById("pageNumber").value = page;
+}
+</script>
+  
+  
+	<style>
+		.h_pagelist { width:95%; height:20px; font-family:"Microsoft YaHei"; margin:0 auto; line-height:20px; color:#333; font-size:14px; text-align:center; }
+		.h_pagelist span { height:20px; float:left; }
+		.h_pagelist span em { float:left; margin-right:10px; font-style:normal; }
+		.h_pagelist ul { float:right; }
+		.h_pagelist ul li { float:left; margin-left:10px; }
+		.h_pagelist ul li input { width:30px; text-align:center; }
+    </style>
+      
+	<div class="page-info clearfix">
+		<input type="hidden" id="pageNumber" name="pageNumber" value="#(records.pageNumber)" />
+		<div class="count">共 #(records.totalPage)页&nbsp;第 #(records.pageNumber)页&nbsp;总 #(records.totalRow) 条</div>
+        <div class="pages">
+            <a href="#" onClick="gotoPage(1)">首页</a>
+            <a href="#" onClick="gotoPage(#(records.pageNumber)-1)">上一页</a>
+            <a href="#" onClick="gotoPage(#(records.pageNumber)+1)">下一页</a>
+            <a href="#" onClick="gotoPage(#((records.totalRow + records.pageSize - 1 - (records.totalRow + records.pageSize - 1)%records.pageSize)/records.pageSize))">末页</a>
+            <span class="skip-page">第 <input type="text" id="gotoPageNumber" name="gotoPageNumber" value="#(records.pageNumber)" onChange="setPage(this.value)"> 页</span>
+            <input type="button" class="skip-btn" value="跳转" onclick="gotoPage(document.getElementById('gotoPageNumber').value)">
+         </div>
+	</div>
+  
+  
+   	    <!--分页 END-->
+ #end

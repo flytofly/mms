@@ -1,0 +1,184 @@
+#@layout()
+#define main()
+    <link href="#(BasePath)/public/css/main.css" rel="stylesheet" type="text/css" />        
+    <link href="#(BasePath)/public/css/jquery-ui.css" rel="stylesheet" type="text/css" />
+    
+
+<script>
+
+	jQuery(document).ready(function(){
+		jQuery("#cform").validationEngine('attach');
+	});
+	function clickSubmit(){
+		if(jQuery('#cform').validationEngine('validate')){
+			$('#cform').submit();
+		}else{
+		}
+	}
+</script>
+
+
+        <div class="crumbs">
+            <a href="javascript:history.back()" class="back">< 返回</a>
+            <span class="title">新建任务</span>
+        </div>
+        <div class="main-box">
+            <div class="material">
+                <dl>
+                    <dt>任务名</dt>
+                    <dd><input type="text" placeholder="请输入任务名称" class="txt validate[required] re_input" ></dd>
+                    <dt>选择人群</dt>
+                    <dd id="selectRq">
+                        <div class="select-rq">
+                            <div class="click-box">选择人群<span class="arr-icon"></span></div>
+                            <div class="drop-down-box">
+                                <div class="search-rq">
+                                    <input type="text" placeholder="按人群名搜索">
+                                    <input type="submit" value="" class="s-btn">
+                                </div>
+                                <div class="s-result">
+                                    <ul>
+                                        <li>李雷的人群1</li>
+                                        <li>专车类人群</li>
+                                        <li>场景人群</li>
+                                        <li>有钱的人</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="selected">已选择：<span class="t">李雷的人群1</span></div>
+                    </dd>
+                    <dt>选择投放方式</dt>
+                    <dd>
+                        <ul>
+                            <li><label><input type="radio" name="m-type">外呼坐席</label></li>
+                            <li><label><input type="radio" name="m-type">短信</label></li>                       
+                        </ul>
+                    </dd>
+                    <dt>选择投放素材</dt>
+                    <dd class="choose-sc clearfix">
+                        <div class="select-box fl">
+                            <div class="choose-data" style="width:120px;">
+                                <span>选择素材</span>
+                                <i class="arr-icon"></i>
+                            </div>
+                            <div class="drop-datas">
+                                <ul>
+                                    <li>选择素材</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </dd>
+                    <dt>素材预览</dt>
+                    <dd>
+                        <iframe src="" frameborder="0" class="material-preview"></iframe>
+                    </dd>
+                </dl>
+                <div class="people-num">
+                    预计可触达人数<span class="num">100000</span>
+                </div>
+                <dl>
+                    <dt>设置任务开始日期</dt>
+                    <dd>
+                        <input type="text" placeholder="选择时间的控件（精确到日期）" class="date" id="startDate">
+                    </dd>
+                    <dt>设置任务结束日期</dt>
+                    <dd>
+                        <input type="text" placeholder="选择时间的控件（精确到日期）" class="date" id="endDate">
+                    </dd>
+                    <dt>设置任务每日执行时间段</dt>
+                    <dd>
+                        <input type="text" placeholder="选择时间的控件（精确到小时）" class="date" id="time">
+                    </dd>
+                    <dt>设置每日上限</dt>
+                    <dd>
+                        <input type="text" placeholder="请输入大于0的整数" class="txt">
+                    </dd>
+                    <dt>设置优先级</dt>
+                    <dd>
+                        <input type="text" placeholder="请输入0~99整数" class="txt">
+                    </dd>
+                </dl>
+            </div>
+            <div class="create-renqun-submit">
+                <input type="submit" value="确认提交">
+            </div>
+        </div>
+
+     <script type="text/javascript" src="#(BasePath)/public/js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="#(BasePath)/public/js/jquery.placeholder.min.js"></script>
+      <script type="text/javascript" src="#(BasePath)/public/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="#(BasePath)/public/js/jquery-ui-slide.min.js"></script>
+    <script type="text/javascript" src="#(BasePath)/public/js/jquery-ui-timepicker-addon.min.js"></script>
+    <script src="#(BasePath)/public/js/main.js"></script>
+  
+
+
+    <script type="text/javascript">
+    $(function(){
+        $('input, textarea').placeholder();
+        $.selectBox();
+        $("#startDate").prop("readonly", true).datepicker({
+                changeMonth: true,
+                dateFormat: "yy-mm-dd",
+                onClose: function(selectedDate) {
+                }
+            });
+        $("#endDate").prop("readonly", true).datepicker({
+                changeMonth: true,
+                dateFormat: "yy-mm-dd",
+                onClose: function(selectedDate) {
+                }
+            });
+        $('#time').datetimepicker();
+
+    });
+    </script>
+    
+    <script>
+    $(function(){
+        //选择人群
+        var sParent = $('#selectRq');
+        var clickItem = sParent.find('.click-box');
+        var dropDownBox = sParent.find('.drop-down-box');
+        var rep = sParent.find('.selected .t');
+        var searchRq = sParent.find('.search-rq');
+        var rDatas;
+        clickItem.click(function(e){
+            e.stopPropagation();
+            var has = dropDownBox.hasClass('show');
+            if(!has){
+                dropDownBox.addClass('show');
+            }
+            else{
+                dropDownBox.removeClass('show');
+            }
+        }); 
+
+        //搜索出数据后
+        
+        rDatas = sParent.find('.s-result li');
+        rDatas.click(function(e){            
+            e.stopPropagation();
+            var getData = $(this).text();
+            rep.text(getData);
+            dropDownBox.removeClass('show');;
+
+        });
+
+        searchRq.click(function(e){
+            e.stopPropagation();
+        });
+
+        $('html,body').click(function(){
+            dropDownBox.removeClass('show');
+        });
+
+
+    });
+    </script>
+
+
+
+
+#end

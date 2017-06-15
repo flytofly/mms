@@ -1,0 +1,88 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>统计优化</title>
+<script src="#(BasePath)/public/jquery/js/jqsel.js"></script>
+<script src="#(BasePath)/public/My97DatePicker/WdatePicker.js"></script>
+</head>
+<body>
+	<div class="main-box">
+	  <!-- 页面的标题 -->
+		<div class="filter pad-10 clearfix">
+            <ul>
+                <li>
+                    <input type="text" value="" placeholder="按任务名称搜索" class="n-bordr">
+                    <input type="submit" class="search-icon">
+                </li>
+                <li>
+				    #if(session.suser.customer_type !=4)
+			         <input style="margin-left:0;" type="text" name="business_name" maxlength="50" value="#(record.business_name)" placeholder="按企业搜索" id="search" class="tx-con-form-tet" />			              
+			        #end
+					<input style="margin-left:0;" type="text" name="detail_name" maxlength="50" value="#(record.detail_name)" placeholder="按任务名搜索" id="search" class="tx-con-form-tet" />			              
+					<select style="width:120px;" name="out_type">
+						<option value="" #if(record.out_type== null)  selected #end>选择投放方式</option>
+						<option value="1" #if(record.out_type== '1') selected #end>坐席</option>
+						<option value="2" #if(record.out_type== '2') selected #end>短信</option>
+						<option value="3" #if(record.out_type== '3') selected #end>DSP</option>
+					</select>				
+					<select style="width:120px;" name="status"> 
+						<option value="" #if(record.status == null)  selected #end>选择执行状态</option>
+						<option value="1" #if(record.status == '1') selected #end>在执行</option>
+						<option value="2" #if(record.status == '2') selected #end>已结束</option>
+					</select> 
+                </li>
+            </ul>
+            <ul class="fr">
+                <li class="normal-box">下载报表</li>
+            </ul>
+		</div>
+	 <!-- 条件筛选框的位置 -->
+	  <form action="./list" id="form" method="post">
+		<div class="datas">
+			<table cellspacing="0" cellpadding="0">
+				<tr style="height:40px;">
+					<th style="width:40px;">序号</th>
+					#if(session.suser.customer_type !=4)
+						<th>所属企业</th>
+					#end
+					<th>任务名</th>
+					<th>状态</th>
+					<th>投放方式</th>
+					<th>任务上限</th>
+					<th>每日上限</th>
+					<th>已投放总量</th>
+					<th>总转化率</th>
+					<th>操作</th>
+				</tr>
+				#for(record:records.getList())
+				 <tr  onmouseout="this.style.backgroundColor='#ffffff';"
+					onmouseover="this.style.backgroundColor='#E6F2FF'">
+					<td>#(for.index+1)</td>
+					#if(session.suser.customer_type !=4)
+						<td>#(record.business_name )</td>
+					#end
+					<td>#(record.detail_name)</td>
+						<td>#if(record.status == 1)在执行#end #if(record.status ==
+						2)已结束#end</td>
+					<td>#if(record.out_type == 1)坐席#end #if(record.out_type ==
+						2)短信#end #if(record.out_type ==
+						3)DSP#end</td>
+					<td>#(record.canpick_number )</td>
+					<td>#(record.canpick_day )</td>
+					<td>#(record.sum_picknumber )</td>
+					<td>#(record.sum_zhl ) %</td>
+					<td><a class="green" href="./detailList?detail_id=#(record.detail_id)&out_type=#(record.out_type)" style="color: #1a85c1">查看详情</a>
+					</td>
+				</tr>
+				#end
+			</table>
+		</div>
+<!--分页-->
+#@paginate(records.pageNumber, records.totalPage, "")
+<!--分页 END-->
+    </form>
+</div>
+</body>
+
+#end

@@ -1,0 +1,203 @@
+#@layout()
+#define main()
+
+<script>
+function link(){
+	window.location="#(uri)/task/edit";
+}
+function deleteConfirm(){
+	return confirm("你确定要删除该条记录吗？");
+}
+</script>
+
+	<div class="main-box">
+	  <!-- 页面的标题 -->
+		<div class="filter pad-10 clearfix">
+			<ul>
+			<li><input style="margin-left:0;" type="text" name="businessname" maxlength="50" value="#(record.businessname)" placeholder="按企业名称搜索" id="search" class="tx-con-form-tet" /></li>
+			#if(session.suser.customer_type !=4)
+			<li><input style="margin-left:0;" class="tx-con-form-tet" type="text" name="record.log_name" size="12"  maxlength="24" value="#(record.log_name)" placeholder="按添加人搜索" id="" /></li>
+			#end
+			<li><input class="tx-con-form-tet" type="text" name="record.detail_name" size="12"  maxlength="24" value="#(record.detail_name)" placeholder="按任务名搜索" id="" />
+			<li><select class="validate[required] input-xlarge" id="" name="record.project_type" >
+									<option value="">选择投放方式</option>
+									<option value="2"
+										#if(record.project_type==2 ) selected="selected"#end>短信</option>
+									<option value="1"
+										#if(record.project_type==1 ) selected="selected"#end>外呼坐席</option>
+					</select> </li>
+            <li><select class="validate[required] input-xlarge" id="" name="record.status" >
+									<option value="">选择审核状态</option>
+									<option value="0"
+										#if(record.status==0 ) selected="selected"#end>待审核</option>
+									<option value="1"
+										#if(record.status==1 ) selected="selected"#end>审核通过</option>
+									<option value="2"
+										#if(record.status==2 ) selected="selected"#end>审核不通过</option>
+								</select> </li>
+            <li><select class="validate[required] input-xlarge" id="" name="record.use_status" >
+									<option value="">选择使用状态</option>
+									<option value="1"
+										#if(record.use_status==1 ) selected="selected"#end>启用</option>
+									<option value="2"
+										#if(record.use_status==2 ) selected="selected"#end>停用</option>
+								</select> </li>
+				</ul>
+			</div>
+			<!--内容筛选-->
+            
+		<form name="form" id="form" action="list">
+			<!--内容信息-->
+		<div class="datas">
+				<table  cellspacing="0" cellpadding="0">
+					<tr height="40px">
+						  <th width="40px"><input type="checkbox" id="check_all" onClick="checkAll();"/></th>
+						  #if(session.suser.customer_type !=4)
+							<th>所属企业</th>
+						  #end
+			              <th width="100px">任务名 </th>
+			              <!-- <th width="5%">任务描述 </th> -->
+			              <th width="140px">选择人群 </th>
+			              <th>投放方式</th>
+			              <th>投放素材</th>
+			          <!--     <th>任务上限</th> -->
+			              <th>每日上限</th>
+			              <!-- <th width="5%">开始日期</th>
+			              <th width="5%">结束日期</th> -->
+			              <th>优先级</th>
+			              <th>添加时间</th>
+			              <th>添加人</th> 
+			              <th>审核状态</th>
+			              <th>使用状态</th>
+<!-- 			              <th width="10%">最后处理时间</th> -->
+			              <th>操作</th>
+					</tr>
+			
+					 #for(r:records.getList())
+                    <tr onMouseOut="this.style.backgroundColor='#ffffff';" onMouseOver="this.style.backgroundColor='#E6F2FF'">
+               <td> 
+               <input type="checkbox" id="chk_#(r.detail_id )" class="ctaskIds"/>
+             </td>
+             #if(session.suser.customer_type !=4)
+				 <td>#(r.business_name )</td>
+			  #end
+              <td>#(r.detail_name )</td>
+              <td>
+              	#(r.cnames)
+              </td>
+              <td >
+              	#if(r.out_type == 2) <span title="短信">短信</span>#end
+            	#if(r.out_type == 1) <span title="外呼坐席">外呼坐席</span>#end
+             </td>
+              <td >#(r.name)</td>
+     <!--        <td >#(r.canpick_number)</td>  -->
+            <td >#(r.canpick_day)</td> 
+            <!-- <td >#(r.begindate)</td>
+            <td >#(r.enddate)</td> -->
+       <td >#(r.priority)</td>
+       <td> #(r.reg_time.toString().substring(0,19))</td>
+            <td >#(r.log_name)</td>  
+       <td > 	#if(r.status == 0) 待审核#end
+             	#if(r.status == 1) 审核通过#end 
+             	#if(r.status == 2) 审核不通过#end 
+       </td>
+       <td > 	#if(r.use_status == 1) 启用#end
+             	#if(r.use_status == 2) 停用#end 
+       </td>
+<!--                <td>#(r.lastuptime)</td> -->
+              <td >   <a class="green" href="./detail?taskid=#(r.detail_id)"> 查看</a>
+               #if(r.status != 1)
+	           |
+	           <a class="green" href="./edit?taskid=#(r.detail_id)"> 编辑</a>
+	           |	           
+	           <a class="green" href="./delete?taskid=#(r.detail_id)" onClick="return deleteConfirm();">删除</a>
+	           #end
+	           </td>
+            </tr>
+             #end
+				</table>
+			</div>
+			#@paginate(records.pageNumber, records.totalPage, "")
+		    </form>
+		</div>
+		</div>
+<script type="text/javascript">
+function checkAll(){
+	$(".ctaskIds").each(function(i,item){
+		if($("#check_all").attr("checked")=="checked"){
+			$(item).attr("checked","checked");
+		}else{
+			$(item).removeAttr("checked");
+		}
+	});
+}
+
+// 获取所有选中的taskid
+function getids(){
+	var ids = new Array();
+	$(".ctaskIds:checked").each(function(i,item){
+		 var id = $(item).attr("id").split("_")[1];
+		 ids.push(id);
+	});
+	return ids;
+}
+
+// 批量启用
+function batchtoEnabled(ids){
+	if(ids.length==0){
+		alert("未选择任何任务!");
+		return;
+	}
+	var r=confirm("确认要启用" + ids.length +"条任务吗？");
+	if(!r){
+		return;
+	}
+	$.post("./batchToEnabled", { taskids: ids.toString(),use_status:1},
+		function(data){
+		alert("成功启用: " + data +"条任务");
+		var para= $("#form").serialize() ;
+		location.href="./list?"+para;
+	});
+}
+
+function batchEnabled(){ 
+	var ids =  getids();
+	batchtoEnabled(ids); 
+}
+
+function batchDisabled(){ 
+	var ids =  getids();
+	batchtoDisabled(ids); 
+}
+
+//批量停用
+function batchtoDisabled(ids){
+	if(ids.length==0){
+		alert("未选择任何任务!");
+		return;
+	}
+	var r=confirm("确认要停用" + ids.length +"条任务吗？");
+	if(!r){
+		return;
+	}
+	
+	$.post("./batchToEnabled", { taskids: ids.toString(),use_status:2},
+		function(data){
+		alert("成功停用: " + data +"条任务");
+		var para= $("#form").serialize() ;
+		location.href="./list?"+para;
+	});
+}
+
+function setpickrequency(){
+	var taskids =  getids();
+	if(taskids==""){
+		alert("请选择规则！");
+		return;
+	}
+	window.open("#(uri)/task/editpickrequency?taskids="+taskids,"","width=800,height=600,location=no");
+}
+
+</script>
+ 
+#end

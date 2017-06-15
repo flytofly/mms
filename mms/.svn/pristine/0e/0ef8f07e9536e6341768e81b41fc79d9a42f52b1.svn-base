@@ -1,0 +1,68 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>规则统计</title>
+<script src="#(BasePath)/public/jquery/js/jqsel.js"></script>
+<script src="#(BasePath)/public/My97DatePicker/WdatePicker.js"></script>
+
+</head>
+<body>
+	<div class="tx-con">
+	  <!-- 页面的标题 -->
+		<div class="tx-con-bt">
+			<ul>
+				<li><a href="#(BasePath)/statis/statopti/detailList?detail_id=#(record.detail_id)&out_type=#(record.out_type)"><span>按日期统计</span></a></li>
+				<li><a href="#(BasePath)/statis/statopti/detailRuleList?detail_id=#(record.detail_id)&out_type=#(record.out_type)"><span><strong>按规则统计</strong></span></a></li>
+				<li><a href="#(BasePath)/statis/statopti/detailYhjy?detail_id=#(record.detail_id)&out_type=#(record.out_type)"><span>优化建议</span></a></li>
+			</ul>
+		</div>
+	 <!-- 条件筛选框的位置 -->
+	  <form action="#(BasePath)/statis/statopti/detailRuleList" id="form" method="post">
+	  <input type="hidden" name="out_type" value="#(record.out_type)">
+	  <input type="hidden" name="detail_id" value="#(record.detail_id)">
+<!-- 		<div class="tx-con-form"> -->
+		  <!--  占位的横线  -->
+<!-- 		  <input class="tx-con-form-sub" style="margin-left: 20px;" type="submit" value="筛选" /> -->
+<!-- 		  <div class="cle"></div> -->
+<!--         </div> -->
+	<!--列表的详细信息 -->
+		<div class="tx-con-xx">
+			<table >
+				<tr style="height:40px;">
+					<th style="width:40px;">序号</th>
+					<th>规则编号</th>
+					<th>规则说明</th>
+					<th>反馈数</th>
+					<th>意向量</th>
+					<th>转化率</th>
+					<th>意向A</th>
+					<th>意向B</th>
+					<th>意向C</th>
+<!-- 					<th>操作</th> -->
+				</tr>
+				 #for(record:records.getList())
+				 <tr  onmouseout="this.style.backgroundColor='#ffffff';"
+					onmouseover="this.style.backgroundColor='#E6F2FF'">
+					<td>#(for.index+1)</td>
+					<td>#(record.ruleId )</td>
+					<td>#(record.desc )</td>
+					<td>#(record.allnum)</td>
+					<td>#(record.yxnum)</td>
+					<td>#(record.zhl)%</td>
+					<td>#(record.yxanum)</td>
+					<td>#(record.yxbnum)</td>
+					<td>#(record.yxcnum)</td>
+<!-- 					<td>&nbsp;</td> -->
+				</tr>
+				#end
+			</table>
+		</div>
+<!--分页-->
+#@paginate(records.pageNumber, records.totalPage, "")
+<!--分页 END-->
+    </form>
+</div>
+</body>
+
+#end

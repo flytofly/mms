@@ -1,0 +1,208 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>导入规则</title>
+<script>
+function downloadTemplate(){
+	window.location="#(uri)/resource/excel/urlRuleTemp_import.xls";
+}
+function deleteConfirm(){
+	return confirm("你确定要删除该条记录吗？");
+}
+
+//导入结果提醒
+$(document).ready(function(){
+	var a = "#(importResult )";
+	if(a != ""){
+		alert("成功导入"+a+"条！");
+	 }
+});
+
+function importToTemp(){
+	var file = $("#uploadFile").val();
+	if(file == null || file == '' || file == undefined || !file.endsWith('.xls')){
+		alert('上传文件必须为  .xls 或者 .xlsx 格式！');
+		return false;
+	}
+	$("#form").attr("action","importUrlRule");
+	$("#form").attr("enctype","multipart/form-data"); 
+	$("#form").submit();
+	return true;
+}
+</script>
+<!-- <link href="#(tp)/public/css/list.css" rel="stylesheet" type="text/css">
+ --><script src="#(uri)/public/jquery/js/jqsel.js"></script>
+</head>
+
+<body>
+<div class="tx-con">
+	  <!-- 页面的标题 -->
+		<div class="tx-con-bt">
+			<!-- <ul>
+				<li><a href="#"><span>DMP规则</span></a></li>
+				<li><a href="#">&gt; 提交规则</a></li>
+			</ul> -->
+		</div>
+<style type="text/css">
+.file-box{ position:relative; float:left;}
+.txt{ font-size:12px; height:30px; width:180px; border:1px solid #dadada; border-radius:5px; }
+.file{ position:absolute; top:0; left:0; height:32px; filter:alpha(opacity:0);opacity: 0; }
+</style>
+ <!-- 条件筛选框的位置 -->
+<form name="form" id="form" action="./templist" method="post">
+    <div class="tx-con-form">
+         <input style="margin-left:0;" name="new" type="button" value="下载模板" onClick="downloadTemplate();" class="tx-con-form-sub"/>
+         <div style="float: right;">
+            <input name="uploadFile" type="file" id="uploadFile" style="border: 1px solid #dadada;border-radius: 5px;display: inline-block;height: 30px;"/>
+            <!-- <div class="file-box">
+             	<input type='text' value="请选择文件" name='textfield' id='textfield' class='txt' />
+                <input type="file" name="fileField" class="file" id="fileField" size="28" onchange="document.getElementById('textfield').value=this.value" />
+            </div> -->
+         	<input type="button" onClick="importToTemp()" value="导入临时表" class="tx-con-form-sub"/>
+         	<input type="button" value="确定导入" class="tx-con-form-sub"/>
+         </div>
+         <div class="cle"></div>
+         
+     </div>
+<!--  占位的横线  -->
+	
+      <div class="tx-con-xx">
+			<table cellspacing="0" cellpadding="0">
+            <tr>
+              <th width="15%">规则</th>
+	          <th width="10%">行业</th>
+	          <th width="15%">规则说明</th>
+	          <th width="15%">是否可以导入</th>
+	          <th width="15%">不能导入的原因</th>
+            </tr>
+            #for(record:records.getList())
+            <tr class="listtr" onMouseOut="this.style.backgroundColor='#ffffff';" onMouseOver="this.style.backgroundColor='#E6F2FF'">
+               <td> #(record.urlRule)</td>
+	           <td> #(record.level3Name)</td>
+	           <td> #(record.desc)</td>
+	           <td> 
+	            #if(record.status == 1) 可以导入 #end
+	          	#if(record.status != 1) <font color="red">不可以导入</font>#end
+	           </td>
+	            <td>
+	            <!-- 状态{1:可以导入,2:和本次重复,3:行业不存在,4:规则错误,5:历史已存在} -->
+	          	 #if(record.status==1) <font color="red">可以导入</font> #end
+	          	 #if(record.status==2) <font color="red">和本次重复</font> #end
+	          	 #if(record.status==3) <font color="red">行业不存在</font> #end
+	          	 #if(record.status==4) <font color="red">规则错误</font> #end
+	          	 #if(record.status==5) <font color="red">历史已存在</font> #end
+	           </td>
+            </tr>
+            #end
+</table>
+   </div>  
+   <!--分页start -->
+      #@paginate(records.pageNumber, records.totalPage, "") 
+   <!--分页end -->
+</form>
+</div>
+<script type="text/javascript">
+function rulecheck(ruleId){
+	var ruleids = new Array();
+	ruleids.push(ruleId);
+	batchtoCheck(ruleids);
+}
+
+// 选中所有规则
+function checkAll(){
+	$(".rulecheckbox").each(function(i,item){
+		if($("#check_all").attr("checked")=="checked"){
+			$(item).attr("checked","checked");
+		}else{
+			$(item).removeAttr("checked");
+		}
+	});
+}
+
+// 获取所有选中的规则id
+function getruleids(){
+	var ruleids = new Array();
+	$(".rulecheckbox:checked").each(function(i,item){
+		 var id = $(item).attr("id").split("_")[1];
+		 ruleids.push(id);
+	});
+	return ruleids;
+}
+
+// 批量审核
+function batchCheck(){ 
+	var ruleids =  getruleids();
+	batchtoCheck(ruleids); 
+}
+
+// 批量变更规则为不可用
+function batchUnused(){
+	var ruleids =  getruleids();
+	batchtoUnused(ruleids);
+	 
+}
+
+// 批量变更规则为可用
+function batchUsed(){
+	var ruleids =  getruleids();
+	batchtoUsed(ruleids); 
+}
+
+// 批量审核
+function batchtoCheck(ruleids){
+	if(ruleids.length==0){
+		alert("未选择任何URL规则!");
+		return;
+	}
+	var r=confirm("确认要审核" + ruleids.length +"条为通过吗？");
+	if(!r){
+		return;
+	}
+	$.post("./batchtoCheck", { ruleIds: ruleids.toString()},
+		function(data){
+		alert("成功审核: " + data +"条规则");
+		var para= $("form").serialize() ;
+		location.href="./list?"+para;
+	});
+}
+
+// 批量不使用
+function batchtoUnused(ruleids){
+	if(ruleids.length==0){
+		alert("未选择任何URL规则!");
+		return;
+	}
+	var r=confirm("确认要变更" + ruleids.length +"条规则为不可用吗？");
+	if(!r){
+		return;
+	}
+	$.post("./batchtoUnused", { ruleIds: ruleids.toString() },
+		function(data){
+		alert("成功变更: " + data +"条规则为不可用");
+		var para= $("form").serialize();
+		location.href="./list?"+para;
+	});
+}
+
+// 批量使用
+function batchtoUsed(ruleids){
+	if(ruleids.length==0){
+		alert("未选择任何URL规则!");
+		return;
+	}
+	var r=confirm("确认要变更" + ruleids.length +"条规则为可用吗？");
+	if(!r){
+		return;
+	}
+	$.post("./batchtoUsed", { ruleIds: ruleids.toString() },
+		function(data){
+	    alert("成功变更: " + data +"条规则为可用");
+	    var para= $("form").serialize() ;
+		location.href="./list?"+para;
+	});
+}
+</script>
+</body>
+</html> 
+#end

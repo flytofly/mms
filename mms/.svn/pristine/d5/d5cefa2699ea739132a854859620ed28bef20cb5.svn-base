@@ -1,0 +1,17 @@
+#define footer()
+   <div class="tx-foot" >
+   <p>
+   #if(URLPath.equals("basic"))
+	 CopyRight @2014-<span id="curentYear"></span>
+   #end
+  </p>
+   <p style=" margin-top:4px;">
+      	@版权所有&nbsp;&nbsp;  #(URLInfo)
+   </p>
+   </div>
+   <script type="text/javascript">
+     var date=new Date();
+     var year=date.getFullYear();
+     $("#curentYear").text(year);
+   </script>
+#end

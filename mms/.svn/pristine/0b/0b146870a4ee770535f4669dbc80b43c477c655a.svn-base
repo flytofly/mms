@@ -1,0 +1,456 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>定制规则</title>
+<script src="#(uri)/public/setrule/zTree_v3-master/js/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="#(uri)/public/setrule/js/jquery-1.7.1.js"></script>
+<script type="text/javascript" src="#(uri)/public/setrule/jqgrid/js/jquery.jqGrid.src.js"></script>
+<script type="text/javascript" src="#(uri)/public/setrule/jqgrid/js/i18n/grid.locale-cn.js"></script>
+<script type="text/javascript" src="#(uri)/public/setrule/zTree_v3-master/js/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="#(uri)/public/setrule/zTree_v3-master/js/jquery.ztree.excheck.js"></script>
+<link rel="stylesheet" href="#(uri)/public/setrule/zTree_v3-master/css/demo.css" type="text/css" />
+<link rel="stylesheet" href="#(uri)/public/setrule/zTree_v3-master/css/zTreeStyle/zTreeStyle.css" type="text/css" />
+<link rel="stylesheet" href="#(uri)/public/setrule/jqgrid/css/ui.jqgrid.css" />
+<link rel="stylesheet" href="#(uri)/public/setrule/jqgrid/css/css/redmond/jquery-ui-1.8.16.custom.css" />
+
+<style type="text/css">
+.look {
+     background: gray; border-radius: 4px; border:0; color: #fff; text-align: center; font-size: 14px;
+     width: 100px; height: 28px; float: none; text-decoration: none; line-height: 30px; margin-right: 38px;
+}
+.bg_div {
+	width: 100%;
+	height: 600px;
+	border: 1px solid #379082;
+	background-color: #F5F5F5;
+	font-family:"微软雅黑";
+}
+
+.bg_div ul li {
+	list-style: none;
+}
+
+.fn_c span {
+	height: 50px;
+	line-height: 50px;
+}
+
+.fb_d {
+	width: 50%;
+	height: 50px;
+	line-height: 50px;
+	text-align: center;
+	cursor: pointer;
+	border-bottom: 1px solid #379082;
+}
+
+.fg_left {
+	width: 30%;
+	height: 550px;
+	float: right;
+	margin-top: -550px;
+	border-left: 1px solid #379082;
+}
+
+.fg_left li {
+	float: left;
+	line-height: 40px;
+	margin-left: 15px;
+}
+
+.fg_left ul {
+	height: 40px;
+	margin-top: 6px;
+}
+
+.fn_ztree {
+	float: left;
+	width: 74%;
+	height: 400px;
+	margin-left: 13%;
+}
+
+.fn_ztree_div {
+	width: 42%;
+	height: 380px;
+	margin-left: 30%;
+}
+
+.fn_save {
+	width: 100%;
+	height: 30px;
+	float: left;
+	margin-top: 5px;
+}
+
+.bj_f {
+	width: 100%;
+	height: 95px;
+}
+
+.bj_f_uf li {
+	float: left;
+	margin-left: 4%;
+	margin-top: 10px;
+	cursor: pointer;
+}
+
+.bj_f_ut li {
+	float: right;
+	margin-right: 20%;
+	margin-top: 10px;
+	cursor: pointer;
+}
+
+.bj_ls ul {
+	margin-left: 2%;
+}
+
+.bj_ls li {
+	background-color: #06F;
+	float: left;
+	margin-left: 2%;
+	width: 22%;
+	margin-top: 10px;
+	text-align: center;
+	cursor: pointer;
+	line-height: 30px;
+	color: #FFF;
+	border: 2px solid #379082;
+	border-radius: 10px;
+}
+
+.tb2 {
+	float: left
+}
+
+.tb2 tr td {
+	background-color: #0083CA;
+	float: left;
+	margin-left: 2%;
+	width: 22%;
+	margin-top: 10px;
+	text-align: center;
+	cursor: pointer;
+	line-height: 30px;
+	color: #FFF;
+	border-radius: 10px;
+}
+
+.bj_p {
+	line-height: 15px;
+	text-align: center;
+	width: 12%;
+	margin-top: 10px;
+}
+
+.bj_lk {
+	width: 100%;
+	height: 20px;
+	float: left;
+}
+
+.bj_tb {
+	height: 210px;
+	margin-left: 4%;
+	margin-top: 5%;
+}
+</style>
+</head>
+
+<body>
+	<div class="bg_div">
+		<div class="fn_c"
+			style="width: 100%; height: 50px; border-bottom: 1px solid #379082;">
+			<span style="float: left; margin-left: 3%;">选择标签</span> <a href="">
+				<span style="float: right; margin-right: 3%;" onclick="javascript:window.close();">退出</span>
+			</a>
+		</div>
+		<div style="width: :100%; height: 550px;">
+
+			<div style="width: 70%; height: 550px;">
+				<div id="fn_b" style="width: 100%;>
+					<div class="bj_f">
+						<ul class="bj_f_uf">
+							<li style="width: 50%"><input id="searchTags" type="text"
+								style="width: 100%;line-height: 22px;" /></li>
+							<li id="fn_result" onclick="result()" class="look">搜索标签</li>
+							<li id="fn_page" style="line-height: 22px;padding-right: 20px;"></li>
+							<!-- <li id="fn_recommend" onclick="recommend()" style=" font-size:14px;" >相关推荐</li> -->
+						</ul>
+
+					</div>
+					<div class="bj_ls">
+						<table id="idData" width="100%" class="tb2">
+						</table>
+						<table width="100%" id="barcon" name="barcon" align="right">
+						</table>
+					</div>
+					<div class="bj_lk"></div>
+					<div
+						style="width: 100%; height: 1px; margin: 0px auto; padding: 0px; background-color: #D5D5D5; overflow: hidden;"></div>
+					<div>
+						<p class="bj_p">标签详情</p>
+					</div>
+
+					<div class="bj_tb" id="container">
+						<table id="list"></table>
+						<div id="pager"></div>
+					</div>
+					<div class="fn_save">
+						<input type="button" value="保存" class="look" onclick="save()" style="width: 15%; margin-left: 42%;" />
+					</div>
+				</div>
+
+			</div>
+			<div class="fg_left">
+				<ul>
+					<li style="margin-left: 52px;">已选规则</li>
+					<li>共10个</li>
+					<li>预计用户数2000</li>
+				</ul>
+				<div style="width: 80%; margin-left: 30px;">
+					<table id="list2"></table>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+
+	<script>
+
+		function goPage(pno, psize) {
+			var itable = document.getElementById("idData");
+			var num = itable.rows.length;//表格所有行数(所有记录数)
+			var totalPage = 0;//总页数
+			var pageSize = psize;//每页显示行数
+			//总共分几页 
+			if (num / pageSize > parseInt(num / pageSize)) {
+				totalPage = parseInt(num / pageSize) + 1;
+			} else {
+				totalPage = parseInt(num / pageSize);
+			}
+			var currentPage = pno;//当前页数
+			var startRow = (currentPage - 1) * pageSize + 1;//开始显示的行  31 
+			var endRow = currentPage * pageSize;//结束显示的行   40
+			endRow = (endRow > num) ? num : endRow;
+			//遍历显示数据实现分页
+			for (var i = 1; i < (num + 1); i++) {
+				var irow = itable.rows[i - 1];
+				if (i >= startRow && i <= endRow) {
+					irow.style.display = "block";
+				} else {
+					irow.style.display = "none";
+				}
+			}
+			var pageEnd = document.getElementById("pageEnd");
+			var tempStr = ""; /* "共"+num+"条记录 分"+totalPage+"页 当前第"+currentPage+"页"; */
+			if (currentPage > 1) {
+				tempStr += "<a href=\"#\" onClick=\"goPage("
+						+ (currentPage - 1) + "," + psize + ")\"><上一页&nbsp;&nbsp;&nbsp; </a>"
+			} else {
+				/* tempStr += "首页"; */
+				tempStr += "<上一页&nbsp;&nbsp;&nbsp; ";
+			}
+
+			if (currentPage < totalPage) {
+				tempStr += "<a href=\"#\" onClick=\"goPage("
+						+ (currentPage + 1) + "," + psize + ")\">&nbsp;&nbsp;&nbsp;下一页 ></a>";
+			} else {
+				tempStr += "&nbsp;&nbsp;&nbsp;下一页 >";
+				/* tempStr += "尾页";   */
+			}
+			$("#fn_page").html(tempStr);
+		}
+
+		//刷新图层的显示情况  
+		var layers;
+		function refreshLayers() {
+			var zTree = $.fn.zTree.getZTreeObj("treeWaterLayer");
+			var changedNodes = zTree.getChangeCheckedNodes();
+			for (var i = 0; i < changedNodes.length; i++) {
+				var treeNode = changedNodes[i];
+				layers = map.getLayersByName(treeNode.name);
+				if (layers != null && layers[0] != null) {
+					layers[0].setVisibility(treeNode.checked);
+				}
+			}
+		}
+		
+		//清理善后工作  
+		function clearCheckedOldNodes() {
+			var zTree = $.fn.zTree.getZTreeObj("treeWaterLayer"), nodes = zTree
+					.getChangeCheckedNodes();
+			for (var i = 0, l = nodes.length; i < l; i++) {
+				nodes[i].checkedOld = nodes[i].checked;
+			}
+		};
+
+		$(document).ready(function() {
+			/* zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes); */
+			// 初始化标签数据
+			queryTags('');
+		});
+
+		// 请求标签数据并显示在页面
+		function queryTags(keyword) {
+			var kw = keyword;
+			$
+					.ajax({
+						type : "post",
+						url : "#(uri)/tagquery/queryTags",
+						dataType : "text",
+						data : {
+							"tag" : kw
+						},
+						success : function(data) {
+							// 显示后台查询的标签
+							if (data != null && data != '') {
+								var json = eval("(" + data + ")");
+								var likeTag = json.like;
+								var idataChild = "";
+								for (var i = 0; i < likeTag.length; i++) {
+									if (i % 4 == 0) {
+										idataChild += '<tr>';
+										for (var j = 0; j < 4
+												&& j < likeTag.length - i; j++) {
+											idataChild += '<td><div class="ls" onclick="secrahrules(this)">';
+											idataChild += likeTag[i + j];
+											idataChild += ' </div></td>';
+										}
+										idataChild += '</tr>';
+									}
+								}
+								$("#idData").html($(idataChild));
+								goPage(1, 3);
+							} else {
+								alert('没有搜索到标签！');
+							}
+						}
+					});
+			// 清空标签详情的历史规则（充值规则容器）
+			$("#container").html('<table id="list"></table><div id="pager"></div>');
+			pageInit('');
+			
+		}
+
+		function result() {
+			var kw = $("#searchTags").val();
+			if (kw == null || kw == '') {
+				alert("请输入查询关键词！");
+				return false;
+			}
+			queryTags(kw);
+		}
+
+		function recommend() {
+			$("#fn_recommend").css("font-size", "16px");
+			$("#fn_result").css("font-size", "14px");
+		} 
+		
+		function secrahrules(data) {
+			var tag = $(data).text();
+			$("#container").html('<table id="list"></table><div id="pager"></div>');
+			pageInit(tag);
+		}
+		
+		function save(){
+			var arrays =$("#list2").getDataIDs();
+			if(arrays != null){
+				window.opener.document.getElementById('setrulesfromtag').value=arrays;
+				window.opener.document.getElementById('has_setrules').value=0;
+				window.opener.document.getElementById('has_setrulesByTag').value=1;
+			}
+			window.close();
+		}
+		
+		$(function(){
+			//页面加载完成之后执行
+			pageInit('');
+			pageInit2();
+			
+			var Rowdata;
+			//td 点击事件
+			$("#list td[role=gridcell]").live("click", function(){
+			    selectID=$("#list").getGridParam("selrow");
+				var arrays=$("#list2").getDataIDs();
+				if(selectID!=null){
+					var str="目标不存在";
+					for(var i=0; i<arrays.length ; i++){
+						if(selectID==arrays[i]){
+							alert("目标已存在")
+							str="目标已存在";
+							 break;
+						}
+					};	
+					if(str=="目标不存在"){
+					  var Rowdata=$("#list").getRowData(selectID);
+					  $("#list2").jqGrid("addRowData",selectID,Rowdata, "first"); 
+					 }   
+				}
+		    });
+			
+			$("#list2 td[role=gridcell]").live("click", function(){
+		     
+				  selectID=$("#list2").getGridParam("selrow"); 
+		        $("#list2").jqGrid("delRowData", selectID); 
+		    });
+		});
+
+		//规则数据的加载
+		function pageInit(tag){
+			  jQuery("#list").jqGrid(
+			      {
+			        url : '#(uri)/tagquery/queryRules?tag='+ tag,
+			        datatype : "json",
+			        autoencode : "true",
+			        colNames : ['规则ID','规则预估数据量' ],
+			        colModel : [ 
+			                     {name : 'id',index : 'id',width : '400px',align:'center',sorttype : "int"}, 
+			                     {name : 'rulenum',index : 'rulenum',width : '400px',align:'center',sorttype : "int"} 
+			                   ],
+			        rowNum : 20,
+			        rowList : [ 10, 20, 30 ],
+			        pager : '#pager',
+			        sortname : 'id',
+					mtype : "post",//向后台请求数据的ajax的类型。可选post,get
+			        viewrecords : true,
+			        sortorder : "desc",
+			        multiselect: true,  //checkbox
+			        loadonce : true,
+		  });
+		}
+
+
+		function pageInit2(){
+			//创建jqGrid组件
+			jQuery("#list2").jqGrid(
+					{
+						url : '#(uri)/tagquery/echoRules?cid='+ '#(cid)',// 组件创建完成之后请求数据的url
+						datatype : "json",// 请求数据返回的类型。可选json,xml,txt
+						colNames : [ '规则ID', '预估日用户数' ],//jqGrid的列显示名字
+						colModel : [ //jqGrid每一列的配置信息。包括名字，索引，宽度,对齐方式.....
+						             {name : 'id',index : 'id',align : "center",width : 100}, 
+						             {name : 'rulenum',index : 'rulenum',align : "center",width : 130}, 
+						           ],
+						           
+						rowNum : 2147483647,// 一页显示多少条
+						pager : '#pager2',// 表格页脚的占位符(一般是div)的id */
+						sortname : 'id',//初始化的时候排序的字段
+						sortorder : "desc",//排序方式,可选desc,asc
+						mtype : "post",//向后台请求数据的ajax的类型。可选post,get
+						viewrecords : true,
+						height : 400,
+						pginput : false,
+					    multiselect: true,  //checkbox
+					});
+			/*创建jqGrid的操作按钮容器*/
+			/*可以控制界面上增删改查的按钮是否显示*/
+			jQuery("#list2").jqGrid('navGrid', '#pager2', {edit : false,add : false,del : false});
+		}
+	</script>
+</body>
+</html>

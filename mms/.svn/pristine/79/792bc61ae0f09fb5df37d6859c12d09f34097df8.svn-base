@@ -1,0 +1,377 @@
+package cn.mmdata.mms.data.rule;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.jfinal.core.Const;
+import com.jfinal.core.Controller;
+import com.jfinal.plugin.activerecord.Record;
+import com.jfinal.upload.UploadFile;
+
+import cn.mmdata.commons.util.Global;
+import cn.mmdata.commons.util.ReadExcelEls;
+import cn.mmdata.commons.util.RuleUtil;
+public class RuleController extends Controller{
+	
+	public void list(){
+		Rule rule = getModel(Rule.class,"record");
+		rule.put("rule",getPara("rule"));
+		rule.put("level3Desc",getPara("level3Desc"));
+		Integer pageNumber = getParaToInt("pageNumber",1);
+		pageNumber = pageNumber < 1 ? 1 : pageNumber;
+		setAttr("records", rule.list(pageNumber, 10));
+		setAttr("record",rule);
+		render("/WEB-INF/jsp/data/rule/list.html");
+	}
+	
+	public void detail(){
+		Rule rule = new Rule();
+		String ruleId = getPara("ruleId");
+		rule.put("ruleId", ruleId);
+		Record record = rule.findById();
+		// 查找行业部署的省份
+		List<Record> records2 = rule.findProvinceById();
+		setAttr("record", record);
+		setAttr("records2", records2);
+		render("/WEB-INF/jsp/ds/rule/detail.jsp");
+	}
+	
+	public void edit(){
+		Rule rule = new Rule();
+		String ruleId = getPara("ruleId");
+		rule.set("ruleId", ruleId);
+		if(ruleId != null && !"".equals(ruleId)){
+			rule.put("ruleId", ruleId);
+			Record record = rule.findById();
+			// 查找行业部署的省份
+			List<Record> records2 = rule.findProvinceById();
+			String selectedProStr = "";
+			for(int i=0; i <records2.size(); i++){
+				if(i == (records2.size() - 1)){
+			   selectedProStr += records2.get(i).getStr("provincecode");
+		  	}else{
+			   selectedProStr += (records2.get(i).getStr("provincecode") + ",");
+		  	}
+		  }
+				setAttr("record", record);
+				setAttr("selectedProStr", selectedProStr);
+		}
+		render("/WEB-INF/jsp/ds/rule/edit.jsp");
+	}
+	
+    public void delete(){
+    	String rid = getPara("rid");
+    	Rule.dao.deleteById(rid);
+    	/*Rule.dao.deleteProById(rid);*/
+    	redirect("/data/rule/list");
+    }
+    
+    /**
+     * 新建，更新规则
+     */
+	public void update(){
+		Rule rule = getModel(Rule.class,"record");
+		if(rule.get("id") != null){
+			rule.update();
+			rule.deleteProsHistory();
+			// rule.updateRuleId();
+			// rule = rule.findById(rule.get("id"));
+		 }else{
+			 // 新增一个规则
+			 String urlrule = rule.getStr("urlrule").trim();
+			 String status =  rule.get("status").toString();
+			 int level3Id = rule.get("level3Id");
+			 int ruleId = rule.insertRule(urlrule,status,level3Id);
+			 rule = rule.set("ruleId", ruleId);
+		 }
+        // 更新地理位置的信息
+		String[] proArray = getParaValues("province");
+		if(proArray != null && proArray.length != 0){
+			rule.updatePro(proArray);
+		}
+		redirect("/ds/rule/list");
+	}
+	
+	public void templist(){
+		Global global = Global.getInstance(this);
+		int regId = global.getSessionUserId();
+		RuleTemp  ruleTemp = getModel(RuleTemp.class);
+		ruleTemp.put("regId", regId);
+		setAttr("records", ruleTemp.paginate(getParaToInt("pageNumber", 1), 10));
+		setAttr("ruleTemp", ruleTemp);
+		render("/WEB-INF/jsp/data/rule/templist.html");
+	}
+	
+	public void editTemp(){
+		int id = getParaToInt("id");
+		RuleTemp  ruleTemp = RuleTemp.dao.findById(id);
+		ruleTemp.set("province", ruleTemp.get("province") + "公司");
+		setAttr("ruleTemp",ruleTemp);
+		render("/WEB-INF/jsp/ds/rule/edittemp.jsp");
+	}
+	
+	public void updateTemp(){
+		RuleTemp ruleTemp = getModel(RuleTemp.class);
+		new RuleTemp().set("id", ruleTemp.getInt("id")).set("status", ruleTemp.get("status")).set("errordesc", "")
+		                  .set("urlrule",ruleTemp.getStr("urlrule")).update();
+		redirect("/ds/rule/templist");
+	}
+	
+	public void certainImport(){
+		RuleTemp ruleTemp = new RuleTemp();
+		Global global = Global.getInstance(this);
+		int regId = global.getSessionUserId();
+		ruleTemp.set("regId", regId);
+		// 查找没有在dmp.urlrule中的规则
+		List<Record> records = ruleTemp.findLackRules();
+        for(Record record : records){
+        	new Rule().saveUrlrule(record.getStr("urlrule").trim());
+        }
+        // 更新临时表中ruleId
+        ruleTemp.updateRuleId();
+        // 将规则插入到level4中
+        ruleTemp.insertLevel4();
+        // 更新临时表中cat
+        ruleTemp.updateCat();
+        // 插入正式规则表
+        new Rule().insertFormal(regId);
+        int count = ruleTemp.batchInsertRulePro();
+        // 删除临时表数据
+        new RuleTemp().deleteByRegId(regId);
+        renderText(String.valueOf(count));
+	}
+	
+	/**
+	 * 导入规则
+	 */
+	public void importrule(){
+		UploadFile uploadFile = getFile("uploadFile");
+		Global global = Global.getInstance(this);
+		int regId = global.getSessionUserId();
+	    List<Record> records = new ArrayList<Record>();
+		ReadExcelEls ree = new ReadExcelEls();
+		try {
+				records = ree.readImportRules(uploadFile.getFile());
+				// 插入到临时表
+				records = processData(records);
+				// 删除临时表数据
+		        new RuleTemp().deleteByRegId(regId);
+				new Rule().insertIntoTemp(records,regId);
+				// 更新 ruleId和规则的状态
+				new RuleTemp().upateTable(regId);
+				redirect("/ds/rule/templist");
+		    } catch (Exception e) {
+				e.printStackTrace();
+	   }
+	   redirect("/data/rule/templist");
+}
+	
+	/**
+	 * 删除历史导入数据
+	 */
+	public void deleteHistory(){
+		Global global = Global.getInstance(this);
+		int regId = global.getSessionUserId();
+		new RuleTemp().deleteByRegId(regId);
+		redirect("/ds/rule/templist");
+	}
+	
+	/**
+	 *  规则的三种错误：  1.规则不正确 2.规则在本次重复  3.规则已存在 
+	 *  先判断规则是否正确，在判断规则在本次中是否存在，最后判断在历史中是否存在
+	 *  @param records 
+	 */
+	private List<Record> processData(List<Record> records) {
+		List<String> importList = new ArrayList<String>();
+		for(Record record : records){
+		  if(!RuleUtil.verifyRule(record.getStr("urlRule"))){
+			record.set("status", 12);
+			record.set("checkMsg", "域名错误！");
+			continue;
+		   }
+		  if(importList.contains(record.getStr("urlRule"))){
+			record.set("status", 14);
+			record.set("checkMsg", "历史已存在!");
+			continue;
+		  }else{
+			 importList.add(record.getStr("urlRule")); 
+		  }
+		}
+		return records;
+	}
+
+	
+	/**
+	 * 导出规则成Excel
+	 * @throws IOException 
+	 * @throws URISyntaxException 
+	 */
+	/*public void exportFile() {
+		String provinceCode = getPara("province");
+		List<Record> records = ARule.dao.selectByPro(provinceCode);
+		String[] firstRow = { "规则名称", "行业","规则说明","规则插入时间" };
+		String[] columsName = { "urlrule", "cat","catdesc","inserttime" };
+		String today = DateTools.dateToStr(new Date(), "yyyyMMdd");
+		
+		String downloadFileName = "urlrule-" + today + ".xlsx";
+		render(PoiRender.me(records).fileName(downloadFileName).headers(firstRow).sheetName("sheet1")
+					.columns(columsName).cellWidth(5000).headerRow(1));
+		Db.Q
+		
+	}*/
+	
+	/**
+	 * 导出规则成Txt文件
+	 * @throws IOException 
+	 * @throws URISyntaxException 
+	 */
+	public void exportFile() throws IOException, URISyntaxException {
+		Rule rule = new Rule();
+		rule.put("status",getParaToInt("status"));
+		rule.put("usestatus",getParaToInt("usestatus"));
+		rule.put("cat",getPara("cat"));
+		rule.put("urlrule",getPara("urlrule"));
+		rule.put("province",getPara("province"));
+		List<Record> records = rule.FindExportList();
+		String path = this.getRequest().getServletContext().getRealPath("/");
+		BufferedWriter bf =new BufferedWriter(new FileWriter(new File(path  + Const.DEFAULT_BASE_DOWNLOAD_PATH +File.separator+ "exportRules.txt")));
+		//System.out.println(path  + Const.DEFAULT_BASE_DOWNLOAD_PATH +File.separator+ "default.txt");
+		//String str = "urlrule,ruledesc,cat";
+		//bf.write(str);
+		//bf.newLine();
+		for (Record record : records) {
+			bf.write(record.getStr("ruleInfo"));
+			bf.write("\r\n");
+		}
+		bf.flush();
+		bf.close();
+		renderFile("exportRules.txt");
+		}
+	
+        
+	    /**
+	     * 将未包含在catMap中的行业插入到行业表中
+	     * @param records 带插入的数据
+	     * @param catMap 行业表的Map
+	     */
+	    public void addNewCats(List<Record> records, Map<String, String> catMap) {
+	    	List<Record> newCats = new ArrayList<Record>();
+	    	// 用于去重的Map
+	        Map<String,String> newCatsMap = new HashMap<String,String>();
+	    	for(Record record : records ){
+	    		if(!catMap.containsKey(record.get("cat"))){
+	    			if(!newCatsMap.containsKey(record.get("cat"))){
+	    			   newCatsMap.put(record.getStr("cat"), record.getStr("catdesc"));
+	    			   newCats.add(record);
+	    			}
+	    		}
+	    	}
+	    	/*AUrlCat.dao.batchInsertCat(newCats);*/
+	    }
+	    
+	    /**
+		 * 移除重复的行业规则
+		 * @param records 被导入的数据
+		 * @param ruleMap 数据库中的数据
+		 */
+		public List<Record> removeReapetRules(List<Record> records,Map<String, String> ruleMap) {
+			List<Record> removeRecrds = new ArrayList<Record>();
+	        for(Record record : records){
+	        	if(ruleMap.containsKey(record.get("urlrule"))){
+	        		removeRecrds.add(record);
+	        	}
+	        }
+	        records.removeAll(removeRecrds);
+	        return records;
+		}
+	
+	    // 批量审批规则
+		public void batchtoCheck(){
+			String[] ruleIds = getParaValues("ruleIds");
+			// 审批行业
+			examCat(ruleIds);
+			int affectedNum = Rule.dao.batchtoCheck(ruleIds);
+			renderText(String.valueOf(affectedNum));
+		}
+		
+		
+		private void examCat(String[] ruleIds) {
+			// 将已审核的行业更新到部署规则表
+			Rule rule = new Rule();
+			rule.updateExamed(ruleIds);
+			// 将部署表中的记录同步到level4中
+			/*rule.updateFromDeployedLevel3(ruleIds);*/
+		}
+
+		// 批量使用
+		public void batchtoUsed(){
+	        String[] ruleIds = getParaValues("ruleIds");
+	        int affectedNum = Rule.dao.batchtoUsed(ruleIds);
+	        renderText(String.valueOf(affectedNum));
+		}
+		
+		// 批量审不使用
+		public void batchtoUnused(){
+			String[] ruleIds = getParaValues("ruleIds");
+			int affectedNum = Rule.dao.batchtoUnused(ruleIds);
+			renderText(String.valueOf(affectedNum));
+		}
+		
+		// 对输入的URL规则进行验证
+		public void RepeatVerifiAjax(){
+			Rule rule = new Rule();
+			rule.set("urlrule", getPara("urlrule").trim());
+			rule.set("level3Id", getParaToInt("level3Id"));
+			rule.set("id", getPara("id"));
+			/*boolean flag = RuleUtil.verifyRule(getPara("urlrule"));*/
+			/*if(!flag){
+				result = "1";
+				renderText(result);
+				return;
+			}else{
+				String count = rule.selectRepeat();
+			    if(!"0".equals(count)){
+				    result = "2";
+				    renderText(result);
+					return;
+				}else{
+					Record record = rule.selectCatRepeat();
+					if(record != null && StrKit.notBlank(record.getStr("level3Name").trim())){
+						result = record.getStr("level3Name") + "|" + record.get("level3Id");
+						renderText(result);
+						return;
+					}
+				}
+			}
+			renderText("");
+		}
+		
+		// 对输入的URL规则部署省份做验证
+		public void ruleRepeatVerifiAjax(){
+			String urlrule = getPara("urlrule");
+			String procince = getPara("province");
+			String count = Rule.dao.selectRuleRepeat(urlrule,procince);
+			/*boolean flag = RuleUtil.verifyRule(urlrule);*/
+			/*if(flag == false){
+				renderText("4"); // 规则不正确
+				return;
+			}else{
+				renderText(count); // 1：可以导入 2：可以部署省份 3：重复部署
+			}*/
+		}
+		
+		// 对输入的行业进行正确性验证
+		/*public void catVerifiAjax(){
+			String cat = getPara("cat");
+			String count = DeployRule.dao.selectCatRepeat(cat);
+			String repeat =  (count.equals("0") ? "false" : "true");
+			renderText(repeat);
+		}*/
+}

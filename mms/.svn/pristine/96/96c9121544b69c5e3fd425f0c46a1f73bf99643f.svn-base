@@ -1,0 +1,241 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>用户管理</title>
+<link href="${tp}/public/css/basic.css" rel="stylesheet" type="text/css" />
+<link href="${tp}/public/css/edit.css" rel="stylesheet" type="text/css" />
+
+<link href="${uri}/public/jquery/css/validationEngine.jquery.css" rel="stylesheet" type="text/css"/>
+<script src="${uri}/public/jquery/js/jqsel.js"></script>
+<script src="${uri}/public/jquery/js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+<script src="${uri}/public/jquery/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+<script src="${uri}/public/jquery/js/jquery.md5.js" type="text/javascript"></script>
+<script>
+	 
+	jQuery(document).ready(function(){
+		jQuery("#cform").validationEngine('attach');
+		$("#searchbus").hide();
+		$("#wap").hide();
+		changCType1();
+		if($("#customer_type").val() == 7||$("#customer_type").val() == 8){
+		   	getWebSite();
+		}
+		$("#customer_type").change(function(){
+			changeCType();
+		});
+	});
+	function changeCType(){
+		changCType1();
+		changCType2();
+	}
+	function changCType1(){
+		//1:'系统管理员',2:'管理用户',5:'代理商',4:'广告主'
+		var ct = $("#customer_type").val();
+		if( ct == 4){
+			$("#searchbus").show();
+			$("#searchbus").click(function() {
+				window.open("${uri}/business/bsn/rlist?&record.business_type=2","100","width=800,height=600");
+			});
+		}else if(ct==5){
+			$("#searchbus").show();
+			$("#searchbus").click(function() {
+				window.open("${uri}/business/bsn/rlist?&record.business_type=3","100","width=800,height=600");
+			});
+		}else{
+			$("#wap").hide();
+			$("#searchbus").hide();
+		}
+	}
+	//验证用户名是否重复
+	var flag = false;
+	function valUsername(){
+		var customername = $("#customer_name").val(); 
+		$("#validataName").html("");
+		if(customername != ""){
+			$.post(
+					"<%=request.getContextPath()%>/system/user/valUsername",	
+					{customer_name:customername},
+					function(data){
+						if(data==0){
+							//$("#validataName").html("<font color='blue'>用户不存在,可以注册</font>");
+							flag = true;
+						}else{
+							 $("#validataName").html("<font color='red'>用户已存在,不可以注册</font>");
+							 flag = false;
+						}
+			});
+		}
+	}
+	function changCType2(){
+		var ct = $("#customer_type").val();
+		if(ct == 1 || ct == 2){
+			$("#bid").val("2");
+			$("#business_name").val("中国电信集团号百信息服务有限公司");
+			$("#telephone").val("118114");
+		}else{
+			$("#bid").val("");
+			$("#business_name").val("");
+			$("#telephone").val("");
+		}
+	}
+	function clickSubmit(){
+		if($("#customer_id").val() == ""){
+			valUsername();	
+		}else{
+			flag = true;
+		}
+		if(jQuery('#cform').validationEngine('validate')&&flag){
+		    <c:if test="${record.customer_id == null}">
+		    	$('#txtPwd1').val($.md5(($('#txtPwd1').val())));
+		    	$('#txtPwd2').val($.md5(($('#txtPwd2').val())));
+		    </c:if>
+		    var projectId = $("#project").val();
+		    var projectName = $("#project").find("option:selected").text();
+		    $("#projectId").val(projectId);
+			$("#projectName").val(projectName);
+			$('#cform').submit();
+			
+		}else{
+		    //alert("3333333333");
+		}
+	}  
+</script>
+</head>
+<body>
+
+<table class="searchtb" >
+ 
+    <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2">
+      	<img src="${tp}/public/images/scbj-icon.png" style="width:16px; height:16px; margin-bottom:-2px;"/>系统管理-用户管理-用户编辑
+      </td>
+      <td class="searchtd3"></td>
+    </tr>
+    <tr>
+      <td colspan="3">
+    <form name="cform" id="cform" action="${uri }/system/user/update" method="post"  >
+   	  <input type="hidden" name="record.customer_id" id="customer_id" value = "${record.customer_id}"/>
+      <table class="datatb"  cellpadding="3" cellspacing="1" >
+       <tbody>
+         <tr class="listtr" >
+		    <td width="15%" class="editleft"><font color="red">*</font>用户名:</td>
+		    <td width="85%" class="editright">
+	    	<c:if test="${record.customer_id != null}">
+		    	<input type="hidden" name="record.customer_name"  id="customer_name" maxlength="24" value = "${record.customer_name}"/>
+		    	${record.customer_name}
+		    </c:if>
+		  <c:if test="${record.customer_id == null}">
+		    	<input type="text" class="validate[required] re_input" name="record.customer_name" id="customer_name" maxlength="24" value = "${record.customer_name}" onchange="valUsername()"/>
+		    	<span id="validataName"></span>
+		    </c:if>
+		    </td>
+        </tr>
+        
+	    <c:if test="${record.customer_id == null}">
+	    <tr class="listtr">
+		    <td height="20" class="editleft" ><font color="red">*</font>请输入密码:</td>
+		    <td class="editright">
+		       <input type="password" class="validate[required] re_input" name="record.password" maxlength="24" value="" id="txtPwd1"/>
+		    </td>
+	    </tr>
+	    <tr class="listtr">
+		    <td height="20" class="editleft" ><font color="red">*</font>再次输入密码:</td>
+		    <td class="editright">
+		       <input type="password" class="validate[required,equals[txtPwd1]] re_input" name="repeat_password"  maxlength="24"  value="" id="txtPwd2"/>
+		    </td>
+	     </tr>
+	    </c:if>
+	    
+        <tr class="listtr">
+		    <td class="editleft"><font color="red">*</font>用户类型:</td>
+		    <td class="editright">
+  							<select class="validate[required] input-xlarge" id="customer_type" name="record.customer_type" >
+									<option value="">请选择</option>
+									<option value="1"
+										<c:if test="${record.customer_type==1 }">selected="selected"</c:if>>技维用户</option>
+									<option value="4"
+										<c:if test="${record.customer_type==4 }">selected="selected"</c:if>>客户使用者</option>
+									<option value="5"
+										<c:if test="${record.customer_type==5 }">selected="selected"</c:if>>代理商</option>
+									<option value="9"
+										<c:if test="${record.customer_type==9 }">selected="selected"</c:if>>超级管理员</option>
+										
+								</select> 
+		    </td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft"><font color="red">*</font>角色信息:</td>
+		    <td class="editright"> 
+		    <c:forEach items="${roles}" var="role" varStatus="status">
+
+									<c:if test="${role.isChecked ==true }">
+										<input type="checkbox" name="role" checked="checked"
+											value="${role.role_id }" />${role.role_name }
+	    			</c:if>
+									<c:if test="${role.isChecked !=true }">
+										<input type="checkbox" name="role" value="${role.role_id }" />${role.role_name }
+	    			</c:if>
+	    			&nbsp;
+    		</c:forEach>
+		    </td>
+        </tr>
+        
+        <tr class="listtr">
+		    <td class="editleft"><font color="red">*</font>用户所属:</td>
+		    <td class="editright">
+		    	<input type="hidden" id="bid" name="record.bid"   value="${record.bid}"/>
+		    	 <input type="text" size="32" class="validate[required] re_input" name="record.business_name"  id="business_name" value = "${record.business_name}" readonly="readonly"/>
+		    	 <input type="button" id="searchbus" value="查找"  class="minbtn" />
+		    </td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft"><font color="red">*</font>联系电话:</td>
+		    <td class="editright"><input type="text" class="validate[required,custom[phone]] re_input" name="record.telephone" id="telephone" maxlength="12" value = "${record.telephone}"/></td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft">联系手机:</td>
+		    <td class="editright"><input type="text" class="validate[custom[phone]] re_input" name="record.mobile" id="mobile" maxlength="12" value = "${record.mobile}"/></td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft"><font color="red">*</font>用户邮箱:</td>
+		    <td class="editright"><input type="text" class="validate[required,custom[email]] re_input" name="record.email" id="email" maxlength="64" value = "${record.email}"/></td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft">备注:</td>
+		    <td class="editright"><input type="text" class="re_input" name="record.attachment" id="attachment" maxlength="250" value = "${record.attachment}"/></td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft"><font color="red">*</font>帐号状态:</td>
+		    <td class="editright">
+ 								<select name="record.status" id="status"
+									class="validate[required] input-xlarge">
+									<option value="">请选择</option>
+									<option value="1"
+										<c:if test="${record.status==1 }">selected="selected"</c:if>>已审核</option>
+									<option value="0"
+										<c:if test="${record.status==0 }">selected="selected"</c:if>>无效</option>
+									<option value="2"
+										<c:if test="${record.status==2 }">selected="selected"</c:if>>未审核</option>
+									
+								</select>
+			</td>
+        </tr>
+        <tr class="listtr">
+		    <td align="center" colspan="2">
+		    <input type="button" value="提交" class="btn" onclick="return clickSubmit();"/>
+		    <input type="reset" value="重置" class="btn"/></td>
+        </tr>
+          </tbody>
+        </table>
+        </form>
+        </td>
+    </tr>
+</table>
+<%@include file="/public/files/loading.jsp"%> 
+</body>
+</html>

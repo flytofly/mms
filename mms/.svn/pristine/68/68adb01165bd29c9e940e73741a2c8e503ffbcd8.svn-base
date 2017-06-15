@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<title>
+	#(URLTitle)
+	</title>
+	<link rel="stylesheet" href="#(BasePath)/public/css/style.css" />
+	<script type="text/javascript" src="#(BasePath)/public/js/jquery-1.11.0.js"></script>
+	<script type="text/javascript" src="#(BasePath)/public/js/style.js"></script>
+	<script type="text/javascript" src="#(BasePath)/public/js/jquery.alert.js"></script>
+	<script type="text/javascript" src="#(BasePath)/public/js/jquery.md5.js"></script>
+	
+	<script>
+	   if(window.parent.location.href != window.location.href){
+		  window.parent.location.href = "#(BasePath)/login";
+	   }
+		$(function(){
+			var result = "#(result)";
+			if(result!=''){
+				alert(result);
+			}
+		});
+		
+			function loginCheck(){
+				$("#form1")[0].submit();
+			}
+	</script>
+</head>
+
+<body>
+		<!--登录框-->
+		<div class="login-con">
+			<img class="login-con-bj" src="#(BasePath)/public/img/login-bj.png">
+			<!--登录 内容框-->
+			
+			<div class="login-con-con">
+				<div class="login-con-bt">
+					 <img src="#(BasePath)/public/img/#(URLPath)/login-bt.png">
+				</div>
+				<div class="login-con-nr">
+					<img class="le" src="#(BasePath)/public/img/login-form.png" alt="">
+					<div class="ri">
+						<div class="login-bt">
+							<span >用户登录</span>
+							<b>UserLogin</b>
+						</div>
+						<form id="form1" name="indexForm" method="post" action="./home">
+							<ul>
+								<li><em><img src="#(BasePath)/public/img/login-user.png"></em>
+									<input type="text" name="fk_UserAdminname" id="cyWebCustomerName"  placeholder="请输入登录账户"/>
+								</li>
+								<li><em><img src="#(BasePath)/public/img/login-lock.png"></em>
+									<input type="password"  name="fk_password" id="cymimaID" placeholder="请输入登录密码"/>
+									<input type="hidden"  name="token" id="token" />
+								</li>
+							</ul>
+							<div class="login-ts">
+								密码错误！请重新填写
+							</div>
+							<div class="login-yz">
+								<table>
+							    <tr>
+				                    <td class="login_info">验证码：</td>
+				                    <td class="width70"><input style="height:40px;" name="code" type="text" class="width70" /></td>
+				                    <td><img src="#(BasePath)/home/createImg"  style="height:40px; float:left;"  onclick="this.src='#(BasePath)/home/createImg?x='+Math.random();" alt="点击更换" title="点击更换" /></td>  
+				                    <td><span class="required"></span></td>              
+				                </tr>       
+								</table>
+							</div>	
+							<input class="login-sub" type="submit" value="登录" onclick="return loginCheck();"/>
+						</form>
+					</div>
+					<div class="cle"></div>
+				</div>	
+				<div style="margin-top: 30px" class="login-foot">
+					CopyRight @2014-2017  
+					<p style=" margin-top:4px;">
+						#(URLInfo)
+					</p>
+				</div>
+			</div>
+			<div class="cle"></div>
+		</div>
+	</body>
+</html>

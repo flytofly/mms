@@ -1,0 +1,132 @@
+package cn.mmdata.mms.analysis.basic.seq;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import cn.mmdata.mms.analysis.conf.DataConfig;
+import cn.mmdata.mms.util.DataUtil;
+
+/**
+* 域名的偏移位置对象，存储该偏移位置的各域名及其用户量信息
+*/
+public class AppSeqPos
+{
+	private int _pos;
+	private String _host_domain;
+	private HashMap _domain_map;
+
+	public int getPos() {
+		return _pos;
+	}
+
+	public void setPos(int _pos) {
+		this._pos = _pos;
+	}
+
+	public String getHostDomain() {
+		return _host_domain;
+	}
+
+	public void setHostDomain(String _host_domain) {
+		this._host_domain = _host_domain;
+	}
+
+	/**
+	* 增加域名及用户量信息
+	*/
+	public void addDomainUnit(String domain, int count)
+	{
+		if (_domain_map == null) {
+			_domain_map = new HashMap();
+		}
+
+		// 对每个域名的用户量计数
+		DomainUnit du = (DomainUnit) _domain_map.get(domain);
+		if (du == null) {
+			du = new DomainUnit();
+			du.setDomain(domain);
+			du.setCount(count);
+
+			_domain_map.put(domain, du);
+		} else {
+			DataUtil.debug("host domain -> " + getHostDomain() + ", got offset domain reoccured -> " + domain);
+		}
+	}
+
+	/**
+	* 判断域名是否噪声
+	*/
+	private boolean invalid(String domain)
+	{
+		// 判断域名，是否包含噪声子串
+		String[] filters = DataConfig.getInstance().getOffsetDomainFilter();
+		for (int i=0; i < filters.length; i++)
+		{
+			if (domain.indexOf(filters[i]) >= 0) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	* 获取所有DomainUnit结点对象集合
+	*/
+	private DomainUnit[] getAllDomainUnits()
+	{
+		if (_domain_map == null) { return null; }
+
+		ArrayList results = new ArrayList();
+		Iterator iter = _domain_map.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			DomainUnit node = (DomainUnit) entry.getValue();
+
+			// 无效域名过滤
+			if (invalid(node.getDomain())) {
+				continue;
+			}
+
+			results.add(node);
+		}
+
+		return (DomainUnit[]) results.toArray(new DomainUnit[0]);
+	}
+
+	/**
+	* 获取按访问量排序的DomainUnit对象集合
+	*/
+	public DomainUnit[] getRankDomainUnits(int rank)
+	{
+		DomainUnit[] duArray = getAllDomainUnits();
+		if (duArray == null) { return null; }
+
+		// 初始化排序指针数组
+		int length = duArray.length;
+		int[] group = new int[length];
+		for (int i=0; i < length; i++) {
+			group[i] = i;
+		}
+
+		// 对数组排序
+		for (int m=0; m < length; m++) {
+			for (int n=m+1; n < length; n++) {
+				if (duArray[group[m]].getCount() < duArray[group[n]].getCount()) {
+					int tmp = group[m];
+					group[m] = group[n];
+					group[n] = tmp;
+				}
+			}
+		}
+
+		// 返回Top Rank DomainUnit对象集合
+		ArrayList results = new ArrayList();
+		for (int k=0; k < rank && k < length; k++) {
+			results.add( duArray[group[k]] );
+		}
+		return (DomainUnit[]) results.toArray(new DomainUnit[0]);
+	}
+}

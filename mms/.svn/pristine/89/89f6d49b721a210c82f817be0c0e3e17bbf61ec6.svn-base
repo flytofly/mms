@@ -1,0 +1,34 @@
+package cn.mmdata.mms.task;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Model;
+import com.jfinal.plugin.activerecord.Record;
+
+public class DetailArea extends Model<DetailArea>{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	public static DetailArea dao = new DetailArea();
+	public void saveBatch(List<Record> list,int detailid){
+		List<DetailArea> savelist = new ArrayList<>();
+		for(Record rec:list){
+			DetailArea rc =new DetailArea();
+			rc.set("detail_id", detailid);
+			rc.set("province_code", rec.get("province_id"));
+			rc.set("province_name", rec.get("province"));
+			rc.set("state_code", rec.get("city_id"));
+			rc.set("state_name", rec.get("city"));
+			savelist.add(rc);
+		}
+		Db.use("zhijian").batchSave(savelist, savelist.size());
+	}
+	public void deleteByDetailID(int detailid){
+		String sql ="delete from cy_business_project_detail_area where detail_id = ?";
+		Db.use("zhijian").update(sql,detailid);
+	}
+}

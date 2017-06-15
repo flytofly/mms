@@ -1,0 +1,125 @@
+#@layout() #define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>人群详情</title>
+</head>
+<body>
+	<div class="tx-con">
+		<div class="tx-con-bt">
+			<ul>
+				<li><a href="#"><span>人群信息</span></a></li>
+			</ul>
+		</div>
+		<div class="tx-con-xx">
+			<table cellspacing="0" cellpadding="0">
+				<tr>
+					<th>人群名称</th>
+					<!-- <th>规则逻辑</th> -->
+				<!-- 	<th>PV上限</th>
+					<th>PV下限</th> -->
+					<th>添加人</th>
+				</tr>
+				<tr>
+					<td>#(record.cname)</td>
+					<!-- <td>#if(record.ctype == 1)同时访问#end #if(record.ctype ==
+						2)访问其中一个#end</td> -->
+				<!-- 	<td>#(record.pv_up )</td>
+					<td>#(record.pv_down )</td> -->
+					<td>#(record.log_user )</td>
+				</tr>
+				<tr>
+				   <td style="font-weight: bold;">地区：</td>
+				   <td colspan="5" width="80%" style="text-align: left;padding-left: 10px;">
+				      #for(area : areasMap)
+				       <span style="width: 30%"><font style="font-size:14px;font-weight: bold;">#(area.key)</font></span>&nbsp;&nbsp;&nbsp;<span>#(area.value)</span><br>
+				      #end
+				   </td>
+				</tr>
+				<!-- <tr>
+					<td width="40%">人群名称：</td>
+					<td width="60%">#(record.cname)</td>
+				</tr>
+				<tr>
+					<td>地区：</td>
+					<td>全国</td>
+				</tr>
+				<tr>
+					<td>规则逻辑：</td>
+					<td>#if(record.ctype == 1)同时访问#end #if(record.ctype ==
+						2)访问其中一个#end</td>
+				</tr>
+				<tr>
+					<td>PV上限：</td>
+					<td>#(record.pv_up )</td>
+				</tr>
+				<tr>
+					<td>PV下限：</td>
+					<td>#(record.pv_down )</td>
+				</tr>
+				<tr>
+					<td>添加人：</td>
+					<td>#(record.log_user )</td>
+				</tr> -->
+			</table>
+		</div>
+		<div class="tx-con-bt">
+			<ul>
+				<li><a href="#"><span>DMP规则</span></a></li>
+			</ul>
+		</div>
+		<form action="./detail" id="form" method="post">
+		<input type="hidden" name="cid" value="#(record.cid)"></input>
+		<div class="tx-con-xx">
+			<table cellspacing="0" cellpadding="0">
+				<tr>
+					<th>一级分类</th>
+					<th>二级分类</th>
+					<th>三级分类</th>
+					<th>网站名</th>
+					<th>规则编号</th>
+					<th>日均用户量</th>
+				</tr>
+				#for(rule:records.getList())
+				<tr onmouseout="this.style.backgroundColor='#ffffff';"
+					onmouseover="this.style.backgroundColor='#E6F2FF'">
+					<td>#(rule.level1Name)</td>
+					<td>#(rule.level2Name)</td>
+					<td>#(rule.level3Name)</td>
+					<td>#(rule.rule_desc)</td>
+					<td>#(rule.rid)</td>
+					<td>#(rule.pv)</td>
+				</tr>
+				#end
+			</table>
+		</div>
+		<!--分页-->
+		#@paginate(records.pageNumber, records.totalPage, "")
+	    <!--分页 END-->
+		</form>
+		<!-- 场景信息 -->
+		<!-- <div class="tx-con-bt">
+			<ul>
+				<li><a href="#"><span>场景信息</span></a></li>
+			</ul>
+		</div>
+		<div class="tx-con-xx">
+			<table cellspacing="0" cellpadding="0">
+				<tr>
+					<th>场景名</th>
+					<th>场景描述</th>
+					<th>日均用户量</th>
+				</tr>
+				#for(scene:scenes.getList())
+				<tr onmouseout="this.style.backgroundColor='#ffffff';"
+					onmouseover="this.style.backgroundColor='#E6F2FF'">
+					<td>#(scene.sname)</td>
+					<td>#(scene.sdesc)</td>
+					<td>#(scene.sdesc)</td>
+				</tr>
+				#end
+			</table>
+		</div> -->
+	</div>
+</body>
+</html>
+#end

@@ -1,0 +1,63 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>分类列表</title>
+<link href="<%=request.getContextPath()%>/resource/templates/basic/css/css.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/resource/templates/basic/css/style.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/resource/templates/basic/css/mainframe.css" rel="stylesheet" type="text/css" />
+<script src="<%=request.getContextPath()%>/resource/jquery/jquery-1.9.1.js"></script>
+<script src="<%=request.getContextPath()%>/resource/js/My97DatePicker/WdatePicker.js"></script>
+ 
+</head>
+<body onload="on_load();">
+<div id="mainpage" class="glist_main">
+	<form name="form" id="form"  method="post" action="<%=request.getContextPath()%>/domain/urlrule/showLevel">
+            <input type="hidden" id="urlids" name="" value="${urlIds}" />
+	<h1>
+		<img src="<%=request.getContextPath()%>/resource/templates/basic/images/ico07.gif" />
+        <label>行业：</label>
+        <input type="text" name="keywords" size="12" value="${keywords}" id="keywords" class="input"/>
+        <input name="Submit" type="submit" class="right-button02" value="查 询" />&nbsp;
+    </h1>
+    <div class="list">
+      <table width="100%" border="0" >
+              <tr>
+	           <th width="5%">选择</th>
+	           <th width="20%">一级分类</th>
+	           <th width="15%">二级分类</th> 
+	           <th width="25%">三级分类</th>
+              </tr>
+	 
+	 <c:forEach items="${records.list}" var="r">
+	          <tr>
+	           <td><input type="checkbox"  onclick="checkLevel3('${r.level3Id }','${r.level1Name }','${r.level2Name }','${r.level3Name }');"/></td>
+	           <td>${r.level1Name }</td>
+	           <td>${r.level2Name }</td>
+	           <td>${r.level3Name }</td>
+	          </tr>
+	</c:forEach>
+        </table>
+      </div>  
+       <!--分页-->
+   	    <!--分页 END-->
+
+    </form>
+</div>
+   	 <script>
+		function checkLevel3(level3Id,level1Name,level2Name,level3Name){
+			var openerilevel3 = window.opener.document.getElementById("ilevel3");
+			var openerilevel3Id = window.opener.document.getElementById("ilevel3Id");
+			var openerilevel3Name = window.opener.document.getElementById("ilevel3Name");
+			$(openerilevel3).val(level1Name+"----"+level2Name+"----"+level3Name);
+			$(openerilevel3Id).val(level3Id);
+			$(openerilevel3Name).val(level3Name);
+			 window.close();	
+		}
+</script>
+</body>
+</html> 

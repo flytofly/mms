@@ -1,0 +1,104 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>用户管理</title>
+<script>
+function link(){
+	window.location="<%=request.getContextPath()%>/system/user/edit";
+}
+function deleteConfirm(){
+	return confirm("你确定要删除该条记录吗？");
+}
+</script>
+<link href="${tp}/public/css/list.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<form name="form" id="form" action="list">
+ <input type="hidden" id="type" name="type" value="search" />
+<table class="searchtb">
+    <%--  <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2"><span class="searchspan">用户搜索</span></td>
+      <td class="searchtd3"></td> 
+    </tr>  --%>
+    <tr class="searchtr2">
+  
+      <td colspan="3"> 
+       <img src="${tp}/public/images/yue-icon.png" style="margin-bottom:-2px;margin-left:20px;">  用户搜索  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      
+      	用户名:&nbsp;&nbsp;
+        <input type="text" name="userinfo.customer_name" size="12" value="${userinfo.customer_name}" id="search" class="input"/>
+        <input type="submit" name="Submit" value="查询 " class="search"/>
+        <input name="new" type="button" value="新建用户" onclick="link();" class="addbutton"/>
+       </td>
+    </tr>
+</table>
+
+<!-- <div style="width:100%;height:5px"></div> -->
+<table class="searchtb" >
+  <tbody>
+    <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2">
+      			<img src="${tp}/public/images/biaoti-icon.png"/>用户列表
+        	    <img src="${tp}/public/images/icon-xiangxia.png" width="11" height="11" />
+      </td>
+      <td class="searchtd3"></td>
+    </tr>
+    <tr>
+      <td colspan="3" id="yue-nr">
+      	<table class="datatb"  cellpadding="3" cellspacing="1" >
+          <tbody>
+            <tr class="listth" >
+              <td width="20%">用户名 </td>
+              <td width="20%">用户类型 </td>
+              <td width="30%">所属商家名称 </td>
+              <td width="15%">状态 </td>
+              <td width="15%">管理操作</td>
+            </tr>
+            <c:forEach items="${records.list}" var="customer" varStatus="status">
+            <tr class="listtr" onmouseout="this.style.backgroundColor='#ffffff';" onmouseover="this.style.backgroundColor='#E6F2FF'">
+             
+              <td  height="25" ><div ><strong>${customer.customer_name }</strong></div></td>
+              <td >
+              	<c:if test="${customer.customer_type == 1}"><span title="技维用户">技维用户</span></c:if>
+            	<c:if test="${customer.customer_type == 4}"><span title="客户使用者">客户使用者</span></c:if>
+            	<c:if test="${customer.customer_type == 5}"><span title="代理商">代理商</span></c:if>
+            	<c:if test="${customer.customer_type == 9}"><span title="超级管理员">超级管理员</span></c:if>
+             </td>
+              <td >${customer.business_name}</td>
+              <td > 	<c:if test="${customer.status == 0}">无效</c:if>
+                    	<c:if test="${customer.status == 1}">有效</c:if> 
+              </td>
+              <td >   <a class="green" href="./detail/${customer.customer_id}">查看</a>
+	           |
+	           <a class="green" href="./edit/${customer.customer_id}">修改</a>
+	           |
+	           <c:if test="${suser.customer_type ==1}">
+	           <a class="green" href="./editrole/${customer.customer_id}" style="color:#1a85c1">角色</a>
+	           |
+	           </c:if>
+	           <a class="green" href="./delete/${customer.customer_id}" onclick="return deleteConfirm();">删除</a>
+	           </td>
+             
+            </tr>
+             </c:forEach>
+          </tbody>
+        </table></td>
+    </tr>
+</table>
+   <div>  
+       <!--分页-->
+    	    <%@include file="/public/files/page.jsp"%>  
+</div>
+</form>
+   	    <%@include file="/public/files/loading.jsp"%> 
+   
+</body>
+</html> 

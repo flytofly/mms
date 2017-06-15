@@ -1,0 +1,275 @@
+package cn.mmdata.seq;
+
+import java.util.*;
+import java.io.*;
+import java.net.*;
+
+import cn.mmdata.util.*;
+import cn.mmdata.conf.*;
+
+public class DataReader
+{
+	private static final String _SEQ_FILE = "/seq.txt";
+	private static DataReader _instance;
+	private static HashMap _app_map;
+
+	/**
+	* 获取单例
+	*/
+	public static DataReader getInstance()
+	{
+		if (_instance == null) {
+			_instance = new DataReader();
+			_instance.init();
+			_instance.parse();
+		}
+		
+		return _instance;
+	}
+
+	/**
+	* 初始化MAP
+	*/
+	public void init()
+	{
+		if (_app_map == null) {
+			_app_map = new HashMap();
+		}
+	}
+
+	/**
+	* 一行域名属性存储到内存MAP
+	*/
+	private void addElement(String hostDomain, int offset, String offsetDomain, int count)
+	{
+		if (_app_map == null) { return; }
+
+		AppSeq as = (AppSeq) _app_map.get(hostDomain);
+		if (as == null) {
+			as = new AppSeq();
+			as.setDomain(hostDomain);
+			as.addOffsetDomain(offset, offsetDomain, count);
+			_app_map.put(hostDomain, as);
+		}else {
+			as.addOffsetDomain(offset, offsetDomain, count);
+		}
+    }
+
+	/**
+	* 获取域名对应的AppSeq对象
+	*/
+	public AppSeq getAppSeqByDomain(String domain)
+	{
+		if (_app_map == null) {
+			return null;
+		} else {
+			return (AppSeq) _app_map.get(domain);
+		}
+	}
+
+	/**
+	* 解析行内容
+	*/
+	public void parseLine(String line)
+	{
+		String[] parts = line.split("\\|");
+		if (parts.length < 4) { return; }
+
+		// 获取参数值
+		String hostDomain = parts[0];
+		int offset = StringUtil.parseInt(parts[1], -100);
+		String offsetDomain = parts[2];
+		int count = StringUtil.parseInt(parts[3], -1);
+		
+		// 判断偏移量和用户量的合理性
+		if (offset <= -100 || count < 0) { return; }
+
+		// 增加一行域名分析属性
+		addElement(hostDomain, offset, offsetDomain, count);
+	}
+
+	/**
+	* 开始解析
+	*/
+	public void parse() {
+		parseWebFile(_SEQ_FILE);
+	}
+
+	/**
+	* 读取文本文件内容
+	*/
+	public void parseWebFile(String fileName)
+	{
+		File file = new File(fileName);
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+				DataReader.class.getResourceAsStream(fileName), "utf-8"));
+			DataUtil.debug("parse begin ...");
+			
+			String line;
+			int count = 0;
+			while ( (line = br.readLine()) != null) 
+			{
+				// 解析过滤日志
+				parseLine(line);
+
+				count++;
+				if (count % 100000 == 0) {
+					DataUtil.debug("analyze " + count + " lines ... ");
+				}
+			}
+
+			DataUtil.debug("parse end ...");
+			br.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	* 读取文本文件内容
+	*/
+	public void parseFile(String fileName)
+	{
+		File file = new File(fileName);
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+				new FileInputStream(file), "utf-8"));
+			DataUtil.debug("parse begin ...");
+			
+			String line;
+			int count = 0;
+			while ( (line = br.readLine()) != null) 
+			{
+				// 解析过滤日志
+				parseLine(line);
+
+				count++;
+				if (count % 100000 == 0) {
+					DataUtil.debug("analyze " + count + " lines ... ");
+				}
+			}
+
+			DataUtil.debug("parse end ...");
+			br.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+     public  Map<String,String> returnVal(String domain){
+		
+		final int _PAGE_SIZE = 10;
+		final int _MAX_APP_NUM = 100;
+		final int _RANK_CHILD_NUM = 2;
+		
+		
+		String fileName = "C:\\Users\\Administrator\\Desktop\\20170509\\matrix\\WEB-INF\\data\\seq.txt";
+
+		DataReader obj = new DataReader();
+		obj.init();
+		obj.parseFile(fileName);
+
+		AppSeq as = obj.getAppSeqByDomain(domain);
+		DomainUnit[] duBeforePageArray = null;
+		AppSeqPos aspBefore = as.getSeqPosUnit(-1);
+		if (aspBefore != null) {
+			DomainUnit[] duBeforeArray = aspBefore.getRankDomainUnits(_MAX_APP_NUM);
+			duBeforePageArray = DomainUnit.getPageUnits(duBeforeArray, 1, _PAGE_SIZE);
+		}
+		StringBuffer nodes = new StringBuffer();
+		StringBuffer links = new StringBuffer();
+		nodes.append("{category:0").append(",").append("name:'"+domain+"(入口)'").append(",").append("value:1000"+"}").append(",");
+		//node 数据部分
+		for(DomainUnit s: duBeforePageArray){
+			nodes.append("{category:0").append(",").append("name:'"+s.getDispDomain(-1)+"'").append(",").append("value:"+s.getCount()+"}").append(",");
+			AppSeq asChild = obj.getAppSeqByDomain(s.getDomain());
+			AppSeqPos aspChildBefore = asChild.getSeqPosUnit(-1);
+			DomainUnit[] duChildBeforeArray = null;
+			if (aspChildBefore != null) { 
+			   duChildBeforeArray = aspChildBefore.getRankDomainUnits(_RANK_CHILD_NUM);
+		    }
+			for(DomainUnit s1: duChildBeforeArray){
+				nodes.append("{category:1").append(",").append("name:'"+s1.getDispDomain(-1)+"'").append(",").append("value:"+s1.getCount()+"}").append(",");
+			}
+		}
+		//link 数据部分
+		for(DomainUnit s: duBeforePageArray){
+			links.append("{source:'"+s.getDispDomain(-1)+"'").append(",").append("target:'"+domain+"(入口)'").append(",").append("weight:"+s.getCount()+"}").append(",");
+			AppSeq asChild = obj.getAppSeqByDomain(s.getDomain());
+			AppSeqPos aspChildBefore = asChild.getSeqPosUnit(-1);
+			DomainUnit[] duChildBeforeArray = null;
+			if (aspChildBefore != null) { 
+			   duChildBeforeArray = aspChildBefore.getRankDomainUnits(_RANK_CHILD_NUM);
+		    }
+			for(DomainUnit s1: duChildBeforeArray){
+				links.append("{source:'"+s1.getDispDomain(-1)+"'").append(",").append("target:'"+s.getDispDomain(-1)+"'").append(",").append("weight:"+s1.getCount()+"}").append(",");
+			}
+		}
+		Map<String,String> map = new HashMap<String, String>();
+		map.put("node", nodes.toString());
+		map.put("link", links.toString());
+		System.out.println(nodes.toString());
+		System.out.println(links.toString());
+		return map;
+	}
+
+	public static void main(String[] args)
+	{
+		final int _PAGE_SIZE = 10;
+		final int _MAX_APP_NUM = 100;
+		final int _RANK_CHILD_NUM = 2;
+		
+		
+		String fileName = "C:\\Users\\Administrator\\Desktop\\20170509\\matrix\\WEB-INF\\data\\seq.txt";
+
+		DataReader obj = new DataReader();
+		obj.init();
+		obj.parseFile(fileName);
+
+		String domain = "ctrip.com";
+		AppSeq as = obj.getAppSeqByDomain(domain);
+		DomainUnit[] duBeforePageArray = null;
+		AppSeqPos aspBefore = as.getSeqPosUnit(-1);
+		if (aspBefore != null) {
+			DomainUnit[] duBeforeArray = aspBefore.getRankDomainUnits(_MAX_APP_NUM);
+			duBeforePageArray = DomainUnit.getPageUnits(duBeforeArray, 1, _PAGE_SIZE);
+		}
+		//node 数据部分
+		/*for(DomainUnit s: duBeforePageArray){
+			//由ctrip.com搜出的一级域名
+			System.out.println("===============top===================");
+			System.out.println(s.getDomain()+","+s.getCount());
+			AppSeq asChild = obj.getAppSeqByDomain(s.getDomain());
+			AppSeqPos aspChildBefore = asChild.getSeqPosUnit(-1);
+			DomainUnit[] duChildBeforeArray = null;
+			if (aspChildBefore != null) { 
+			   duChildBeforeArray = aspChildBefore.getRankDomainUnits(_RANK_CHILD_NUM);
+		    }
+			System.out.println("===============Sec===================");
+			for(DomainUnit s1: duChildBeforeArray){
+				System.out.println(s1.getDomain()+","+s1.getCount());
+			}
+		}*/
+		//link 数据部分
+		StringBuffer links = new StringBuffer();
+		for(DomainUnit s: duBeforePageArray){
+			links.append(s.getDispDomain(-1)).append(",").append(domain+"(入口)").append(",").append(s.getCount()).append("\n");
+			AppSeq asChild = obj.getAppSeqByDomain(s.getDomain());
+			AppSeqPos aspChildBefore = asChild.getSeqPosUnit(-1);
+			DomainUnit[] duChildBeforeArray = null;
+			if (aspChildBefore != null) { 
+			   duChildBeforeArray = aspChildBefore.getRankDomainUnits(_RANK_CHILD_NUM);
+		    }
+			for(DomainUnit s1: duChildBeforeArray){
+				links.append(s1.getDispDomain(-1)).append(",").append(s.getDispDomain(-1)).append(",").append(s1.getCount()).append("\n");
+			}
+		}
+		System.out.println(links.toString());
+		
+		
+	}
+}

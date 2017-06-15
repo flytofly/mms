@@ -1,0 +1,90 @@
+#@layout()
+#define main()
+
+<body>
+    <div class="crumbs">
+        <a href="javascript:history.back()" class="back">< 返回</a>
+        <span class="title">详情</span>
+    </div>
+    <div class="main-box">
+        <div class="renqun-detail">
+				<ul>
+					<li><a href="#"><span>任务管理</span></a></li>
+					<li><a href="#">&gt; 任务信息</a></li>
+				</ul>
+				<a class="tx-con-bt-fh ri"  onclick="history.go(-1)">返回</a>
+			</div>
+			<!--新建任务-->
+			<div class="xjrw-con">
+				<ul>
+					<li>
+						<span>任务名：</span>
+						 #(record.detail_name) &nbsp;
+					</li>
+					<li>
+						<span>任务描述：</span>
+						  #(record.detail_desc) &nbsp;
+					</li>
+					<li>
+						<span>投放方式：</span>
+						 #if(record.out_type==2 ) 短信#end
+		    			#if(record.out_type==1 ) 外呼坐席#end&nbsp;
+					</li>
+					<li>
+						<span>素材名称：</span>
+						#(record.name) &nbsp;
+					</li>
+					<li>
+						<span>素材预览：</span>
+						#(record.content)&nbsp;
+					</li>
+					<li>
+						<span>选择人群：</span>
+						 #for(record:crowdList)
+			              	#(record.cname)&nbsp;&nbsp;&nbsp;
+			              #end&nbsp;
+					</li>
+				<!-- 	<li>
+				
+						<span>任务上限：</span>
+						 #(record.canpick_number) &nbsp;
+					</li> -->
+					<li>
+						<span>每日上限：</span>
+						 #(record.canpick_day) &nbsp;
+					</li>
+					<li>
+						<span>开始日期：</span>
+						  #(record.begindate) &nbsp;
+					</li>
+					<li>
+						<span>结束日期：</span>
+						 #(record.enddate) &nbsp;
+					</li>
+					<li>
+						<span>任务优先级：</span>
+						 #(record.priority) &nbsp;
+					</li>
+					<li>
+						<span>添加人：</span>
+						 #(record.log_name) &nbsp;
+					</li>
+					<li>
+						<span>使用状态：</span>
+						 #if(record.use_status == 1) 启用#end
+                 		#if(record.use_status == 2) 停用#end &nbsp;
+					</li>
+					<li>
+						<span>审核状态：</span>
+						  #if(record.status == 0) 待审核#end
+                          #if(record.status == 1) 审核通过#end 
+                 		  #if(record.status == 2) 审核不通过#end &nbsp;
+					</li>
+					
+				</ul>
+				
+			</div>	
+		</div>
+</body>
+</html>
+#end

@@ -1,0 +1,409 @@
+#@layout()
+#define main()
+<html>
+ <head> 
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" /> 
+  <meta charset="utf-8" /> 
+  <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link href="#(BasePath)/public/css/style.css" rel="stylesheet" type="text/css">
+ </head> 
+ <script type="text/javascript">
+ 
+ $(function(){
+	
+ })
+ 
+ /*  function top10(){
+
+	 $.ajax({
+		 url:"#(BasePath)/home/StatOptiStatistics",
+		 type:"post",
+	
+		  success : function(data){
+			  html="<tr><th>排名</th><th>域名</th><th>投放人数</th> <th>转化率</th></tr> ";
+				for(var i=0;i<data.length;i++){
+					
+					 html+="<tr><th>"+i+"</th><th>"+data.+"</th><th>投放人数</th> <th>转化率</th></tr>";
+				 }
+		   }
+		 
+	 });
+	 
+ } */
+  
+  function show(){
+   $("#seatTable").show();
+   $("#messageTable").show(); 
+   $("#open").hide();
+   $("#clo").show();
+  }
+  
+ function clo(){
+	 $("#seatTable").hide();
+	 $("#messageTable").hide();
+	 $("#open").show();
+	 $("#clo").hide();
+ }
+  //坐席ajax 分页
+  function page(obj){
+	  $.ajax({
+		  url : "#(BasePath)/home/getSeatStatistics?pageNumber="+obj,
+		  type : "POST",
+		  success : function(datas){
+			  			  
+			var data= datas.list;
+		    var html=" <tr>    <th>任务名</th>     <th>每日投放下限</th>    <th>每日投放上限</th>    <th>投放量</th>   <th>反馈量</th>   <th>意向量</th>   <th>意向A</th>    <th>意向B</th>   <th>转化率</th>   </tr> ";
+			if(data!=undefined){
+				  for(var i=0;i<data.length;i++){
+					html+="<tr><td>"+data[i].detail_name+"</td><td>"+data[i].canpick_day+"</td><td>"+data[i].minreqnum_day+"</td><td>"+data[i].picknumber+"</td><td>"+data[i].fb_count+"</td><td>"+data[i].yx_count+"</td><td>"+data[i].yxa_count+"</td><td>"+data[i].yxb_count+"</td><td>"+data[i].zhl+" %</td></tr>";	   
+				  }
+				    
+					var pageul="";
+				    pageul+="<li >当前页："+datas.pageNumber+"</li>";
+					if((datas.pageNumber-1)>0){
+						pageul+="<li onclick='page(1)' style='margin-left:8%;'>首页</li> ";
+						 var pageNumber=datas.pageNumber-1;
+						pageul+="<li onclick='page("+pageNumber+")'>上一页</li> ";
+					}
+					if((datas.pageNumber-1)==0){
+						pageul+="<li  style='margin-left:8%;color:green;'>首页</li> ";
+						pageul+="<li onclick='page(1)'>上一页</li> ";
+					}
+			
+					if((datas.pageNumber+1)<=datas.totalPage){
+						var pageNumber=datas.pageNumber+1;
+						pageul+="<li onclick='page("+pageNumber+")'>下一页</li> ";
+						pageul+="<li onclick='page("+datas.totalPage+")'>末页</li> ";
+
+					}
+					if((datas.pageNumber+1)>datas.totalPage){
+						pageul+="<li onclick='page("+datas.totalPage+")'>下一页</li> ";
+						pageul+="<li style='color:green;'>末页</li> ";
+
+					}      
+				    pageul+="<li style=' margin-left:4%;'>总页数："+datas.totalPage+"</li>";
+				    $("#pageseat").html(pageul);
+		            $("#tb1").html(html);	 
+			 }
+		  }  
+	  });
+  } 
+  
+  function pagemess(obj){
+		  $.ajax({
+			  url : "#(BasePath)/home/getMessageStatistics?pageNumber="+obj,
+			  type : "POST",
+			  success : function(datas){
+				  			  
+				var data= datas.list;
+			    var html=" <tr>    <th>任务名</th>     <th>每日投放下限</th>    <th>每日投放上限</th>    <th>投放量</th>   <th>反馈量</th>   <th>意向量</th>      <th>转化率</th>   </tr> ";
+			   if(data!=undefined){
+				   for(var i=0;i<data.length;i++){
+						html+="<tr><td>"+data[i].detail_name+"</td><td>"+data[i].canpick_day+"</td><td>"+data[i].minreqnum_day+"</td><td>"+data[i].picknumber+"</td><td>"+data[i].fb_count+"</td><td>"+data[i].yx_count+"</td><td>"+data[i].zhl +" %</td></tr>";	 
+			        
+					}
+				   
+				   var pageul="";
+				   pageul+="<li>当前页："+datas.pageNumber+"</li>";
+				
+					if((datas.pageNumber-1)>0){
+						pageul+="<li onclick='pagemess(1)' style=' margin-left:8%;'>首页</li> ";
+						var pageNumber=datas.pageNumber-1;
+						pageul+="<li onclick='pagemess("+pageNumber+")'>上一页</li> ";
+					}
+					if((datas.pageNumber-1)==0){
+						pageul+="<li style=' margin-left:8%;color:green;'>首页</li> ";
+						pageul+="<li onclick='pagemess(1)'>上一页</li> ";
+					}
+			
+					if((datas.pageNumber+1)<=datas.totalPage){
+						var pageNumber=datas.pageNumber+1;
+						pageul+="<li onclick='pagemess("+pageNumber+")'>下一页</li> ";
+						pageul+="<li onclick='pagemess("+datas.totalPage+")'>末页</li> ";
+
+					}
+					if((datas.pageNumber+1)>datas.totalPage){
+						pageul+="<li onclick='pagemess("+datas.totalPage+")'>下一页</li> ";
+						pageul+="<li style=' color:green;'>末页</li> ";
+
+					}      
+					pageul+="<li style='margin-left:4%;'>总页数："+datas.totalPage+"</li>";
+				    $("#pagemess").html(pageul);
+		            $("#tb2").html(html);	 
+				   
+				   
+			    }
+			  }  
+		  });
+	  } 
+ </script>
+ 
+ <body> 
+  <div class="tx-con"> 
+   <div class="tx-con-bt jrgk-bt"> 
+    <ul> 
+    <!--  <li><a href="#"><span>概况</span></a></li>  -->
+     <li style="margin-left: 105px;"><a href="#">今日概况</a></li> 
+    </ul> 
+   </div> 
+   
+   <div class="jrgk-con">
+    <div class="jrgk-con-tj jrgk-k"> 
+     <div class="le">
+      <div class="jrgk-con-xx"> 
+      
+       <div class="yuan"> 
+        <span>坐席任务数</span> 
+        <p>#(seatTSRecord.zx_count)</p> 
+       </div> 
+       <ul> 
+        <li><span>投放总量</span><p>#(seatTSRecord.picknumber)</p></li> 
+        <li><span>反馈总量</span><p>#(seatTSRecord.fb_count)</p></li> 
+        <li><span>转化量</span><p>#(seatTSRecord.yx_count)</p></li> 
+       </ul> 
+      </div> 
+      
+      <div class="cle"></div> 
+      <div class="jrgk-con-xx-bot" id="seatTable"> 
+       <span>坐席外呼</span> 
+       <table cellspacing="0" cellpadding="0" border="1"> 
+        <tbody id="tb1">
+         <tr> 
+          <th>任务名</th> 
+          <th>每日投放下限</th> 
+          <th>每日投放上限</th> 
+          <th>投放量</th> 
+          <th>反馈量</th> 
+          <th>意向量</th> 
+          <th>意向A</th> 
+          <th>意向B</th> 
+          <th>转化率</th> 
+         </tr> 
+           #for( record:seatList.getList())
+         <tr> 
+          <td>#(record.detail_name)</td> <td>#(record.canpick_day)</td><td>#(record.minreqnum_day)</td><td>#(record.picknumber)</td><td>#(record.fb_count)</td><td>#(record.yx_count)</td><td>#(record.yxa_count)</td><td>#(record.yxb_count)</td><td>#(record.zhl)%</td>
+         </tr> 
+            #end
+        </tbody>
+       </table>         
+       <ul id="pageseat" style="display: blick;font-size: 14px;color: #36abdb;margin-left: 8px;"> 
+         <li  >当前页：#(seatList.pageNumber)</li> 
+        #if(seatList.getList().size()>0)
+        
+        #if((seatList.pageNumber-1)>0)
+          <li style="margin-left: 8%;" onclick="page(1)" >首页</li> 
+          <li    onclick="page(#(seatList.pageNumber-1))">上一页</li>          
+         #end
+         #if((seatList.pageNumber-1)==0)
+              <li style="margin-left: 8%;"  style="color: green;">首页</li> 
+              <li   onclick="page(1)">上一页</li>
+          #end
+         #if(seatList.totalPage>(seatList.pageNumber+1))
+          <li   onclick="page(#(seatList.pageNumber+1))">下一页</li>
+          <li  onclick="page(#(seatList.totalPage))">末页</li> 
+          #end
+        #if(seatList.totalPage==(seatList.pageNumber+1))
+          <li   onclick="page(#(seatList.totalPage))">下一页</li> 
+           <li style=" color: green;">末页</li> 
+          #end
+         
+        #end
+         <li  style="margin-left: 4%;" >总页数：#(seatList.totalPage)</li>   
+       </ul> 
+     </div> 
+     </div> 
+     
+     
+     
+     
+     <div class="ri"> 
+      <div class="jrgk-con-xx"> 
+       <div class="yuan"> 
+	        <span>短信任务数</span> 
+	        <p>#(messTSRecord.mess_count)</p> 
+	        
+	       </div> 
+	       <ul> 
+	        <li><span>投放总量</span><p>#(messTSRecord.picknumber)</p></li> 
+	        <li><span>反馈总量</span><p>#(messTSRecord.fb_count)</p></li> 
+	        <li><span>转化量</span><p>#(messTSRecord.yx_count)</p></li> 
+	       </ul> 
+	      </div> 
+      
+      <div class="cle"></div> 
+      
+      <div class="jrgk-con-xx-bot" id="messageTable"> 
+       <span>短信</span> 
+       <table id="tb2" cellspacing="0" cellpadding="0" border="1"> 
+        <tbody>
+         <tr> 
+          <th>任务名</th> 
+          <th>每日投放下限</th> 
+          <th>每日投放上限</th> 
+          <th>投放量</th> 
+          <th>反馈量</th> 
+          <th>意向量</th> 
+          <th>转化率</th> 
+         </tr> 
+          #for(record:messageList.getList())
+         <tr> 
+          <td>#(record.detail_name)</td> <td>#(record.canpick_day)</td><td>#(record.minreqnum_day)</td><td>#(record.picknumber)</td><td>#(record.fb_count)</td><td>#(record.yx_count)</td><td>#(record.zhl) %</td>
+         </tr> 
+         #end
+        </tbody>
+       </table>       
+      <ul id="pagemess" style="display: blick; font-size: 14px;color: #36abdb ;margin-left: 8px;" > 
+                <li  >当前页：#(messageList.pageNumber)</li>         
+       #if(messageList.getList().size()>0)
+	        
+	        #if((messageList.pageNumber-1)>0)
+	          <li  style="margin-left: 8%;" onclick="pagemess(1)" >首页</li>  	          
+	          <li    onclick="pagemess(#(messageList.pageNumber-1))">上一页</li>
+	         #end
+	         #if((messageList.pageNumber-1)==0)
+	         <li  style="margin-left:8%; green;">首页</li> 
+	          <li  onclick="pagemess(1)">上一页</li>     
+	              
+	          #end
+	         #if(messageList.totalPage>=(messageList.pageNumber+1))
+	          <li  onclick="pagemess(#(messageList.pageNumber+1))">下一页</li> 
+	          <li   onclick="pagemess(#(messageList.totalPage))">末页</li>  
+	          #end
+	        #if(messageList.totalPage<(messageList.pageNumber+1))
+	          <li   onclick="pagemess(#(messageList.totalPage))">下一页</li> 
+	           <li style="color: green;">末页</li> 
+	            #end
+        #end
+        
+           <li  style="margin-left: 4%;" >总页数：#(messageList.totalPage)</li>
+       </ul> 
+
+      </div> 
+     </div> 
+   
+     
+     <div class="cle" ></div> 
+     <div  id="open"  class="jrgk-zs" onclick="show()" style="cursor: pointer;display:blick;">
+	      <span >展开</span>
+	      <div class="open">
+	       <em class="dot-top"></em>
+	       <em class="dot-top"></em>
+	      </div>
+     </div> 
+     
+       <div id="clo"  class="jrgk-zs" onclick="clo()" style="cursor: pointer; display:none;">
+	      <span  >收起</span>
+	      <div class="open">
+	       <em class="dot-bottom"></em>
+	       <em class="dot-bottom"></em>
+	      </div>
+     </div> 
+     
+    </div> 
+    
+    
+    
+    <div class="jrgk-x"></div> 
+    <div class="cle"></div> 
+    
+    <div class="jrgk-k jrgk-con-gl"> 
+	     <div class="item"> 
+	      <div class="item-bt"> 
+	       <span>任务管理</span> 
+	       <a href="#(BasePath)/task/edit"><b>新建任务</b></a> 
+	      </div> 
+	      <ul class="le"> 
+	       <li><span>所有任务</span><font>#(taskRecord.AllTask)</font></li> 
+	       <li><span>待执行任务</span><font>#(taskRecord.WaitingTask)</font></li> 
+	       <li><span>在执行任务</span><font>#(taskRecord.PerformedTask)</font></li> 
+	       <li><span>已结束任务</span><font>#(taskRecord.EndTask)</font></li> 
+	      </ul> 
+	      <ul class="ri"> 
+	       <li><span>待审核</span><font>#(taskRecord.WaitingAudit)</font></li> 
+	       <li><span>审核通过</span><font>#(taskRecord.ThroughAudit)</font></li> 
+	       <li><span>审核未通过</span><font>#(taskRecord.NotAudit)</font></li> 
+	      </ul> 
+	     </div> 
+     
+     <div class="item"> 
+      <div class="item-bt"> 
+       <span>人群管理</span> 
+      <a href="#(BasePath)/data/crowd/edit?type=add"> <b >新建人群</b> </a>
+      </div> 
+      <ul class="le"> 
+       <li><span>所有人群</span><font>#(crowdRecord.AllCrowd)</font></li> 
+       <li><span>在使用人群</span><font>#(crowdRecord.cusednum)</font></li> 
+       <li><span>未使用人群</span><font>#(crowdRecord.cunusednum)</font></li> 
+      </ul> 
+      
+      <ul class="ri"> 
+       <li><span>待审核</span><font>#(crowdRecord.WaitingAudit)</font></li> 
+       <li><span>审核通过</span><font>#(crowdRecord.ThroughAudit)</font></li> 
+       <li><span>审核未通过</span><font>#(crowdRecord.NotAudit)</font></li> 
+      </ul> 
+     </div> 
+     
+     <div class="item"> 
+      <div class="item-bt"> 
+       <span>素材管理</span> 
+       <a href="#(BasePath)/material/manage/edit?type=add"><b>新建素材</b> </a>
+      </div> 
+      <ul class="le"> 
+       <li><span>所有素材</span><font>#(marerialRecord.Allmaterial)</font></li> 
+       <li><span>在使用素材</span><font>#(marerialRecord.cusednum)</font></li> 
+       <li><span>未使用素材</span><font>#(marerialRecord.cunusednum)</font></li> 
+      </ul> 
+      <ul class="ri"> 
+       <li><span>待审核</span><font>#(marerialRecord.WaitingAudit)</font></li> 
+       <li><span>审核通过</span><font>#(marerialRecord.ThroughAudit)</font></li> 
+       <li><span>审核未通过</span><font>#(marerialRecord.NotAudit)</font></li> 
+      </ul> 
+     </div> 
+     
+    <!--  <div class="cle"></div> 
+     <div class="box-table le"> 
+      <span>转化率 TOP10 规则排行</span> 
+      <table cellspacing="0" cellpadding="" border=""> 
+       <tbody id="top10">
+        <tr> 
+         <th>排名</th> 
+         <th>域名</th> 
+         <th>投放人数</th> 
+         <th>转化率</th> 
+        </tr> 
+        <tr> 
+         <td>1</td>   <td>58.com</td>   <td>3000</td>   <td>5.7%</td> 
+        </tr> 
+       </tbody>
+      </table> 
+     </div>  -->
+     
+    <!--  <div class="box-table ri"> 
+      <span>转化率 TOP10 规则排行</span> 
+      <table cellspacing="0" cellpadding="" border=""> 
+       <tbody>
+        <tr> 
+         <th>排名</th> 
+         <th>域名</th> 
+         <th>投放人数</th> 
+         <th>转化率</th> 
+        </tr> 
+        <tr> 
+         <td>1</td> 
+         <td>58.com</td> 
+         <td>3000</td> 
+         <td>5.7%</td> 
+        </tr> 
+       </tbody>
+      </table> 
+     </div>  -->
+     
+    </div> 
+   <div class="cle"></div> 
+   <!--   <div class="jrgk-tit ri">
+     相关度 = 重合用户数/APP总用户数
+    </div>   -->
+   </div> 
+  </div></body>
+</html>
+#end

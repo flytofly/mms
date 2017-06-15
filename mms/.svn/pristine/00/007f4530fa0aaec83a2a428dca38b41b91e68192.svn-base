@@ -1,0 +1,65 @@
+package cn.mmdata.mms.data.tag;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.jfinal.core.Controller;
+import com.jfinal.kit.StrKit;
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Record;
+
+import cn.mmdata.mms.data.tag.client.QueryClient;
+import cn.mmdata.mms.data.tag.client.QueryRulesResult;
+import cn.mmdata.mms.data.tag.client.QueryRulesRuleInfo;
+
+public class TagController extends Controller {
+
+	public void queryTags(){
+		String tag =  getPara("tag","留学移民");
+		renderJson(QueryClient.queryTags(tag));
+	}
+	
+	public void queryRules(){
+		String tag =  getPara("tag","");
+		QueryRulesResult rulesResult = QueryClient.queryRulesToResult(tag);
+		List<QueryRulesRuleInfo> rules = rulesResult.getRules();
+
+		JsonRule json = new JsonRule();
+		List<JsonRuleInfo> rows = new ArrayList<JsonRuleInfo>();
+		for(QueryRulesRuleInfo rule : rules){
+			System.out.println(rule);
+			JsonRuleInfo jsonrule = new JsonRuleInfo();
+			jsonrule.setId(rule.getRuleid());
+			String[] cell = {"",""};
+			cell[0] = rule.getRuleid() + "";
+			cell[1] = "2000";
+			jsonrule.setCell(cell);
+			rows.add(jsonrule);
+		}
+		json.setRows(rows);
+		renderJson(json);
+	 }
+	
+	public void echoRules(){
+		String cid =  getPara("cid");
+		if(StrKit.isBlank(cid)){
+			renderJson("");
+		    return;
+		}
+		int crowdId = Integer.parseInt(cid);
+        List<Record> records = Db.find("select * from mms.crowd_rule a where a.cid = ? and a.`status` = 1",crowdId);
+		JsonRule json = new JsonRule();
+		List<JsonRuleInfo> rows = new ArrayList<JsonRuleInfo>();
+		for(Record rule : records){
+			JsonRuleInfo jsonrule = new JsonRuleInfo();
+			jsonrule.setId(rule.getInt("rid"));
+			String[] cell = {"",""};
+			cell[0] = rule.getInt("rid") + "";
+			cell[1] = "2000";
+			jsonrule.setCell(cell);
+			rows.add(jsonrule);
+		}
+		json.setRows(rows);
+		renderJson(json);
+	}
+}

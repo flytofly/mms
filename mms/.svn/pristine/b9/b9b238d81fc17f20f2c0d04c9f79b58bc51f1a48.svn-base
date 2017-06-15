@@ -1,0 +1,151 @@
+package cn.mmdata.util;
+
+import java.util.*;
+import java.net.URLEncoder;
+import java.text.DecimalFormat;
+
+/**
+ *
+ * <p>Title:字符串操作实用工具类</p>
+ * <p>Description: 进行字符串替换等常用操作</p>
+ * <p>Copyright: Copyright (c)yicha 2007</p>
+ * <p>Company:易查 </p>
+ * @author yudong
+ * @version 1.0
+ */
+public class StringUtil
+{
+     /**
+      * 不允许构造实例
+      */
+     private StringUtil() {
+     }
+
+     /**
+      * 进行字符串替换
+      * @param source 要进行替换操作的字符串
+      * @param from   要替换的字符串
+      * @param to     要替换成的字符串
+      * @return 替换后的字符串
+      */
+     static public String replaceAll(String source, String from, String to)
+	 {
+	  if ( (source == null) || source.equals("") || (from == null) ||
+	      (to == null) || from.equals("") || from.equals(to)) {
+	       return source;
+	  }
+
+	  StringBuffer sb = new StringBuffer(source.length());
+	  String s = source;
+	  int index = s.indexOf(from);
+	  int fromLen = from.length();
+
+	  while (index != -1) {
+	       sb.append(s.substring(0, index));
+	       sb.append(to);
+	       s = s.substring(index + fromLen);
+	       index = s.indexOf(from);
+	  }
+
+	  return sb.append(s).toString();
+     }
+
+	 /**
+	 * 对字符串做UTF8编码
+	 */
+	 static public String utf8Enc(String src)
+	 {
+		 String result = "";
+		 try {
+		 	result = URLEncoder.encode(src, "utf-8");
+		 }
+		 catch (Exception ex) {
+		 }
+		 return result;
+	 }
+
+	public static int parseInt(String str, int defaultValue){
+		if(str==null){
+			return defaultValue;
+		}
+		try{
+			return Integer.parseInt(str);
+		}
+		catch(NumberFormatException e){
+			return defaultValue;
+		}
+	}
+
+	public static double parseDouble(String str, double defaultValue){
+		if(str==null){
+			return defaultValue;
+		}
+		try{
+			return Double.parseDouble(str);
+		}
+		catch(NumberFormatException e){
+			return defaultValue;
+		}
+	}
+
+	public static String parseString(String str, String defaultValue) {
+		if (str == null) {
+			return defaultValue;
+		}
+
+		return str;
+	}
+
+	/**
+	* 返回独立的String列表
+	*/
+	public static String[] getDistinctString(String[] res)
+	{
+		HashSet hs = new HashSet();
+		ArrayList results = new ArrayList();
+
+		for (int i=0; i < res.length; i++)
+		{
+			String str = res[i];
+			if (!hs.contains(str)) {
+				hs.add(str);
+				results.add(str);
+			}
+		}
+
+		return (String[]) results.toArray(new String[0]);
+	}
+
+	/**
+	* 获取百分数格式数据
+	*/
+	public static String getDecimalFormat(float value, int digitNum)
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append("0.");
+		for (int i=0; i < digitNum; i++) {
+			sb.append("0");
+		}
+
+		DecimalFormat df = new DecimalFormat(sb.toString());
+		return df.format(value*100) + "%";
+	}
+
+	/**
+	* 获取百分数格式数据
+	*/
+	public static String getDecimalFormat(String value, int digitNum)
+	{
+		Float f = 0.0f;
+
+		try {
+			f = Float.parseFloat(value);
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		return getDecimalFormat(f, digitNum);
+	}
+
+}

@@ -1,0 +1,127 @@
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>人群管理</title>
+<link href="#(tp)/public/css/list.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+<form name="form" id="form" action="./rlist">
+ <input type="hidden" id="type" name="type" value="search" />
+<table class="searchtb">
+  <tbody>
+    <tr class="searchtr2">
+      <td colspan="3"> 
+  	 <img src="#(tp)/public/images/yue-icon.png" style="margin-bottom:-2px;margin-left:20px;">  人群搜索  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      人群名:&nbsp;&nbsp;
+      <input type="text" name="record.cname" size="12" value="#(record.cname)" id="search" class="input"/>
+        <input type="submit" name="Submit" value="查询 " class="search"/>
+       </td>
+    </tr>
+  </tbody>
+</table>
+<table class="searchtb" >
+ 
+    <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2">
+			<img src="#(tp)/public/images/biaoti-icon.png"/>人群列表
+        	<img src="#(tp)/public/images/icon-xiangxia.png" width="11" height="11" />
+	  </td>
+      <td class="searchtd3"></td>
+    </tr>
+    <tr>
+      <td colspan="3" id="yue-nr"><table class="datatb"  cellpadding="3" cellspacing="1" >
+          <tbody>
+            <tr class="listth" >
+             <td width="5%">选择</td>
+            <td width="20%">人群名</td>
+           <td width="5%">规则数</td>
+           <td width="10%">规则逻辑</td>
+           <td width="15%">添加时间</td>
+           <td width="15%">添加人</td>
+           <td width="10%">状态</td>
+           <td width="15%">最后处理时间</td>
+            </tr>
+            #for(record:records.getList())
+            <tr class="listtr" onmouseout="this.style.backgroundColor='#ffffff';" onmouseover="this.style.backgroundColor='#E6F2FF'">
+             <td><input type="checkbox" onclick="check('#(record.cid)','#(record.cname)');"/></td>
+             <td> #(record.cname)</td>
+	           <td> #(record.rulenum)</td>
+	           <td> 
+                	#if(record.is_show == 1)全包含#end 
+                	#if(record.is_show == 2)包含一个#end
+             
+	           	</td>
+	           <td> 
+                  #(record.import_time)
+	           	</td>
+	           <td> 
+                   #(record.loguser )
+	           	</td>
+	           	   <td> 
+                	 #if(record.status == 0)待审核#end 
+                	 #if(record.status == 1)正常#end
+                	 #if(record.status == 2)审核中#end
+                	 #if(record.status == 3)审核未通过#end
+                	 #if(record.status == 4)停用#end
+             
+	           	</td>
+	           	   <td> 
+                	#(record.lastupdatedate)
+	           	</td>
+            </tr>
+            #end
+          </tbody>
+        </table></td>
+    </tr>
+</table>
+   <div>  
+       
+       <!--分页-->
+   	   #@paginate(records.pageNumber, records.totalPage, "") 
+   	    <!--分页 END-->
+
+    
+</div>
+ </form>
+<!--    	    <%@include file="/public/files/loading.jsp"%>  -->
+
+
+
+<script>
+function isCon(array, val){
+	if(array.length == 1){
+		return false;
+	}
+	for(var i=0; i<array.length; i++){
+		if(array[i] == val && array[i] != "undefined"){
+			return true;
+		}
+	}
+	return false;
+}
+
+function check(cid,cname){
+	var openercid = window.opener.document.getElementById("cids");
+	var openercidarray = openercid.value.split(",");
+	var ttaskcrowd = window.opener.document.getElementById("ttaskcrowd");
+	if (cid && (!isCon(openercidarray, cid))) {
+		openercid.value = openercid.value + cid + ",";
+		//添加行
+		var newTr = ttaskcrowd.insertRow();
+		newTr.className = ""; //添加class
+		//添加两列
+		var newTd0 = newTr.insertCell();
+		var newTd1 = newTr.insertCell();
+		//设置列内容和属性
+		newTd0.innerHTML = '<input type=hidden  name="cid" value='+cid+' class="cl_cid"/>'
+				+ cname + '';
+		newTd1.innerHTML = '<button class="look" onclick="removebus(this)">删除</button>';
+		 
+	}
+
+}
+</script>
+
+</body>
+</html> 

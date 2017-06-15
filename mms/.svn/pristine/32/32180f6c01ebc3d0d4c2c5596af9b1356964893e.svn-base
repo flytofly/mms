@@ -1,0 +1,100 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>外呼项目</title>
+<script type="text/javascript" src="<%=request.getContextPath()%>/public/js/xiangmu.js"></script>
+<script src="<%=request.getContextPath()%>/public/js/My97DatePicker/WdatePicker.js"></script>
+<script src="<%=request.getContextPath()%>/jquery/js/jquery-1.9.1.js"></script>
+<link href="<%=request.getContextPath()%>/public/css/css.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/public/css/style.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/public/css/mainframe.css" rel="stylesheet" type="text/css" />
+<script>
+function isCon(array, val){
+	if(array.length == 1){
+		return false;
+	}
+	for(var i=0; i<array.length; i++){
+		if(array[i] == val && array[i] != "undefined"){
+			//alert("alter true");
+			return true;
+		}
+	}
+	return false;
+}
+
+        
+
+
+function changeproject(projectId,projectName){
+	var openerbid = window.opener.document.getElementById("sgroupIds");
+    var openerNames = window.opener.document.getElementById("sgroupNames");
+    var openerbidarray = openerbid.value.split(",");
+        if(projectId && (!isCon(openerbidarray,projectId))){
+        openerbid.value = openerbid.value + projectId + ",";
+        openerNames.value= openerNames.value+projectName+","
+	var sgroupurl =window.opener.document.getElementById("sgroupurl");
+	var newTr = sgroupurl.insertRow();
+	newTr.className = "tr_bus"; //添加class
+	//添加两列
+	var newTd0 = newTr.insertCell();
+//	var newTd1 = newTr.insertCell();
+	var newTd2 = newTr.insertCell();
+// 	var newTd3 = newTr.insertCell();
+	
+    newTd0.innerHTML = '<input type=hidden value='+projectId+' class="sgroupId"/><input type=hidden value='+projectName+' class="sgroupName"/>'+projectName+''; 
+//     newTd1.innerHTML = '<input type=button value="删除" onclick="removebus(this)"/>';
+// // 	newTd0.innerHTML = '<td width="10%" >'+projectId+'</td>';
+// 	newTd1.innerHTML = '<td width="60%">'+projectName+'</td>';
+//	newTd1.innerHTML = '需求数量：<input type="text" class="relType validate[required] re_input" value="0" size="8" >';
+	newTd2.innerHTML = '<input type=button value="删除" onclick="removebus(this,5)"/>';
+}
+}
+</script>
+</head>
+<body onload="on_load();">
+	<div id="mainpage" class="glist_main">
+		<form name="form" id="form" action="search.action">
+			<input type="hidden" id="type" name="type" value="search" />
+			<input type="hidden" id="" name="status" value="1" />
+			<input type="hidden" id="" name="usestatus" value="1" />
+			<h1>
+				<img src="<%=request.getContextPath()%>/public/images/ico07.gif" />
+				<label>行业查询</label> <input type="text" name="cat" size="12"
+					value="${cat}" id="cat" class="input" /> 
+				外呼项目名称
+				<input type="text" name="urlrule" size="12" value="${urlrule}"
+					id="urlrule" class="input" />
+				<input name="Submit" type="submit" class="right-button02"
+					value="查 询" />
+			</h1>
+			<div class="glist_bt"></div>
+			<div class="list">
+				<table width="100%" border="0">
+					<tr>
+           				<th width="5%">选择</th>
+						<th width="20%">行业</th>
+						<th width="20%">规则</th>
+					</tr>
+					<s:iterator value="records" var="lists">
+						<s:iterator value="#lists" var="record">
+							<tr>
+								<td> <input type="checkbox"  onclick="changeproject('<s:property value="#record.id"/>','<s:property value="#record.urlrule"/>');"/></td>
+	           					<td><s:property value="#record.cat" /></td>
+								<td><s:property value="#record.urlrule" /></td>
+							</tr>
+						</s:iterator>
+					</s:iterator>
+</table>
+   <div>  
+       <!--分页-->
+    	    <%@include file="/public/files/page.jsp"%>  
+</div>
+</form>
+   	        <%@include file="/public/files/loading.jsp"%> 
+   
+</body>
+</html> 

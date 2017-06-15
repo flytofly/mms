@@ -1,0 +1,178 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>网站管理</title>
+<link href="<%=request.getContextPath()%>/resource/templates/basic/css/css.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/resource/templates/basic/css/style.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/resource/templates/basic/css/mainframe.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/resource/jquery/jquery-validation/css/validationEngine.jquery.css" rel="stylesheet" type="text/css"/>
+<script src="<%=request.getContextPath()%>/resource/jquery/jquery-1.9.1.js"></script>
+<script src="<%=request.getContextPath()%>/resource/jquery/jquery-validation/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+<script src="<%=request.getContextPath()%>/resource/jquery/jquery-validation/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+<!--main-->
+<div id="mainpage" class="glist_main">
+    <h1>网站管理-网站管理-编辑</h1>
+    <div class="detail" style="width:80%;">
+   	<form name="cform" id="cform" action="<%=request.getContextPath()%>/domain/urlrule/check" method="post"  >
+    	<input type="hidden" id="has_clicked" value="0"/>
+    	<input type="hidden" name="record.level4Id" value="${record.level4Id }"/>
+    	<input type="hidden" name="urlrule.ruleId" value="${record.ruleId}"/>
+      <table>
+        <tr>
+          <td colspan="2" class="bule">网站管理审核</td>
+        </tr>
+        <tr>
+		    <td  width="16%" align="right">规则：</td>
+		    <td width="84%">
+		    &nbsp; ${record.rule}
+		    </td>
+        </tr>
+         <tr>
+		    <td  width="16%" align="right">所属行业：</td>
+		    <td width="84%">
+		    &nbsp;<select id = "level1Id" name="" onchange="loadlevel2();">
+		    		<option selected="selected" value="">---请选择一级分类---</option>
+		    	</select>
+		    	<select id = "level2Id" name="" onchange="loadlevel3();">
+		    		<option selected="selected" value="">---请选择二级分类---</option>
+		    	</select>
+		    	<select id = "level3Id" name="record.level3Id" class="validate[required]">
+		    		<option selected="selected" value="">---请选择三级分类---</option>
+		    	</select>
+		    	<input type="hidden" name="record.level3Name" id="level3Name"/>
+		    </td>
+        </tr>
+          <tr>
+		    <td  width="16%" align="right">描述：</td>
+		    <td width="84%">
+		       &nbsp;<input type="text" name ="urlrule.desc" value = "${record.desc}" class="validate[required] re_input" size="40" maxlength="100"/>
+		    </td>
+        </tr>
+          <tr>
+		    <td  width="16%" align="right">备注：</td>
+		    <td width="84%">
+		       &nbsp;<input type="text" name ="urlrule.remark" value = "${record.remark}" size="40" maxlength="100"/>
+		    </td>
+        </tr>
+          <tr>
+		    <td  width="16%" align="right">审核结果：</td>
+		    <td width="84%">
+		     &nbsp; 
+		     <select id="sstatus" name="record.status" onchange="statuschange()" class="validate[required]">
+	       	 	<option value="1">审核通过</option>
+	       	 	<option value="2">审核不通过</option>
+	       	 </select>
+		    </td>
+        </tr>
+        
+         <tr id="trCheckMsg" style="display: none;">
+		    <td  width="16%" align="right">审核不通过原因：</td>
+		    <td width="84%">
+		     &nbsp;  <input type="text" name="record.checkMsg" class="validate[required] re_input"   size="20" maxlength="100"/>
+        	
+		    </td>
+        </tr>
+         <tr>
+		    <td align="center" colspan="2"><input type="button" class="tianjia" value="提交" onclick="return clickSubmit();"/><input type="button" value="返回" class="tianjia" onclick="history.go(-1)"/></td>
+        </tr>
+     </table>
+     </form>
+     <div class="clearfix w20"></div>   
+    </div>
+    
+</div>
+<!--main--end-->
+ 
+ 
+<script>
+	$(function(){
+		$('#cform').validationEngine('attach'); 
+		 
+		//获取一级列表
+		if($("#level1Id").children("option").length == 1){
+			$.post("<%=request.getContextPath()%>/getLevel1ByBid?bid=1",function(data){
+				var records = data.level1s;
+				var length = records.length;
+				$("#level1Id").children("option[value!='']").remove();
+				if(records != null){
+					for(var i=0;i<length;i++){
+						$("<option/>").attr("value",records[i].level1Id).text(records[i].level1Name).appendTo($("#level1Id"));
+					}
+				$("#level1Id").val('${record.level1Id}');
+				loadlevel2();
+				}
+				//回显
+			},"JSON");
+			
+		}
+	});
+	
+	function clickSubmit(){
+		if(jQuery('#cform').validationEngine('validate')){
+		    var hasClick = $("#has_clicked").val();
+			if("1"== hasClick){
+			    window.alert("表单页面不能重复提交，30秒钟后请提交该页面！");
+			    setTimeout('if($("#has_clicked")){ $("#has_clicked").val("0");}',10000);
+			    return false;
+			}
+			$("#has_clicked").val("1");
+			$("#level3Name").val($("#level3Id").find("option:selected").text());
+			$('#cform').submit();
+		}
+	}
+	function statuschange(){
+		var type = $("#sstatus").val();
+		if(type ==2 ){
+			$("#trCheckMsg").show();
+		}else{
+			$("#trCheckMsg").hide();
+		}
+	}
+	
+	/*
+	加载二级
+	*/
+	function loadlevel2(){
+			var level1Id = $("#level1Id").val();
+			$.post("<%=request.getContextPath()%>/getLevel2ByLevel1Id?level1Id="+level1Id,function(data){
+				var records = data.level2s;
+				var length = records.length;
+				$("#level2Id").children("option[value!='']").remove();
+				if(records != null){
+					for(var i=0;i<length;i++){
+						$("<option/>").attr("value",records[i].level2Id).text(records[i].level2Name).appendTo($("#level2Id"));
+					}
+					$("#level2Id").val('${record.level2Id}');
+					loadlevel3();
+				}
+			},"JSON");
+			$("#level3Id").children("option[value!='']").remove();
+	}
+	
+	/*
+	加载三级
+	*/
+	function loadlevel3(){
+			var level2Id = $("#level2Id").val();
+			$.post("<%=request.getContextPath()%>/getLevel3ByLevel2Id?level2Id="+level2Id,function(data){
+				var records = data.level3s;
+				var length = records.length;
+				$("#level3Id").children("option[value!='']").remove();
+				if(records != null){
+					for(var i=0;i<length;i++){
+						$("<option/>").attr("value",records[i].level3Id).text(records[i].level3Name).appendTo($("#level3Id"));
+					}
+					$("#level3Id").val('${record.level3Id}');
+				}
+			},"JSON");
+	}
+</script>
+ 
+</body>
+</html>

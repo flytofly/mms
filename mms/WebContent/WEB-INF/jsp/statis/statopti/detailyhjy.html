@@ -1,0 +1,123 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>优化建议</title>
+<script src="#(BasePath)/public/jquery/js/jqsel.js"></script>
+<script src="#(BasePath)/public/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript">
+	function del(obj){
+		if(window.confirm('你确定要删除吗？')){
+			   var detail_id= #(record.detail_id);
+			   var ruleId=  $(obj).parent().parent().children("input:first-child").val()
+				$.ajax({
+					type : "post",
+					url : "#(uri)/statis/statopti/del",
+					dataType : "text",
+					data : {
+						"ruleId" : ruleId,
+						"detail_id":detail_id
+						 
+					},
+					success : function(data) {
+						$(obj).parent().parent().remove();
+						  alert(data)
+					}
+				});
+            return true;
+         }else{
+            return false;
+        }
+	}
+
+	function add(obj){
+		
+		if(window.confirm('你确定要增加吗？')){
+				var detail_id= #(record.detail_id);
+				   var ruleId=  $(obj).parent().parent().children("input:first-child").val()
+				$.ajax({
+					type : "post",
+					url : "#(uri)/statis/statopti/add",
+					dataType : "text",
+					data : {
+						"ruleId" : ruleId,
+						"detail_id":detail_id
+					},
+					success : function(data) {
+						$(obj).parent().parent().remove();
+						alert(data)
+					}
+				});
+				   return true;
+		}else{
+	            return false;
+		}
+		
+	}
+</script>
+</head>
+<body>
+    <div class="tf-tabs clearfix">
+        <ul>
+            <li><a href="#(BasePath)/statis/statopti/detailList?detail_id=#(record.detail_id)&out_type=#(record.out_type)"><span>按日期统计</span></a></li>
+            <li><a href="#(BasePath)/statis/statopti/detailRuleList?detail_id=#(record.detail_id)&out_type=#(record.out_type)"><span>按规则统计</span></a></li>
+            <li class="current"><a href="#(BasePath)/statis/statopti/detailYhjy?detail_id=#(record.detail_id)&out_type=#(record.out_type)"><span><strong>优化建议</strong></span></a></li>
+        </ul>
+    </div>
+    <div class="main-box">
+       <div class="filter clearfix">
+           <ul>
+               <li>
+					<input style="width:185px; text-align:center; padding-left:0;" type="text" name="pickday" size="10" readonly onClick="WdatePicker({el:'pickday'})" value='#(record.pickday)'   placeholder="选择统计日期"  id="pickday" class="scinput validate[required] tx-con-form-tet" />
+                   <input type="submit" class="search-icon">
+               </li>
+           </ul>
+       </div>
+        <div class="datas">
+	 <!-- 条件筛选框的位置 -->
+	  <form action="#(BasePath)/statis/statopti/detailYhjy" id="form" method="post">
+		  <input type="hidden" name="out_type" value="#(record.out_type)">
+		  <input type="hidden" name="detail_id" value="#(record.detail_id)">
+		  <input type="hidden" value="#(record.detail_id)" />
+			<table >
+				<tr style="height:40px;">
+					<th style="width:40px;">序号</th>
+					<th>规则编号</th>
+					<th>规则说明</th>
+					<th>规则预计数量</th>
+					<th>相对转化率</th>
+					<th>操作</th>
+				</tr>
+				
+				 #for(record:records.getList())
+				 <tr  onmouseout="this.style.backgroundColor='#ffffff';"
+					onmouseover="this.style.backgroundColor='#E6F2FF'">
+				    <input type="hidden" value="#(record.ruleId )"  id="ruleId"/>
+					<td>#(for.index+1)</td>
+					<td>#(record.ruleId )</td>
+					<td>#(record.desc )</td>
+					<td>#(record.uv )</td>
+					<td>#(record.zhl) %</td>
+					<td>
+						#if(record.type==1 ) 
+							<p  style="cursor:pointer;" onclick="del(this)">删除</p>
+						#end
+						#if(record.type==2 ) 
+							<p style="cursor:pointer;"  onclick="add(this)">增加</p>
+						#end
+					</td>
+					
+				</tr>
+				#end
+			</table>
+		</div>
+		
+<!--分页-->
+#@paginate(records.pageNumber, records.totalPage, "")
+<!--分页 END-->
+		</div>
+    </form>
+</div>
+</body>
+
+#end

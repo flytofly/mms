@@ -1,0 +1,125 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>广告主管理</title>
+<script>
+function link(){
+	window.location="${uri}/business/business/edit?type=add";
+}
+function deleteConfirm(){
+	return confirm("你确定要删除该条记录吗？");
+}
+
+</script>
+<%-- <link href="${tp}/public/css/commons.css" rel="stylesheet" type="text/css">
+<link href="${tp}/public/css/layout.css" rel="stylesheet" type="text/css"> --%>
+<link href="${tp}/public/css/list.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<form name="form" id="form" action="list">
+ <input type="hidden" id="type" name="type" value="search" />
+ <input type="hidden" id="businessType" name="businessType" value="${businessType}" />
+<table class="searchtb">
+  <%--    <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2"><span class="searchspan">广告主搜索</span></td>
+      <td class="searchtd3"></td>
+    </tr> --%>
+    <tr class="searchtr2">
+      <td colspan="3"> 
+      
+       <img src="${tp}/public/images/yue-icon.png" style="margin-bottom:-2px;margin-left:20px;">  广告主搜索  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      
+      	广告主:&nbsp;&nbsp;
+       <input type="text" name="search" size="24" value="${search}" id="search" class="input"/>
+        <input type="submit" name="Submit" value="查询 " class="search"/>
+        <input name="new" type="button" value="新建广告主" onclick="link();" class="addbutton"/>
+        </td>
+    </tr>
+</table>
+
+<!-- <div style="width: 100% ;height:5px"></div> -->
+<table class="searchtb" >
+  <tbody>
+    <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2">
+      			<img src="${tp}/public/images/biaoti-icon.png"/>广告主列表
+        	    <img src="${tp}/public/images/icon-xiangxia.png" width="11" height="11" />
+      </td>
+      <td class="searchtd3"></td>
+    </tr>
+    <tr>
+      <td colspan="3" id="yue-nr">
+      
+      <table class="datatb"  cellpadding="3" cellspacing="1" >
+          <tbody>
+            <tr class="listth" >
+              <td width="23%">广告主名称</td>
+              <td width="10%">广告主电话</td>
+              <td width="25%">广告主地址</td>
+              <td width="10%">审核状态</td>
+           <s:if test="#session.suser.customerType == 1 || #session.suser.customerType == 2  || #session.suser.customerId == 33">
+           	  <td width="10%">登记人</td>
+           	  <td width="10%">联系人</td>
+           </s:if>
+             <td width="15%">管理操作</td>
+            </tr>
+            <s:iterator value="records" var="lists">
+            <s:iterator value="#lists" var="business">
+            <tr class="listtr" onmouseout="this.style.backgroundColor='#ffffff';" onmouseover="this.style.backgroundColor='#E6F2FF'">
+              <td  height="25" ><p ><strong><s:property value="#business.businessName"/></strong></p></td>
+              <td >
+            	<s:property value="#business.onePhone"/>
+             </td>
+              <td ><p style="width:250px;overflow:hidden;text-overflow:ellipsis;word-break:keep-all"><s:property value="#business.address"/></p></td>
+              <td > 	
+              			<s:if test="#business.status == 0">未审核&nbsp;<img src="${tp}/public/images/icon-weishen.png" width="10" height="11"></s:if>
+                    	<s:if test="#business.status == 1">审核通过<img src="${tp}/public/images/icon-tongguo.png" width="10" height="11"></s:if> 
+                    	<s:if test="#business.status == 2">审核未通过<img src="${tp}/public/images/icon-shibai.png" width="10" height="10"></s:if> 
+              </td>
+          <s:if test="#session.suser.customerType == 1 || #session.suser.customerType == 2  || #session.suser.customerId ==33">
+           	   <td > <s:property value="#business.logUser"/>  </td>
+           	   <td > <s:property value="#business.businessPerson"/></td>
+           </s:if>
+              <td >  
+			   <s:if test="#session.suser.customerType == 1 || #session.suser.customerType == 2  || #session.suser.customerId ==33">
+              	 <a class="green" href="./edit?type=mod&bid=${business.bid}">审核</a> | 
+               </s:if>
+               <s:else>
+	          	 <a class="green" href="./edit?type=mod&bid=${business.bid}">修改</a>|
+	           </s:else>
+	           
+	           <a class="green" href="./detail?type=detail&bid=${business.bid}" style="color:#1a85c1">查看</a> |
+	           
+	           <s:if test="#business.status == 1">
+	           	      删除
+	           </s:if>
+	           <s:else>
+	        	   <a class="green" href="./delete?type=del&bid=${business.bid}" onclick="return deleteConfirm();">删除</a>
+	           </s:else>
+	           
+	           </td>
+             
+            </tr>
+             </s:iterator>
+             </s:iterator>  
+          </tbody>
+        </table></td>
+    </tr>
+</table>
+   <div>  
+       <!--分页-->
+   	    <%@include file="/public/files/page.jsp"%> 
+   	    <!--分页 END-->
+</div>
+</form>
+   	    <%@include file="/public/files/loading.jsp"%> 
+   
+</body>
+</html> 

@@ -1,0 +1,190 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>规则管理</title>
+<style type="text/css">
+.file {
+    position: relative;
+    background: #D0EEFF;
+    border: 1px solid #99D3F5;
+    border-radius: 4px;
+    padding: 4px 12px;
+    overflow: hidden;
+    color: #1E88C7;
+    text-decoration: none;
+    text-indent: 0;
+    line-height: 20px;
+}
+.file input {
+    position: absolute;
+    font-size: 14px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+}
+.file:hover {
+    background: #AADFFD;
+    border-color: #78C3F3;
+    color: #004974;
+    text-decoration: none;
+}
+</style>
+<script type="text/javascript" src="<%=request.getContextPath()%>/resource/js/xiangmu.js"></script>
+<script src="<%=request.getContextPath()%>/resource/jquery/jquery-1.9.1.js"></script>
+<script src="<%=request.getContextPath()%>/resource/jquery/jquery-validation/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+<script src="<%=request.getContextPath()%>/resource/jquery/jquery-validation/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+<script src="<%=request.getContextPath()%>/resource/js/My97DatePicker/WdatePicker.js"></script>
+<script language="JavaScript">
+function deleteConfirm(){
+	return confirm("你确定要删除该条记录吗？");
+}
+
+</script>
+
+<link href="<%=request.getContextPath() %>/resource/templates/basic/css/css.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/resource/templates/basic/css/style.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/resource/templates/basic/css/mainframe.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+<div id="mainpage" class="glist_main">
+   <form name="form" id="form" method="post" action="<%=request.getContextPath() %>/domain/urlrule/templist">
+            <input type="hidden" id="type" name="type" value="search" />
+	<h1>
+		<img src="<%=request.getContextPath()%>/resource/templates/basic/images/ico07.gif" />
+        <label>规则名称：</label>
+        <input type="text"  size="12" style="width: 100px;" value="${record.urlRule}" id="urlRule" name="record.urlRule" class="input"/>
+		<label style="padding: 0 0 0 10px;"></label>
+        <label>是否可以导入：</label>
+        <select name="ifCanLoad">
+        	<option value="">请选择</option>
+        	<option value="1" <c:if test="${ifCanLoad==1}">selected="selected"</c:if> >可导入</option>
+        	<option value="2" <c:if test="${ifCanLoad==2}">selected="selected"</c:if>>不可导入</option>
+        </select>
+		<label style="padding: 0 0 0 10px;"></label>
+        <input name="Submit" type="submit" class="right-button02" value="查 询" />
+        <label style="padding: 0 0 0 10px;"></label>
+    </h1>
+  	<div class="glist_bt">
+ 		<span style="margin-left:20px;color:red;">导入步骤：<br/></span> 
+ 		<span style="margin-left:20px;">
+ 			1、点击“浏览”按钮，查找需要导入的excel文件；再点击“导入”按钮，把excel文件导入到临时表。
+ 		</span> 
+		<br/>
+ 		<span style="margin-left:20px;">
+		2、点击“确定导入”按钮将临时表中的规则信息，添加到正式部署的规则中。
+ 		</span> 
+		<br/>
+ 		<span style="margin-left:20px;">
+		3、请注意：规则信息【是否可以导入】中，红色字样数据为不可更改的错误数据，不可修改，也不会被提交；蓝色字样数据为可以更改的不合法数据，修改后可以被提交；只有带有"可导入"绿色字样的数据才会被提交。
+		</span><br/>
+		
+  		<input type="button" value="确定导入" style="margin-left: 20px;" onclick="return certainImport();" class="right-button08"/>
+  		<input type="button" value="清空" style="margin-left: 20px;" onclick="return clearImport();" class="right-button08"/>
+  		<label style="padding: 0 0 0 10px;"></label>
+  		<span style="float:right;margin-right:20px;"> 请选择规则导入文件  <input type="file" name="uploadFile" id="uploadFile" size="60" style="background-color: #C1C1C1;"/> 
+  		<input type="button" value="导入" style="margin-left: 20px;" onclick="return importurlRule();" class="right-button08"/>
+  		<input type="button" value="规则模板下载" onclick="return location.href='<%=request.getContextPath()%>/resource/templates/excel/urlRuleTemp_import.xls';" class="right-button08" style="margin-left: 20px;"/>
+  		</span>
+	</div>
+    <div class="list">
+      <table width="100%" border="0" >
+              <tr>
+	           <th width="15%">域名</th>
+	           <th width="10%">行业</th>
+	           <th width="20%">规则名称</th>
+	           <th width="15%">规则说明</th>
+	           <th width="15%">是否可以导入</th>
+	           <th width="15%">不能导入的原因</th>
+              </tr>
+	
+	<c:forEach items="${records.list }" var="record" varStatus="status">
+	          <tr>
+	           <td> ${record.host }</td>
+	           <td> ${record.level3Name }</td>
+	           <td> ${record.urlRule }</td>
+	           <td> ${record.desc }</td>
+	           <td> 
+	            <c:if test="${record.status==11}">可以导入</c:if>
+	          	<c:if test="${record.status>11}"><font color="red">不可以导入</font></c:if>
+	           </td>
+	            <td> 
+	          	<c:if test="${record.status==12}"><font color="red">域名错误</font></c:if>
+	          	<c:if test="${record.status==17}"><font color="red">规则错误</font></c:if>
+	          	<c:if test="${record.status==13}"><font color="red">行业不存在</font></c:if>
+	          	<c:if test="${record.status==14}"><font color="red">历史已存在</font></c:if>
+	          	<c:if test="${record.status==15}"><font color="red">和本次重复</font></c:if>
+	           </td>
+	          </tr>
+	 </c:forEach>
+        </table>
+      </div>  
+          
+       
+      <!--分页-->
+   	  <!--分页 END-->
+
+    </form>
+</div>
+   	     
+   	     
+   	     
+   	     
+<script language="javascript">
+
+// 导入结果提醒
+$(document).ready(function(){
+	var a = "${importResult }";
+	if(a != ""){
+		alert("成功导入"+a+"条！");
+	 }
+});
+
+//导入URL规则
+function importurlRule(){
+	  var file = document.getElementById("uploadFile").value;
+	   if(file==""||file==null){
+		   alert("请选择导入文件！");
+		   return false;
+	   }
+		if(!file.endsWith('.xls')){
+			alert("上传格式必须为  .xls ");
+			return false;
+		}
+	$("#form").attr("action","<%=request.getContextPath() %>/domain/urlrule/importUrlRule");
+	$("#form").attr("enctype","multipart/form-data"); 
+	$("#form").submit();
+	return true;
+}
+
+//确定导入
+function certainImport(){
+	    var numflag = $("#page_records_totalRow").text();
+	    if(numflag <= 0){
+	    	alert("临时表还没有数据，请先导入临时表！");
+	    	return;
+	    }
+	    if(!confirm("确定要导入吗？")){
+	    	return;
+	    }
+	    $("#form").attr("action","<%=request.getContextPath() %>/domain/urlrule/certainImport");
+		$("#form").attr("enctype","multipart/form-data"); 
+		$("#form").submit();
+}
+
+//清空
+function clearImport(){
+	    if(!confirm("确定要清空吗？")){
+	    	return;
+	    }
+	    $("#form").attr("action","<%=request.getContextPath() %>/domain/urlrule/clearImport");
+		$("#form").submit();
+}
+</script>
+</body>
+</html> 

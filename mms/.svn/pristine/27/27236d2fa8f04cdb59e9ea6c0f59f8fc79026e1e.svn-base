@@ -1,0 +1,148 @@
+#@layout()
+#define main()
+
+
+<link href="#(uri)/public/jquery/css/validationEngine.jquery.css" rel="stylesheet" type="text/css"/>
+<script src="#(uri)/public/jquery/js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+<script src="#(uri)/public/jquery/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+<script src="#(uri)/public/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
+
+<script>
+	jQuery(document).ready(function(){
+		jQuery("#cform").validationEngine('attach');
+	});
+	function clickSubmit(){
+		if(jQuery('#cform').validationEngine('validate')){
+			$('#cform').submit();
+		}else{
+		}
+	}
+</script>
+
+<!--数据信息部分-->
+<div class="tx-con">
+	  <!-- 页面的标题 -->
+		<div class="tx-con-bt">
+			<ul>
+				<li><a href="#"><span>投放管理</span></a></li>
+				<li><a href="#">&gt; 编辑任务</a></li>
+			</ul>
+			<a class="tx-con-bt-fh ri" onClick="history.go(-1)">返回</a>
+		</div>
+	<!--新建任务-->
+    <form name="cform" id="cform" action="#(uri)/task/update" method="post"  >
+      <input type="hidden" name="record.detail_id" value = "#(record.detail_id)"/>
+      <input type="hidden" name="cids" id="cids" value = "#(record.cids)"/>
+	  <div class="xjrw-con" id="xjrq-con">
+			<ul>
+				#if(suser.customer_type !=4)
+				<li class="w200 h30"><span>任务所属客户：</span>
+					<input type="hidden" id="bid" value="#(record.bid)" name="record.bid"/>
+		      		<input type="text" id="business_name" value="#(record.business_name)" name="businessName" class="validate[required] re_input" size="32" readonly />
+                	<button class="look"
+	           		    onclick="selectbus();event.preventDefault();">
+	           		          查找企业</button>
+				</li>
+				#end
+				<li class="w308 h30"><span>任务名：</span>
+					<input type="text" maxlength="50" class="validate[required] re_input" name="record.detail_name" value = "#(record.detail_name)" id=""/>
+				</li>
+				<li class="w308 h30"><span>任务描述：</span>
+					<input type="text" maxlength="100" class="re_input" name="record.detail_desc" value = "#(record.detail_desc)" id=""/>
+				</li>
+				<li><span>投放方式：</span>
+					<ol>
+					 <li><input type="radio" name="out_type" #if(record.out_type==1 || record==null) checked="checked"#end  value="1"/>外呼坐席</li>
+		    		 <li><input type="radio" name="out_type" #if(record.out_type==2) checked="checked"#end value="2"/>短信</li>
+		    		</ol>
+				</li>
+				<li class="w200 h30"><span>选择素材：</span>
+					<input type="hidden"  name="mid" value = "#(record.mid)" id="mid"/>
+	                <input type="text" style="float: left;" class="validate[required]" readonly  name="" value = "#(record.name)" id="mname"/>
+	                <!-- <input type="button" name="re_input"  value="查找" onclick="selectmid();"/> -->
+	                <button class="look"
+	           		    onclick="selectmid();event.preventDefault();">
+	           		          选择素材</button>
+				</li>
+				
+				<li class="w308"><span>素材预览：</span>
+					<textarea id="tcontent"  readonly="readonly" >#(record.content)</textarea>
+				</li>
+				
+                <li class="w308 h30">
+	                	<span>选择人群：</span>
+	                    <div class="h_selected">
+	                    	<font onclick="selectcid()">选择人群</font>
+	                         <div class="h_btext">
+	                             <div style="float: left; " id="ttaskcrowd">
+<!-- 		                             <div>  -->
+					                         #for(record:crowdList)
+					                         	<em ><input type="hidden" name="cid" value="#(record.cid)" />#(record.cname)
+					                         		<img onClick="removebus(this)"  src="#(uri)/public/img/red_delete.png" />
+					                         	</em>
+			                                  #end
+<!-- 			                         </div> -->
+	                             </div>
+	                        </div>
+	                    </div>
+					</li> 
+                <div class="cle"></div>
+			<!-- 	<li class="w308 h30"><span>任务上限：</span>
+					 <input type="text" maxlength="10" class="re_input validate[required,custom[integer]]" name="record.canpick_number" value="#(record.canpick_number)"  />
+				</li> -->
+				<li class="w308 h30"><span>每日上限：</span>
+					 <input type="text" maxlength="10" class="re_input custom[integer]" name="record.canpick_day" value="#(record.canpick_day)"  />
+				</li>
+				<li class="w308 h30"><span>开始日期：</span>
+					<input type="text" name="record.begindate" size="5" readonly onClick="WdatePicker({el:'begindate',minDate:'%y-%M-{%d}'})" value='#(record.begindate)' id="begindate" class="scinput validate[required]" />
+				</li>
+				<li class="w308 h30"><span>结束日期：</span>
+					<input type="text" name="record.enddate" size="5" readonly onClick="WdatePicker({el:'enddate',minDate:'%y-%M-{%d}'})"
+		value='#(record.enddate)' id="enddate" class="scinput validate[required]" />
+				</li>
+				<li class="w308 h30"><span>任务优先级：</span>
+					<input type="text" maxlength="3" class="validate[custom[integer]]" name="record.priority" value="#(record.priority)"  />
+				</li>
+				
+			</ul>
+<!-- 			<input class="xjrw-con-sub" type="submit" value="保存"/> -->
+			<input type="button" value="保存" class="xjrw-con-sub" onClick="return clickSubmit();"/>
+		</form>
+	</div>	
+</div>
+<script>
+function selectmid(){
+	var outtype =$('input[name="out_type"]:checked').val();
+	if(outtype>0){
+		window.open("#(uri)/material/manage/rlist?outtype="+outtype +"&record.status=1","","width=800,height=600,location=no");
+	}else{
+		alert('请先选择"投放方式"!');
+	}
+	
+}
+function selectcid(){
+	window.open("#(uri)/data/crowd/rlist?record.status=1","","width=800,height=600,location=no");
+}
+function selectbus(){
+	window.open("#(uri)/data/buscus/rlist?&business.status=1","","width=1000,height=600,location=no");
+}
+
+function removebus(data){
+	if(confirm("你确信要删除？")){
+		$(data).parent().remove();
+		var cids = "";
+		$(".cl_cid").each(function(){
+			cids += this.value +",";
+		  });
+		$("#cids").val(cids);
+	}
+}
+
+// $(function(){
+// 	$("#clearbus").click(function() {
+// 		$("#cids").val("");
+// 		$(".tr_bus").remove();
+// 	});
+// });
+</script>
+#end

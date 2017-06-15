@@ -1,0 +1,158 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>人群管理</title>
+<script src="#(BasePath)/public/jquery/js/jqsel.js"></script>
+<script>
+function link(){
+	window.location="#(BasePath)/data/crowd/edit?type=add";
+}
+function deleteConfirm(){
+	return confirm("你确定要删除该条记录吗？");
+}
+</script>
+</head>
+<body>
+	<div class="tx-con">
+	  <!-- 页面的标题 -->
+		<div class="tx-con-bt">
+			<ul>
+				<li><a href="#"><span>人群管理</span></a></li>
+			</ul>
+		</div>
+	 <!-- 条件筛选框的位置 -->
+	  <form action="./list" id="form" method="post">
+		<div class="tx-con-form">
+				#if(session.suser.customer_type !=4)
+				<input style="margin-left:0;" type="text" name="businessname" maxlength="50" value="#(record.businessname)" placeholder="按企业名称搜索" id="search" class="tx-con-form-tet" />			                
+				#end
+				<input style="margin-left:0;" type="text" name="record.cname" maxlength="50" value="#(record.cname)" placeholder="按人群名搜索" id="search" class="tx-con-form-tet" />			                
+				<input type="text" name="record.log_user" size="12" maxlength="50" value="#(record.log_user)" placeholder="按添加人搜索" id="search" class="tx-con-form-tet" />
+<!-- 				<select style="width:120px;" name="record.status"> -->
+<!-- 					<option value="" #if(record.status== null)  selected #end>选择审核状态</option> -->
+<!-- 					<option value="0" #if(record.status== 0) selected #end>待审核</option> -->
+<!-- 					<option value="1" #if(record.status== 1) selected #end>审核通过</option> -->
+<!-- 					<option value="2" #if(record.status== 2) selected #end>审核不通过</option> -->
+<!-- 				</select>  -->
+				<input class="tx-con-form-sub" style="margin-left: 20px;" type="submit" value="筛选" />
+				<div style="float: right;">
+<!--                		<input type="button" value="停用" onClick="batchDisabled();" class="tx-con-form-sub"/> -->
+               		<!-- <input type="button" value="启用" onClick="batchEnabled();" class="tx-con-form-sub"/> -->
+                	<input name="new" type="button" value="新建人群" onClick="link();" class="tx-con-form-sub"/>
+                </div>
+			<!--  占位的横线  -->
+		  <div class="cle"></div>
+        </div>
+	<!--列表的详细信息 -->
+		<div class="tx-con-xx">
+			<table cellspacing="0" cellpadding="0">
+				<tr style="height:40px;">
+					<th style="width:40px;"><input type="checkbox" id="check_all" onClick="checkAll();" /></th>
+					#if(session.suser.customer_type !=4)
+					<th>所属企业</th>
+					#end
+					<th>人群名</th>
+					<th>添加人</th>
+					<th>添加时间</th>
+<!-- 					<th>状态</th> -->
+					<th>操作</th>
+				</tr>
+				#for(record:records.getList())
+				 <tr  onmouseout="this.style.backgroundColor='#ffffff';"
+					onmouseover="this.style.backgroundColor='#E6F2FF'">
+					<td><input type="checkbox" id="chk_#(record.cid )" class="cids"/></td>
+					#if(session.suser.customer_type !=4)
+						<td>#(record.business_name)</td>
+					#end
+					<td>#(record.cname)</td>
+					<td>#(record.log_user )</td>
+					<td>#(record.import_time )</td>
+<!-- 					<td>#if(record.status == 0)待审核#end #if(record.status ==1)审核通过#end #if(record.status == 2)不通过#end</td> -->
+					<td><a class="green" href="./detail?cid=#(record.cid)" style="color: #1a85c1">查看</a>
+						#if(record.status != 1) 
+						  | <a class="green" href="./edit?cid=#(record.cid)" style="color: #1a85c1">修改</a>
+						#end
+						#if(record.status == 1)  
+						  | <a class="green" href="./statis?cid=#(record.cid)" style="color: #1a85c1">统计</a>
+						#end
+					</td>
+				</tr>
+				#end
+			</table>
+		</div>
+<!--分页-->
+#@paginate(records.pageNumber, records.totalPage, "")
+<!--分页 END-->
+    </form>
+</div>
+	
+<script type="text/javascript">
+  function checkAll(){
+	$(".cids").each(function(i,item){
+		if($("#check_all").attr("checked")=="checked"){
+			$(item).attr("checked","checked");
+		}else{
+			$(item).removeAttr("checked");
+		}
+	});
+  }
+  
+  function getids(){
+  	var ids = new Array();
+  	$(".cids:checked").each(function(i,item){
+  		 var id = $(item).attr("id").split("_")[1];
+  		 ids.push(id);
+  	});
+  	return ids;
+  }
+
+  // 批量启用
+  function batchtoEnabled(ids){
+  	if(ids.length==0){
+  		alert("未选择任何人群!");
+  		return;
+  	}
+  	var r=confirm("确认要启用" + ids.length +"条人群吗？");
+  	if(!r){
+  		return;
+  	}
+  	$.post("./batchOperator", { crowdids: ids.toString(),use_status:1},
+  		function(data){
+  		alert("成功启用: " + data +"条人群");
+  		var para= $("#form").serialize() ;
+  		location.href="./list?"+para;
+  	});
+  }
+
+  function batchEnabled(){ 
+  	var ids =  getids();
+  	batchtoEnabled(ids); 
+  }
+
+  function batchDisabled(){
+  	var ids =  getids();
+  	batchtoDisabled(ids); 
+  }
+
+  //批量停用
+  function batchtoDisabled(ids){
+  	if(ids.length==0){
+  		alert("未选择任何人群!");
+  		return;
+  	}
+  	var r=confirm("确认要停用" + ids.length +"条人群吗？");
+  	if(!r){
+  		return;
+  	}
+  	$.post("./batchOperator", { crowdids: ids.toString(),use_status:2},
+  		function(data){
+  		alert("成功停用: " + data +"条人群");
+  		var para= $("#form").serialize();
+  		location.href="./list?"+para;
+  	});
+  }
+</script>
+</body>
+
+#end

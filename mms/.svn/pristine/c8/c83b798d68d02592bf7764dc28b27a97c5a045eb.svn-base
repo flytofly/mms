@@ -1,0 +1,18 @@
+TOMCAT_HOME=D:/soft/huanjin/apache-tomcat-7.0.65-windows-x64
+#UPDATE_DIR\u4e3a\u66f4\u65b0\u5305\u6240\u5728\u8def\u5f84
+UPDATE_DIR=e:/work/mms
+
+#if you want to rebuild the java file,please update the REBUILD = true
+REBUILD=false
+#UPDATE_PACKAGE_NAME\u4e3a\u672c\u6b21\u5347\u7ea7\u5305\u7684\u540d\u79f0
+UPDATE_PACKAGE_NAME=advdatil
+#the UPDATE_FILE_NAMES is base on WebContent
+UPDATE_FILE_NAMES=WEB-INF/jsp/dilivery/material/list.html,WEB-INF/jsp/task/list.html,WEB-INF/jsp/data/rule/list.html
+
+#\u4ee5\u4e0b\u914d\u7f6e\uff0c\u4ec5\u5728build.xml\u4e2d\u751f\u6548
+BUILD_EXCLUDE_FILE_NAMES=WEB-INF/classes/com/chuanyu/business/util/MailUtil.class
+#\u4ee5\u4e0b\u4e3a\u4e0a\u4f20FTP\u6587\u4ef6\u7684\u914d\u7f6e
+ftpHttpUrl=202.85.211.167
+ftpPort=21
+ftpUsername=ftpuser2
+ftpPassword=chuanyuftpuser2

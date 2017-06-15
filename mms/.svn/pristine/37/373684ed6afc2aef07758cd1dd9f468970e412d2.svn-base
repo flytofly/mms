@@ -1,0 +1,125 @@
+#@layout()
+#define main()
+
+<script>
+function link(){
+	window.location="#(uri)/material/manage/edit?type=add";
+}
+
+function taskDetail(mid){
+	window.open("#(uri)/task/list?record.mid="+mid,"","width=800,height=600");
+}
+function deleteConfirm(){
+	return confirm("你确定要删除该条记录吗？");
+}
+</script>
+   
+	 <div class="tf-tabs clearfix">
+        <ul>
+            <li><a href="#(BasePath)/delivery/task/list">任务管理</a></li>
+            <li class="current">素材管理</li>
+        </ul>
+    </div>
+    
+
+    <div class="main-box">
+    
+     <form id="form" action="list" method="post">
+		    <div class="filter clearfix">
+					           <div class="form-item">
+					                    <input type="text"   name="record.name" size="12" value="#(record.name)" id="search" placeholder="按素材名搜索" >
+					          </div>
+			          
+					          <div class="form-item">
+					                   <select name="record.m_type">
+										<option value=""  #if(record.m_type == null) selected #end >选择素材类型</option>
+										<option value="2"  #if(record.m_type == 2) selected #end  >短信</option>
+										<option value="1"  #if(record.m_type == 1) selected #end  >外呼坐席</option>
+								   </select>
+					          </div>
+			          
+					          <div class="form-item">
+					                <select name="record.status">
+										<option value=""   #if(record.status == null) selected #end >选择审核状态</option>
+										<option value="0"  #if(record.status == 0) selected #end  >待审核</option>
+										<option value="1"  #if(record.status == 1) selected #end  >审核通过</option>
+										<option value="2"  #if(record.status == 2) selected #end  >审核未通过</option>
+								   </select>
+					          </div>
+			          
+					    
+			                
+					            <ul class="fr">
+					                <li class="create-icon"><a href="#(BasePath)/delivery/material/edit?type=add">新建素材</a></li>
+					            </ul>
+          </div>
+        
+        <div class="datas">
+                 <table cellspacing="0" cellpadding="0">
+						<tr>
+								<th width="40px">
+									<input name="" value="" type="checkbox">
+								</th>
+								#if(session.suser.customer_type !=4)
+									<th>所属企业</th>
+								#end
+								<th width="12%"> 素材名 </th>
+								<th width="8%"> 素材类型 </th>
+								<th> 素材内容 </th>
+								<th width="12%"> 添加时间 </th>
+								<th width="6%"> 添加人 </th>
+								<th width="8%"> 状态 </th>
+								<th width="12%"> 操作 </th>
+						</tr>
+		        #for(record:records.getList())
+						<tr>
+								<td>
+										<input name="" value="" type="checkbox">
+								</td>
+										#if(session.suser.customer_type !=4)
+											<td>#(record.business_name )</td>
+										#end
+								<td>
+										#(record.name )
+								</td>
+								<td>
+									 #if(record.m_type == 2)<span title="短信">短信</span>#end
+					            	 #if(record.m_type == 1)<span title="外呼坐席">外呼坐席</span>#end
+								</td>
+								<td>
+									  #if(record.content.toString().length()>20 )
+										#(record.content.toString().substring(0,20))...
+									  #end
+									   #if(record.content.toString().length()<20 )
+										#(record.content)
+									   #end 
+								</td>
+								<td>#(record.import_time)</td>
+								<td>#(record.log_name)</td>
+								<td>
+									 #if(record.status == 0)<span title="待审核">待审核</span>#end
+					            	 #if(record.status == 1)<span title="审核通过">审核通过</span>#end
+					              	 #if(record.status == 2)<span title="审核未通过">审核未通过</span>#end
+								</td>
+								<td>
+								   <a class="green" href="./detail?mid=#(record.mid)&&my_type=#(record.m_type)">查看</a>
+								   #if(record.status!=1)
+						           |	           
+						           #if(session.suser.customer_type ==4 ||session.suser.customer_type ==5)
+						           <a class="green" href="./edit?mid=#(record.mid)&type=update&my_type=#(record.m_type)">编辑</a>
+						           #end
+						           #if(session.suser.customer_type !=4 && session.suser.customer_type !=5)
+						           <a class="green" href="./edit?mid=#(record.mid)&type=update&my_type=#(record.m_type)">审核</a>
+						           #end	           
+						           |
+						           <a class="green" href="./delete?mid=#(record.mid)" onClick="return deleteConfirm();">删除</a>
+						            #end
+								</td>
+		               </tr>
+		        #end
+		</table>
+	#@paginate(records.pageNumber, records.totalPage, "")     
+   </div>
+  </form>
+ </div>
+#end

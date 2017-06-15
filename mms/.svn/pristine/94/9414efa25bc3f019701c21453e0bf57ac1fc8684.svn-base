@@ -1,0 +1,51 @@
+package cn.mmdata.mms.config.plugin;
+
+import com.jfinal.config.Plugins;
+import com.jfinal.kit.PropKit;
+import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
+import com.jfinal.plugin.activerecord.DbKit;
+import com.jfinal.plugin.c3p0.C3p0Plugin;
+
+import cn.mmdata.mms.data.crowd.Crowd;
+import cn.mmdata.mms.data.crowd.CrowdArea;
+import cn.mmdata.mms.data.crowd.CrowdRule;
+import cn.mmdata.mms.data.crowd.CrowdScene;
+import cn.mmdata.mms.data.scene.Scene;
+import cn.mmdata.mms.delivery.material.Material;
+import cn.mmdata.mms.system.module.Module;
+import cn.mmdata.mms.system.role.Role;
+import cn.mmdata.mms.system.role.Role_Module;
+import cn.mmdata.mms.system.user.User_Role;
+
+public class MmsDBPlugin {
+	public static void addPlugin(Plugins me) {
+        //C3p0数据源插件
+        C3p0Plugin c3p0 = new C3p0Plugin(PropKit.get("mms.jdbcUrl"),PropKit.get("mms.user"),PropKit.get("mms.password"));
+		// 初始化连接池数量大小,默认10
+        c3p0.setInitialPoolSize(PropKit.getInt("initialSize"));
+		// 初始化最小空闲连接数,默认10
+        c3p0.setMinPoolSize(PropKit.getInt("minIdle"));
+		// 初始化最大活跃连接数,默认100
+        c3p0.setMaxPoolSize(PropKit.getInt("maxIdle"));
+		// 配置获取连接等待超时的时间
+        c3p0.setMaxIdleTime(25000);
+        me.add(c3p0);
+		// 配置ActiveRecord插件
+		ActiveRecordPlugin activeRecord = new ActiveRecordPlugin(DbKit.MAIN_CONFIG_NAME, c3p0);
+		/*activeRecord.addMapping("cy_business", "bid", Business.class);*/
+		activeRecord.addMapping("role", "role_id", Role.class);
+		activeRecord.addMapping("role_module", "rolemodule_id", Role_Module.class);
+		activeRecord.addMapping("module", "module_id", Module.class);
+		activeRecord.addMapping("customer_role", "customerrole_id", User_Role.class);
+		activeRecord.addMapping("crowd", "cid", Crowd.class);
+		activeRecord.addMapping("scene", "sid", Scene.class);
+		activeRecord.addMapping("crowd_scene", CrowdScene.class);
+		activeRecord.addMapping("crowd_rule",  CrowdRule.class);
+		activeRecord.addMapping("crowd_area", CrowdArea.class);
+		activeRecord.addMapping("material", "mid", Material.class);
+		/*activeRecord.addMapping("rule_temp", "rid", RuleTemp.class);*/
+		activeRecord.setShowSql(true);
+		me.add(activeRecord);
+	}
+
+}

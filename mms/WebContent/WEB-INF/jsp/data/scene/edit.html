@@ -1,0 +1,71 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>模块信息管理</title>
+
+<link href="#(uri)/public/jquery/css/validationEngine.jquery.css" rel="stylesheet" type="text/css"/>
+<script src="#(uri)/public/jquery/js/jqsel.js"></script>
+<script src="#(uri)/public/jquery/js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+<script src="#(uri)/public/jquery/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+<div class="tx-con">
+	  <!-- 页面的标题 -->
+		<div class="tx-con-bt">
+			<ul>
+				<li><a href="#"><span>场景管理</span></a></li>
+				<li><a href="#">&gt; 编辑场景</a></li>
+			</ul>
+			<a class="tx-con-bt-fh ri" onclick="history.go(-1)">返回</a>
+		</div>
+    <div class="xjrw-con" id="xjrq-con">
+    	<form name="cform" id="cform" action="#(uri)/data/scene/update" method="post"  >
+    	<input type="hidden" name="record.sid" value = "#(record.sid)"/>
+    	<input type="hidden" id="has_clicked" value="0"/>
+     
+        <ul>
+			<li class="w308 h30"><span>场景名称:</span><input type="text" size="16" class="validate[required] re_input" name="record.sname" value = "#(record.sname)" id="sname"/></li>
+			<li class="w308 h30"><span>场景描述:</span>
+				<textarea rows="8" style="width:450px"   name="record.sdesc" id="sdesc" >#(record.sdesc)</textarea>
+						</li>
+			<li class="w308 h30"><span>场景类型：</span>
+				<select name="record.stype" id="stype" class="validate[required] input-xlarge">
+					<option value="1" #if(record.stype==1) selected="selected" #end>固话</option>
+					<option value="2" #if(record.stype==2) selected="selected"  #end>位置</option>
+					<option value="3" #if(record.stype==3) selected="selected" #end>短信关键字</option>
+			     </select>
+			</li>
+			<li class="w308 h30"><span>判断条件：</span>
+					<input type="text"  value="#(record.condition)" name="record.condition" class="validate[required] re_input"/>
+			</li>
+			<li class="w308 h30"><span>状态：</span>
+				<select name="record.status" id="status" class="validate[required] input-xlarge">
+									<option value="0" #if(record.status==0) selected="selected" #end>待审核</option>
+									<option value="1" #if(record.status==1) selected="selected" #end>正常</option>
+									<option value="2" #if(record.status==2) selected="selected" #end>停用</option>
+			                 </select>
+				</li>
+				<li><input type="button" value="提交" class="xjrw-con-sub" onclick="return clickSubmit();"/></li>
+			</ul>
+   </form>
+  </div>
+</div>     
+<script>
+	function clickSubmit(){
+		if(jQuery('#cform').validationEngine('validate')){
+		    var hasClick = $("#has_clicked").val();
+			if("1"== hasClick){
+			    window.alert("表单页面不能重复提交，30秒钟后请提交该页面！");
+			    setTimeout('if($("#has_clicked")){ $("#has_clicked").val("0");}',10000);
+			    return false;
+			}
+			$("#has_clicked").val("1");
+			$('#cform').submit()
+		}else{
+		}
+	}
+</script>
+</body>
+</html>
+#end

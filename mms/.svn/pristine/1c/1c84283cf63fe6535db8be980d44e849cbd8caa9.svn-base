@@ -1,0 +1,163 @@
+package cn.mmdata.mms.task;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Model;
+import com.jfinal.plugin.activerecord.Page;
+import com.jfinal.plugin.activerecord.Record;
+
+import cn.mmdata.commons.util.DateTools;
+import cn.mmdata.commons.util.Global;
+import cn.mmdata.commons.util.StringUtil;
+
+public class Task extends Model<Task> {
+	private static final long serialVersionUID = 1L;
+	public static Task dao = new Task();
+	
+	private String whereSql(String sql, List<Object> list) {
+		if (this.get("use_status") != null) {
+			sql += "   and t.use_status=" + this.get("use_status");
+		}
+		if (this.get("custype").equals(Global.USER_TYPE_BUSINESS)) {
+			sql += " and t.bid= " + this.getInt("bid");
+		} else if (this.get("custype").equals(Global.USER_TYPE_AGENT)) {
+			sql += " and t.bid in (select bid from cy_business.cy_business_agentrel ca where ca.agent_id="
+					+ this.getInt("bid") + " )";
+		} else if (!this.get("custype").equals(Global.USER_TYPE_ADMIN)
+				&& !this.get("custype").equals(Global.USER_TYPE_CHUANYU)) {
+			sql += " and t.bid= -1 ";
+		}
+		return sql;
+
+	}
+	
+	public Page<Task> paginate(int pageNumber, int pageSize) {
+		List<Object> list=new ArrayList<Object>();
+		/*String sql = " from cy_business.cy_business_project_detail t,cy_business.cy_business_project_detail_output o,mms.material b, "
+				+ "(select ccr.detail_id,group_concat(cro.cname separator '--') cnames from cy_business.cy_business_project_detail_crowd ccr,mms.crowd cro "
+				+ " where ccr.cid=cro.cid group by ccr.detail_id) acr "
+				+" where t.detail_id =  o.detail_id and o.mid=b.mid and t.detail_id=acr.detail_id";*/
+		String sql =" from cy_business.cy_business_project_detail t"
+			+" left join (select po.detail_id,po.out_type,b.name "
+					+" from cy_business.cy_business_project_detail_output po,mms.material b where po.mid=b.mid ) o "
+				+" on t.detail_id = o.detail_id "
+			+" left join "
+			+" (select ccr.detail_id,group_concat(cro.cname separator '--') cnames "
+				+" from cy_business.cy_business_project_detail_crowd ccr,mms.crowd cro  where ccr.cid=cro.cid group by ccr.detail_id) acr"
+				+" on t.detail_id=acr.detail_id "
+				+" left join cy_business.cy_business bus on  t.bid=bus.bid "
+				+" where  t.project_type = 6 and t.status!=9 ";
+		if (!StringUtil.isNull(this.getStr("businessname"))) {
+			sql += " and bus.business_name like '%" + this.getStr("businessname").trim() + "%'";
+		}
+		if (this.get("project_type") != null) {
+			sql += "   and o.out_type=" + this.get("project_type");
+		}
+		if (this.get("log_name") != null) {
+			sql += " and t.log_name like '%" + this.getStr("log_name").trim() + "%'";
+		}
+		if (this.get("status") != null) {
+			sql += "   and t.status=" + this.get("status");
+		}
+		if (this.get("detail_name") != null) {
+			sql += " and t.detail_name like '%" + this.getStr("detail_name").trim() + "%'";
+		}
+		sql=whereSql(sql, list);
+		sql += " order by t.lastupdatetime desc ";
+		return this.paginate(pageNumber, pageSize,
+				"select t.*,o.out_type,o.name,acr.cnames,bus.business_name ",
+				sql,list.toArray());
+	}
+
+	public List<Record> findCrowdsByTaskIds(String taskIds) {
+		String sql = "select c.cid,c.cname,tc.task_id from (select * from task_crowd where 1=1 and  task_id in("
+				+ taskIds + ")) tc left join crowd c on tc.crowd_id = c.cid order by c.cid";
+		return Db.find(sql);
+	}
+
+	public Task findByTaskId(int taskid) {
+
+/*		String sql = "select t.*,o.out_type,b.mid,b.name,b.content,cb.business_name from cy_business.cy_business_project_detail t,"
+				+ "cy_business.cy_business_project_detail_output o,mms.material b,cy_business cb "
+				+ "where t.detail_id =  o.detail_id and o.mid=b.mid and t.bid = cb.bid and t.detail_id=?";*/
+	
+		String sql ="SELECT t.detail_id,t.detail_name,t.bid,t.project_id,t.project_type"
+				+ ",t.rel_id,t.rel_name,t.rel_type,t.canpick_day,t.minreqnum_day,t.pv,t.pv_max"
+				+ ",date_format(t.begindate, '%Y-%m-%d') begindate,date_format(t.enddate, '%Y-%m-%d') enddate"
+				+ ",t.priority,t.province,t.reg_time,t.is_all,t.canpick_number,t.recharge"
+				+ ",t.status,t.use_status,t.detail_desc,t.log_id,t.log_name"
+				+ ",o.out_type,o.mid,o.name,o.content,cb.business_name "
+		+" FROM cy_business.cy_business_project_detail t inner join cy_business.cy_business cb"
+		+" LEFT JOIN ("
+		+" SELECT po.detail_id,po.out_type,b.name,b.mid,b.content"
+		+" FROM cy_business.cy_business_project_detail_output po,mms.material b"
+		+" WHERE po.mid=b.mid) o ON t.detail_id = o.detail_id"
+		+" WHERE t.bid = cb.bid AND t.detail_id=?";
+
+		return this.findFirst(sql,taskid);
+	}
+
+	public int[] batchSaveTaskCrowd(List<Record> records) {
+		String sql = "insert into task_crowd(task_id,crowd_id) values(?,?)";
+		return Db.batch(sql, "task_id,crowd_id", records, 1000);
+	}
+
+	public int batchUpdateUseStatus(int use_status, String paraStr) {
+		return Db.update("update cy_business.cy_business_project_detail set use_status = ?  where  detail_id in (" + paraStr + ")", use_status);
+	}
+	
+	//获取统计数
+	public List<Record> tongji(){
+		List<Object> list=new ArrayList<Object>();
+		String sql="SELECT COUNT(*) AllTask,"
+				+ " ifnull(SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END),0) WaitingAudit,"
+				+ " ifnull(SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END),0) ThroughAudit,"
+				+ " ifnull(SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END),0) NotAudit,"
+				+ " ifnull(SUM(CASE WHEN status = 1 AND t.begindate > now() THEN 1 ELSE 0 END),0) WaitingTask,"
+				+ " ifnull(SUM(CASE WHEN status = 1 AND t.begindate < now() AND t.enddate > now() THEN 1 ELSE 0 END),0) PerformedTask,"
+				+ " ifnull(SUM(CASE WHEN status = 1 AND now() > t.enddate  THEN 1 ELSE 0 END),0) EndTask"
+				+ " FROM  cy_business.cy_business_project_detail t,cy_business.cy_business_project_detail_output bpdo"
+				+ " WHERE t.detail_id = bpdo.detail_id  AND t.project_type = 6 and t.`status` != 9 ";
+		sql =whereSql(sql, list);
+		
+   return Db.find(sql,list.toArray());
+	}
+
+	
+	// 输出渠道信息{1:坐席,2:短信;3:DSP}
+	public LinkedList<Record> countTask() {
+		String [] strArray = {"1","2","3"};
+		LinkedList<Record> records = new LinkedList<Record>();
+		String yestoday = DateTools.getDate(-1);
+		List<Object> paraList = new ArrayList<Object>();
+		String sql = "";
+		for(String i : strArray){
+			sql = "select ifnull(sum(afc.picknumber),0) picknumber ,ifnull(sum(afc.fb_count),0)"
+					+ " fb_count,ifnull(sum(afc.yx_count),0) yx_count,(select count(distinct(cpd.detail_id))"
+					+ " from cy_business.cy_business_project_detail cpd inner join cy_business.cy_business_project_detail_output cpdo"
+					+ " on cpd.detail_id = cpdo.detail_id where cpd.`status` = 1 and cpdo.out_type = ? and"
+					+ " cpd.begindate <= ? and cpd.enddate >= ?) tasknum"
+					+ " from  (select distinct(cpd.detail_id) from cy_business.cy_business_project_detail cpd  inner join"
+					+ " cy_business.cy_business_project_detail_output cpdo on cpd.detail_id = cpdo.detail_id where"
+					+ " cpd.`status` = 1 and cpdo.out_type = 1 and cpd.begindate <= ? and"
+					+ " cpd.enddate >= ?) aa left join cy_business.a_feedback_count afc on afc.detail_id"
+					+ " = aa.detail_id and afc.pickday = ?";
+			paraList.add(i);
+			paraList.add(yestoday + " 23:59:59");
+			paraList.add(yestoday + " 00:00:00");
+			paraList.add(yestoday + " 23:59:59");
+			paraList.add(yestoday + " 00:00:00");
+			paraList.add(yestoday);
+			Record record = Db.findFirst(sql,paraList.toArray());
+			paraList.clear();
+			records.add(record);
+		}
+		return records;
+	}
+	public int deleteTask(int detailid){
+		return Db.update("update cy_business.cy_business_project_detail set status = 9  where  detail_id=? ", detailid);
+	}
+}

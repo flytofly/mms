@@ -1,0 +1,151 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>按规则统计</title>
+<script src="#(BasePath)/public/jquery/js/jqsel.js"></script>
+<link href="#(BasePath)/public/jquery/css/validationEngine.jquery.css" rel="stylesheet" type="text/css"/>
+<script src="#(BasePath)/public/jquery/js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+<script src="#(BasePath)/public/jquery/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+<script src="#(BasePath)/public/js2/My97DatePicker/WdatePicker.js" type="text/javascript"  charset="utf-8"></script>
+</head>
+<body>
+<div class="tx-con">
+	  <!-- 页面的标题 -->
+		<div class="tx-con-bt">
+			<ul>
+				<li><a href="#"><span>按规则统计</span></a></li>
+			</ul>
+		</div>
+<form name="form" id="form" action="./list">
+  <div class="tx-con-form">
+  	     统计方式：   <select name="statistype" class="input">
+  	         <option value="0" #if(record.statistype==0) selected="selected" #end>按日期统计</option>
+  	         <option value="1" #if(record.statistype==1) selected="selected" #end>按规则统计</option>
+            </select>
+            选择时间:  <input type="text" name="begindate" size="10" readonly="readonly" onclick="WdatePicker({el:'begindate'})"
+		        value='#(record.begindate)' id="begindate" class="scinput validate[required]" /> 至
+        <input type="text" name="enddate" size="10" readonly="readonly" onclick="WdatePicker({el:'enddate'})"
+		value='#(record.enddate)' id="enddate" class="scinput validate[required]" />
+        <input class="tx-con-form-sub" type="submit" value="筛选" />
+		<div style="float: right;padding-right: 50px;">
+		     <input type="button" class="tx-con-form-sub" value="人群画像分析">&nbsp;&nbsp;&nbsp;
+		     <input type="button" class="tx-con-form-sub" value="导出 ">
+		</div>
+		<!--  占位的横线  -->
+		  <div class="cle"></div>
+	</div>
+		  <!--列表的详细信息 -->
+		<div class="tx-con-xx">
+			<table cellspacing="0" cellpadding="0">
+           <tr>
+           <th width="12%">规则</th>
+           <th width="7%">总人数</th>
+           <th width="7%">反馈数</th>
+           <th width="7%">意向A</th>
+           <th width="7%">意向B</th>
+           <th width="7%">无意向</th>
+           <th width="7%">未接听</th>
+           <th width="7%">停机</th>
+           <th width="6%">关机</th>
+           <th width="5%">空号</th>
+           <th width="5%">其他</th>
+           <th width="5%">备注</th>
+           <th width="7%">操作</th>
+            </tr>
+            #for(record:records.getList())
+            <tr class="listtr" onmouseout="this.style.backgroundColor='#ffffff';" onmouseover="this.style.backgroundColor='#E6F2FF'">
+             <td> #(record.rule)</td>
+             <td> #(record.total_num)</td>
+             <td> #(record.feedback_num)</td>
+             <td> #(record.yxa_num)</td>
+             <td> #(record.yxb_num)</td>
+             <td> #(record.wyx_num)</td>
+             <td> #(record.wjt_num)</td>
+             <td> #(record.tj_num)</td>
+             <td> #(record.gj_num)</td>
+             <td> #(record.kh_num)</td>
+             <td> #(record.qt_num)</td>
+             <td> #(record.bz)</td>
+	         <td>
+		           <a class="green" href="./detail/#(record.pickday)" style="color:#1a85c1">详情</a>
+		           <a class="green" href="./detail/#(record.pickday)" style="color:#1a85c1">拓展</a>
+	         </td>
+            </tr>
+            #end
+          </table>
+        </div>
+<!--分页-->
+     #@paginate(records.pageNumber, records.totalPage, "")
+<!--分页 END-->
+ </form>
+</div>
+<script type="text/javascript">
+  function checkAll(){
+	$(".cids").each(function(i,item){
+		if($("#check_all").attr("checked")=="checked"){
+			$(item).attr("checked","checked");
+		}else{
+			$(item).removeAttr("checked");
+		}
+	});
+  }
+  
+  function getids(){
+  	var ids = new Array();
+  	$(".cids:checked").each(function(i,item){
+  		 var id = $(item).attr("id").split("_")[1];
+  		 ids.push(id);
+  	});
+  	return ids;
+  }
+
+  // 批量启用
+  function batchtoEnabled(ids){
+  	if(ids.length==0){
+  		alert("未选择任何任务!");
+  		return;
+  	}
+  	var r=confirm("确认要启用" + ids.length +"条任务吗？");
+  	if(!r){
+  		return;
+  	}
+  	$.post("./batchToEnabled", { taskids: ids.toString(),use_status:1},
+  		function(data){
+  		alert("成功启用: " + data +"条任务");
+  		var para= $("#form").serialize() ;
+  		location.href="./list?"+para;
+  	});
+  }
+
+  function batchEnabled(){ 
+  	var ids =  getids();
+  	batchtoEnabled(ids); 
+  }
+
+  function batchDisabled(){
+  	var ids =  getids();
+  	batchtoDisabled(ids); 
+  }
+
+  //批量停用
+  function batchtoDisabled(ids){
+  	if(ids.length==0){
+  		alert("未选择任何任务!");
+  		return;
+  	}
+  	var r=confirm("确认要停用" + ids.length +"条任务吗？");
+  	if(!r){
+  		return;
+  	}
+  	$.post("./batchToEnabled", { taskids: ids.toString(),use_status:2},
+  		function(data){
+  		alert("成功停用: " + data +"条任务");
+  		var para= $("#form").serialize();
+  		location.href="./list?"+para;
+  	});
+  }
+</script>
+</body>
+</html>
+#end

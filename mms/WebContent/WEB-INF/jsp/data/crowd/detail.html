@@ -1,0 +1,73 @@
+#@layout() #define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>人群详情</title>
+</head>
+<body>
+        <div class="crumbs">
+            <a href="javascript:history.back()" class="back">&lt;返回</a>
+            <span class="title">详情</span>
+        </div>
+        <div class="main-box">
+            <div class="renqun-detail">
+                <div class="title">人群信息</div>
+                <div class="info">
+                    <dl>
+                        <dt>人群名</dt>
+                        <dd>#(record.cname)</dd>
+                        <dt>选择地区</dt>
+                        <dd>
+                           #for(area : areasMap)
+				            <span style="width: 30%"><font style="font-size:14px;font-weight: bold;">#(area.key)</font></span>&nbsp;&nbsp;&nbsp;<span>#(area.value)</span><br>
+				           #end
+				        </dd>
+                        <!-- <dt>PV设置</dt>
+                        <dd>2 ~ 30</dd> -->
+                    </dl>
+                    <!-- <input type="button" value="停用" class="stop-btn"> -->
+                </div>
+                <form action="./detail" id="form" method="post">
+				<input type="hidden" name="cid" value="#(record.cid)"></input>
+                <div class="selected-rule">
+                    <div class="title">已选规则</div>
+                    <!-- <div class="filter clearfix">
+                        <ul>
+                            <li>
+                                <input type="text" value="" placeholder="按规则名称搜索" class="n-bordr">
+                                <input type="submit" name="submit" class="search-icon">
+                            </li>
+                        </ul>
+                    </div> -->
+                </div>
+                <div class="datas">
+                <table cellpadding="0" cellspacing="0">
+                    <tbody><tr>
+                        <th>规则ID</th>
+                        <th>规则名称</th>
+                        <!-- <th>统计日期</th> -->
+                        <th>用户数</th>
+                    </tr>
+                #for(rule:records.getList())
+				<tr>
+				    <td>#(rule.rid)</td>
+					<td>#(rule.rule_desc)</td>
+					
+					<td>#(rule.pv)</td>
+				</tr>
+				#end
+                </tbody></table>
+               <!--分页-->
+	    <!--分页 END-->
+            </div>
+		#@paginate(records.pageNumber, records.totalPage, "")
+            </form>
+            </div>
+        </div>
+    <script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="js/jquery.placeholder.min.js"></script>
+    <script type="text/javascript">
+    $(function(){ $('input, textarea').placeholder(); });
+    </script>
+</body>
+</html>
+#end

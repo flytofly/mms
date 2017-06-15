@@ -1,0 +1,71 @@
+#@layout()
+#define main()
+
+        <div class="data-info clearfix">
+            <ul>
+                <li class="col-4">
+                    <dl class="balance">
+                        <dt>账户余额</dt>
+                        <dd>23911.20 <span class="y">元</span>
+                        <a href="" class="recharge">充值</a>
+                        </dd>
+                    </dl>
+                </li>
+                <li class="col-4">
+                    <dl class="task-num">
+                        <dt>任务数</dt>
+                        <dd>15</dd>
+                    </dl>
+                </li>
+                <li class="col-4">
+                    <dl class="popula-size">
+                        <dt>人群数</dt>
+                        <dd>12</dd>
+                    </dl>
+                </li>
+                <li class="col-4">
+                    <dl class="mate-num">
+                        <dt>素材数</dt>
+                        <dd>26</dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+
+        <div class="filter clearfix">
+            <ul>
+                <li class="startEndDate date-icon">
+                    <input type="text" value="" placeholder="2017-10-01" id="startDate">
+                    <span class="t">至</span>
+                    <input type="text" value="" placeholder="2017-10-07" id="endDate">
+                </li>
+                <li>
+                    <select name="">
+                        <option value="">选择投放方式</option>
+                        <option value="">外呼坐席</option>
+                        <option value="">短信</option>
+                        <option value="">微信</option>
+                        <option value="">DSP</option>
+                        <option value="">PUSH</option>
+                    </select>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="datas">
+            <table cellpadding="0" cellspacing="0">
+                <tr>
+                    <th>任务名</th>
+                    <th>投放方式</th>
+                    <th>投放数量</th>
+                    <th>转化数</th>
+                    <th>转化率</th>
+                    <th>操作</th>
+                </tr>
+                <tr>
+                    <td colspan="8" class="n-message">抱歉，暂无相关数据</td>
+                </tr>
+            </table>
+        </div>
+    
+#end

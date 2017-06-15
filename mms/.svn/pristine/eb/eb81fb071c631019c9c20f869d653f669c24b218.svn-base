@@ -1,0 +1,81 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>模块信息管理</title>
+<link href="${tp}/public/css/detail.css" rel="stylesheet" type="text/css" />
+<link href="${tp}/public/css/basic.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+<table class="searchtb">
+    <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2">
+      	 <img src="${tp}/public/images/scbj-icon.png" style="width:16px; height:16px; margin-bottom:-2px;"/>系统管理-用户管理-模块信息详情
+      </td>
+      <td class="searchtd3"></td>
+    </tr>
+    <tr>
+      <td colspan="3"><table class="datatb"  cellpadding="3" cellspacing="1" >
+          <tbody>
+            <tr class="listth" >
+            <td colspan="2" align="center"><input type="button" value="返回" class="back" onclick ="history.go(-1);"/></td>
+            </tr>
+        
+
+        <tr  class="listtr">
+		    <td width="16%" class="editleft">模块名：</td>
+		    <td width="84%"  class="editright">${record.module_name}</td>
+        </tr>
+        <tr  class="listtr">
+		    <td class="editleft">模块URL：</td>
+		    <td class="editright">${record.module_url}
+		    </td>
+        </tr>
+        <tr  class="listtr">
+		    <td class="editleft">模块说明：</td>
+		    <td class="editright">${record.module_desc}</td>
+        </tr>
+        <tr  class="listtr">
+		    <td class="editleft">是否显示：</td>
+		    <td class="editright">
+                	<c:if test="${record.is_show == 0}">不显示</c:if>
+                	<c:if test="${record.is_show == 1}">显示</c:if>
+            </td>
+        </tr>
+        <tr  class="listtr">
+		    <td class="editleft">父模块：</td>
+		    <td class="editright">${record.parent_module_id}</td>
+        </tr>
+        <tr  class="listtr">
+		    <td class="editleft">模块层次：</td>
+		    <td class="editright">${record.module_layer_mark}</td>
+        </tr>
+        <tr  class="listtr">
+		    <td class="editleft">帐号状态：</td>
+		    <td class="editright">
+                	<c:if test="${record.status == 0}">无效</c:if>
+                	<c:if test="${record.status == 1}">有效</c:if>
+			</td>
+        </tr>
+          </tbody>
+        </table>
+        </td>
+    </tr>
+</table>
+
+
+   	    <%@include file="/public/files/loading.jsp"%> 
+
+
+
+
+
+
+
+</body>
+</html>

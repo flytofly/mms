@@ -1,0 +1,530 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>定制规则</title>
+<script
+	src="#(uri)/public/setrule/zTree_v3-master/js/jquery-1.4.4.min.js"></script>
+<script type="text/javascript"
+	src="#(uri)/public/setrule/js/jquery-1.7.1.js"></script>
+<script type="text/javascript"
+	src="#(uri)/public/setrule/jqgrid/js/jquery.jqGrid.src.js"></script>
+<script type="text/javascript"
+	src="#(uri)/public/setrule/jqgrid/js/i18n/grid.locale-cn.js"></script>
+<script type="text/javascript" src="#(uri)/public/setrule/js/index.js"></script>
+<script type="text/javascript"
+	src="#(uri)/public/setrule/zTree_v3-master/js/jquery.ztree.core.js"></script>
+<script type="text/javascript"
+	src="#(uri)/public/setrule/zTree_v3-master/js/jquery.ztree.excheck.js"></script>
+<link rel="stylesheet"
+	href="#(uri)/public/setrule/zTree_v3-master/css/demo.css"
+	type="text/css" />
+<link rel="stylesheet"
+	href="#(uri)/public/setrule/zTree_v3-master/css/zTreeStyle/zTreeStyle.css"
+	type="text/css" />
+<link rel="stylesheet"
+	href="#(uri)/public/setrule/jqgrid/css/ui.jqgrid.css" />
+<link rel="stylesheet"
+	href="#(uri)/public/setrule/jqgrid/css/css/redmond/jquery-ui-1.8.16.custom.css" />
+
+<style type="text/css">
+.bg_div {
+	width: 80%;
+	height: 600px;
+	margin-left: 150px;
+	border: 1px solid #379082;
+}
+
+.bg_div ul li {
+	list-style: none;
+}
+
+.fn_c span {
+	height: 50px;
+	line-height: 50px;
+}
+
+.fb_d {
+	width: 50%;
+	height: 50px;
+	line-height: 50px;
+	text-align: center;
+	cursor: pointer;
+	border-bottom: 1px solid #379082;
+}
+
+.fg_left {
+	width: 30%;
+	height: 550px;
+	float: right;
+	margin-top: -550px;
+	border-left: 1px solid #379082;
+}
+
+.fg_left li {
+	float: left;
+	line-height: 40px;
+	margin-left: 15px;
+}
+
+.fg_left ul {
+	height: 40px;
+	margin-top: 6px;
+}
+
+.fn_ztree {
+	float: left;
+	width: 74%;
+	height: 400px;
+	margin-left: 13%;
+}
+
+.fn_ztree_div {
+	width: 42%;
+	height: 380px;
+	margin-left: 30%;
+}
+
+.fn_save {
+	width: 100%;
+	height: 30px;
+	float: left;
+	margin-top: 5px;
+}
+
+.bj_f {
+	width: 100%;
+	height: 95px;
+}
+
+.bj_f_uf li {
+	float: left;
+	margin-left: 4%;
+	margin-top: 10px;
+	cursor: pointer;
+}
+
+.bj_f_ut li {
+	float: right;
+	margin-right: 20%;
+	margin-top: 10px;
+	cursor: pointer;
+}
+
+.bj_ls ul {
+	margin-left: 2%;
+}
+
+.bj_ls li {
+	background-color: #06F;
+	float: left;
+	margin-left: 2%;
+	width: 22%;
+	margin-top: 10px;
+	text-align: center;
+	cursor: pointer;
+	line-height: 30px;
+	color: #FFF;
+	border: 2px solid #379082;
+	border-radius: 10px;
+}
+
+.tb2 {
+	float: left
+}
+
+.tb2 tr td {
+	background-color: #06F;
+	float: left;
+	margin-left: 2%;
+	width: 22%;
+	margin-top: 10px;
+	text-align: center;
+	cursor: pointer;
+	line-height: 30px;
+	color: #FFF;
+	border: 2px solid #379082;
+	border-radius: 10px;
+}
+
+.bj_p {
+	line-height: 15px;
+	text-align: center;
+	width: 12%;
+	margin-top: 10px;
+}
+
+.bj_lk {
+	width: 100%;
+	height: 20px;
+	float: left;
+}
+
+.bj_tb {
+	width: 94%;
+	height: 210px;
+	margin-left: 2%;
+	margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+	<div class="bg_div">
+		<div class="fn_c"
+			style="width: 100%; height: 50px; border-bottom: 1px solid #379082;">
+			<span style="float: left; margin-left: 3%;">选择标签</span> <a href="">
+				<span style="float: right; margin-right: 3%;">关闭</span>
+			</a>
+		</div>
+		<div style="width: :100%; height: 550px;">
+
+			<div style="width: 70%; height: 550px;">
+				<span id="hangye" onclick="hangye()" class="fb_d"
+					style="float: left; font-size: 14px; background-color: #09C;">按行业选择</span>
+				<span id="biaoqian" onclick="biaoqian()" class="fb_d"
+					style="float: right; font-size: 14px; background-color: #0C9;">按标签选择</span>
+
+				<!-- 按行业选择开始  -->
+				<div id="fn_h" style="width: 100%; display: black">
+					<div class="fn_ztree">
+						<div class="fn_ztree_div">
+							<ul id="treeDemo" class="ztree"></ul>
+						</div>
+					</div>
+
+					<div class="fn_save">
+						<input type="button" value="保存"
+							style="width: 15%; margin-left: 42%;" />
+					</div>
+				</div>
+				<!-- 按行业选择结束  -->
+
+				<!-- 按标签选择 开始  -->
+				<div id="fn_b" style="width: 100%; display: none">
+
+					<div class="bj_f">
+						<ul class="bj_f_uf">
+							<li style="width: 12%"><input id="searchTags" type="text"
+								style="width: 100%" /></li>
+							<li id="fn_result" onclick="result()" style="font-size: 14px;">搜索结果</li>							
+							<!-- <li id="fn_recommend" onclick="recommend()" style=" font-size:14px;" >相关推荐</li> -->
+						</ul>
+
+						<!-- 	<ul class="bj_f_ut">
+							<a href="">
+								<li>下页</li>
+							</a>
+							<a href="">
+								<li>上页</li>
+							</a>
+						</ul> -->
+					</div>
+
+					<div class="bj_ls">
+						<table id="idData" width="100%" class="tb2">
+							#-- #for(i = 0; i < tags.getSimilar().size();i++) #if(i%4 == 0)
+							<tr>
+								#for(j = 0; j < 4 && j < tags.getSimilar().size() - i; j++)
+								<td><div>#if(tags.getSimilar().get(i + j).length() >
+										10) #(tags.getSimilar().get(i + j).substring(0,10)) #end
+										#if(tags.getSimilar().get(i + j).length() <= 10)
+										#(tags.getSimilar().get(i + j)) #end #(tags.getSimilar().get(i
+										+ j))</div></td> #end
+							</tr>
+							#end #end --#
+						</table>
+						<table width="100%" id="barcon" name="barcon" align="right">
+						</table>
+					</div>
+					<div class="bj_lk"></div>
+					<div
+						style="width: 100%; height: 1px; margin: 0px auto; padding: 0px; background-color: #D5D5D5; overflow: hidden;"></div>
+					<div>
+						<p class="bj_p">标签详情</p>
+					</div>
+
+					<div class="bj_tb" id="container">
+						<table id="list"></table>
+						<div id="pager"></div>
+					</div>
+					<div class="fn_save">
+						<input type="button" value="保存"
+							style="width: 15%; margin-left: 42%; cursor: pointer;" />
+					</div>
+				</div>
+				<!-- 按标签选择 结束  -->
+
+			</div>
+			<div class="fg_left">
+				<ul>
+					<li style="margin-left: 52px;">已选规则</li>
+					<li>共10个</li>
+					<li>预计用户数2000</li>
+				</ul>
+				<div style="width: 80%; margin-left: 30px;">
+					<table id="list2"></table>
+					<div id="pager2"></div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+
+	<script>
+		var setting = {
+			check : {
+				enable : true
+			},
+			data : {
+				simpleData : {
+					enable : true
+				}
+			},
+			callback : {
+				onCheck : zTreeOnCheck
+			},
+			view : {
+				selectedMulti : false
+			}
+		};
+		setting.check.chkboxType = {
+			"Y" : "s",
+			"N" : "s"
+		};
+
+		var zNodes = [ {
+			id : 1,
+			pId : 0,
+			name : "水资源分区",
+			open : true
+		}, {
+			id : 10,
+			pId : 1,
+			name : "河流",
+			checked : true,
+			open : true
+		}, {
+			id : 11,
+			pId : 1,
+			name : "湖泊",
+			checked : true
+		}, {
+			id : 2,
+			pId : 1,
+			name : "水库",
+			checked : true,
+			open : true
+		}, {
+			id : 21,
+			pId : 2,
+			name : "大一型水库",
+			checked : true,
+			open : true
+		}, {
+			id : 22,
+			pId : 2,
+			name : "大二型水库",
+			checked : true
+		}, {
+			id : 23,
+			pId : 2,
+			name : "中型水库",
+			checked : true,
+		}, {
+			id : 24,
+			pId : 2,
+			name : "小一型水库",
+			checked : true,
+		}, {
+			id : 25,
+			pId : 2,
+			name : "小二型水库",
+			checked : true
+		}, {
+			id : 3,
+			pId : 1,
+			name : "大坝",
+			checked : true,
+			open : true
+		}, {
+			id : 31,
+			pId : 3,
+			name : "一级堤防",
+			checked : true
+		}, {
+			id : 32,
+			pId : 3,
+			name : "二级堤防",
+			checked : true
+		}, {
+			id : 33,
+			pId : 3,
+			name : "三级堤防",
+			checked : true
+		}, {
+			id : 34,
+			pId : 3,
+			name : "四级堤防",
+			checked : true
+		}, {
+			id : 35,
+			pId : 3,
+			name : "未分级堤防",
+			checked : true
+		}, {
+			id : 4,
+			pId : 0,
+			name : "世界地图",
+			checked : true
+		}, {
+			id : 5,
+			pId : 0,
+			name : "世界地图_Night",
+			checked : true
+		}, ];
+
+		function zTreeOnCheck(event, treeId, treeNode) {
+			//var checked = treeNode.checked;  
+			//console.log((treeNode?treeNode.name:"root") + "checked " +(checked?"true":"false"));  
+			// refreshLayers();  
+			// clearCheckedOldNodes();  
+		};
+
+		function goPage(pno, psize) {
+			var itable = document.getElementById("idData");
+			var num = itable.rows.length;//表格所有行数(所有记录数)
+			var totalPage = 0;//总页数
+			var pageSize = psize;//每页显示行数
+			//总共分几页 
+			if (num / pageSize > parseInt(num / pageSize)) {
+				totalPage = parseInt(num / pageSize) + 1;
+			} else {
+				totalPage = parseInt(num / pageSize);
+			}
+			var currentPage = pno;//当前页数
+			var startRow = (currentPage - 1) * pageSize + 1;//开始显示的行  31 
+			var endRow = currentPage * pageSize;//结束显示的行   40
+			endRow = (endRow > num) ? num : endRow;
+			//遍历显示数据实现分页
+			for (var i = 1; i < (num + 1); i++) {
+				var irow = itable.rows[i - 1];
+				if (i >= startRow && i <= endRow) {
+					irow.style.display = "block";
+				} else {
+					irow.style.display = "none";
+				}
+			}
+			var pageEnd = document.getElementById("pageEnd");
+			var tempStr = ""; /* "共"+num+"条记录 分"+totalPage+"页 当前第"+currentPage+"页"; */
+			if (currentPage > 1) {
+				tempStr += "<a href=\"#\" onClick=\"goPage("
+						+ (currentPage - 1) + "," + psize + ")\"><上一页 </a>"
+			} else {
+				/* tempStr += "首页"; */
+				tempStr += "<上一页 ";
+			}
+
+			if (currentPage < totalPage) {
+				tempStr += "<a href=\"#\" onClick=\"goPage("
+						+ (currentPage + 1) + "," + psize + ")\">下一页 ></a>";
+			} else {
+				tempStr += "下一页 >";
+				/* tempStr += "尾页";   */
+			}
+			document.getElementById("barcon").innerHTML = tempStr;
+		}
+
+	
+
+		$(document).ready(function() {
+			zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+			// 初始化标签数据
+			queryTags('');
+		});
+
+		// 请求标签数据并显示在页面
+		function queryTags(keyword) {
+			var kw = keyword;
+			$
+					.ajax({
+						type : "post",
+						url : "#(uri)/tagquery/queryTags",
+						dataType : "text",
+						data : {
+							"tag" : kw
+						},
+						success : function(data) {
+							// 显示后台查询的标签
+							if (data != null && data != '') {
+								var json = eval("(" + data + ")");
+								var likeTag = json.like;
+								var idataChild = "";
+								for (var i = 0; i < likeTag.length; i++) {
+									if (i % 4 == 0) {
+										idataChild += '<tr>';
+										for (var j = 0; j < 4 && j < likeTag.length - i; j++) {
+											var tag = likeTag[i + j];
+											idataChild += '<td><div class="ls" onclick="secrahrules(\'' + tag +'\')">';
+											idataChild += tag;
+											idataChild += ' </div></td>';
+										}
+										idataChild += '</tr>';
+									}
+								}
+								$("#idData").html($(idataChild));
+								goPage(1, 3);
+							} else {
+								alert('没有搜索到标签！');
+							}
+						}
+					});
+		}
+
+		
+		function hangye() {
+			$("#fn_h").show();
+			$("#fn_b").hide();
+			$("#hangye").css("font-size", "18px");
+			$("#biaoqian").css("font-size", "14px");
+			$("#hangye").css("background-color", "#09C");
+			$("#biaoqian").css("background-color", "#0C9");
+		}
+
+		function biaoqian() {
+			$("#fn_h").hide();
+			$("#fn_b").show();
+			$("#hangye").css("font-size", "14px");
+			$("#biaoqian").css("font-size", "18px");
+
+			$("#hangye").css("background-color", "#0C9");
+			$("#biaoqian").css("background-color", "#09C");
+		}
+
+		function result() {
+			$("#fn_result").css("font-size", "16px");
+			$("#fn_recommend").css("font-size", "14px");
+			var kw = $("#searchTags").val();
+			if (kw == null || kw == '') {
+				alert("请输入查询关键词！");
+				return false;
+			}
+			queryTags(kw);
+		}
+
+		function recommend() {
+			$("#fn_recommend").css("font-size", "16px");
+			$("#fn_result").css("font-size", "14px");
+		}
+		
+		function secrahrules(data) {
+		
+			var tag = data;
+			$("#container").html('<table id="list"></table><div id="pager"></div>');
+			pageInit(tag);
+		}
+	</script>
+</body>
+</html>

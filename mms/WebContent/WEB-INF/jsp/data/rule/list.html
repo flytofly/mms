@@ -1,0 +1,188 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>DMP规则</title>
+<script>
+function templist(){
+	window.location="#(uri)/data/rule/templist";
+}
+function deleteConfirm(){
+	return confirm("你确定要删除该条记录吗？");
+}
+</script>
+<script src="#(uri)/public/jquery/js/jqsel.js"></script>
+</head>
+<body>
+<div class="tx-con">
+	  <!-- 页面的标题 -->
+		<div class="tx-con-bt">
+			<ul>
+				<li><a href="#"><span>DMP规则</span></a></li>
+			</ul>
+		</div>
+<!-- 条件筛选框的位置 -->
+<form name="form" id="form" action="./list" method="post">
+   <div class="tx-con-form">
+        <input style="margin-left:0;" type="text" name="record.level3Name" placeholder="按关键字搜索 " size="12" value="#(record.level3Name)" maxlength="50" id="" class="tx-con-form-tet"/>            
+       <!--  网站名 : <input type="text" name="desc" size="12" value="#(record.desc)" maxlength="50" id="" class="tx-con-form-tet"/> -->            
+       <select class="validate[required]" id="" name="record.status" >
+			<option value="">选择审核状态</option>
+			<option value="1"  #if(record.status==1) selected="selected" #end>审核通过</option>
+			<option value="0" #if(record.status==0) selected="selected" #end>未审核</option>
+			<option value="2" #if(record.status==2) selected="selected" #end>审核未通过</option>
+	  </select> 
+      <input style="margin-left:20px;" type="submit" name="Submit" value="筛选" class="tx-con-form-sub"/>
+      <div style="float: right;">
+           #if(session.suser.customer_type == 1 || session.suser.customer_type == 9)
+      		<input name="new" type="button" value="导出" onClick="exportrule();" class="tx-con-form-sub"/>
+      	   #end
+<!--             <input name="new" type="button" value="提交规则" onClick="templist();" class="tx-con-form-sub"/> -->
+      </div>
+      <div class="cle"></div>
+    </div>
+      	<!--列表的详细信息 -->
+		<div class="tx-con-xx">
+      	<table class="datatb"  cellpadding="3" cellspacing="1" >
+            <tr class="listth" >
+              <th width="40px"><input type="checkbox" id="check_all" onClick="checkAll();"/></td>
+              <th width="">一级分类 </th>
+              <th width="">二级分类</th>
+              <th width="">三级分类 </th>
+              <th width="">网站名</th>             
+              <th width="">日均用户量</th>
+              <th width="">审核状态</th>
+<!--               <td width="13%">操作</td> -->
+            </tr>
+            #for(r:records.getList())
+            <tr class="listtr" onMouseOut="this.style.backgroundColor='#ffffff';" onMouseOver="this.style.backgroundColor='#E6F2FF'">
+              <td> 
+                <input type="checkbox" id="chk_${r.rid }" class="rulecheckbox"/>
+              </td>
+              <td>#(r.level1Name)</td>
+              <td>#(r.level2Name)</td>
+              <td>#(r.level3Name)</td>
+              <td>#(r.desc)</td>         
+              <td>#(r.pv)</td>
+              <td > 	
+                 #if(r.status == 1) 审核通过 #end
+                 #if(r.status == 0)未审核#end
+                 #if(r.status == 2)审核未通过#end
+              </td>
+
+<!--               <td ><a class="green">每日详情</a></td> -->
+             </tr>
+
+            #end
+         </table></div>
+   <!--分页start -->
+      #@paginate(records.pageNumber, records.totalPage, "") 
+   <!--分页end -->
+   </form>
+  </div>
+</div>
+<script type="text/javascript">
+
+function rulecheck(ruleId){
+	var ruleids = new Array();
+	ruleids.push(ruleId);
+	batchtoCheck(ruleids);
+}
+
+// 选中所有规则
+function checkAll(){
+	$(".rulecheckbox").each(function(i,item){
+		if($("#check_all").attr("checked")=="checked"){
+			$(item).attr("checked","checked");
+		}else{
+			$(item).removeAttr("checked");
+		}
+	});
+}
+
+// 获取所有选中的规则id
+function getruleids(){
+	var ruleids = new Array();
+	$(".rulecheckbox:checked").each(function(i,item){
+		 var id = $(item).attr("id").split("_")[1];
+		 ruleids.push(id);
+	});
+	return ruleids;
+}
+
+// 批量审核
+function batchCheck(){ 
+	var ruleids =  getruleids();
+	batchtoCheck(ruleids); 
+}
+
+// 批量变更规则为不可用
+function batchUnused(){
+	var ruleids =  getruleids();
+	batchtoUnused(ruleids);
+	 
+}
+
+// 批量变更规则为可用
+function batchUsed(){
+	var ruleids =  getruleids();
+	batchtoUsed(ruleids); 
+}
+
+// 批量审核
+function batchtoCheck(ruleids){
+	if(ruleids.length==0){
+		alert("未选择任何URL规则!");
+		return;
+	}
+	var r=confirm("确认要审核" + ruleids.length +"条为通过吗？");
+	if(!r){
+		return;
+	}
+	$.post("./batchtoCheck", { ruleIds: ruleids.toString()},
+		function(data){
+		alert("成功审核: " + data +"条规则");
+		var para= $("form").serialize() ;
+		location.href="./list?"+para;
+	});
+}
+
+// 批量不使用
+function batchtoUnused(ruleids){
+	if(ruleids.length==0){
+		alert("未选择任何URL规则!");
+		return;
+	}
+	var r=confirm("确认要变更" + ruleids.length +"条规则为不可用吗？");
+	if(!r){
+		return;
+	}
+	$.post("./batchtoUnused", { ruleIds: ruleids.toString() },
+		function(data){
+		alert("成功变更: " + data +"条规则为不可用");
+		var para= $("form").serialize();
+		location.href="./list?"+para;
+	});
+}
+
+// 批量使用
+function batchtoUsed(ruleids){
+	if(ruleids.length==0){
+		alert("未选择任何URL规则!");
+		return;
+	}
+	var r=confirm("确认要变更" + ruleids.length +"条规则为可用吗？");
+	if(!r){
+		return;
+	}
+	$.post("./batchtoUsed", { ruleIds: ruleids.toString() },
+		function(data){
+	    alert("成功变更: " + data +"条规则为可用");
+	    var para= $("form").serialize() ;
+		location.href="./list?"+para;
+	});
+}
+</script>
+</body>
+</html> 
+#end

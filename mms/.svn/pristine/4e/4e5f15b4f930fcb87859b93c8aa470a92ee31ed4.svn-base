@@ -1,0 +1,56 @@
+#@layout()
+#define main()
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>人群管理-统计</title>
+<script src="#(BasePath)/public/jquery/js/jqsel.js"></script>
+</head>
+<body>
+<div class="tx-con">
+		<div class="tx-con-bt">
+			<ul>
+				<li><a href="#"><span>人群管理</span></a></li>
+				<li><a href="#">&gt; 统计</a></li>
+			</ul>
+		</div>
+	<form  id="form" action="statis" method="post">
+	    <input type="hidden" name="cid" value="#(record.cid)">
+		<!--内容筛选-->
+		<div class="tx-con-form">
+		     <div style="float: right;padding-right: 50px;">
+<!--                 <input name="new" type="button" value="导出" onclick="export();" class="tx-con-form-sub"/>&nbsp;&nbsp;&nbsp; -->
+                <input name="new" type="button" value="返回" onclick="history.go(-1);" class="tx-con-form-sub"/>
+             </div>
+		  <div class="cle"></div>
+		</div>
+<div class="tx-con-xx">
+	<table cellspacing="0" cellpadding="0">
+           <tr>
+           <th>日期</th>
+           <th>用户数</th>
+           <!-- <th>新增用户数</th>
+           <th>总用户数</th>
+           <th>已投放用户数</th>
+           <th>未投放用户数</th> -->
+           </tr>
+            #for(record:records.getList())
+            <tr>
+	         <td> #(record.countdate )</td>
+	         <td> #(record.usernum ) </td>
+	       <!--   <td> 0 </td>
+	         <td>  #(record.usernum ) </td>
+	         <td>0</td>
+	         <td>#(record.usernum )</td> -->
+            </tr>
+             #end
+  </table>
+  </div>
+  <!--分页-->
+   	    #@paginate(records.pageNumber, records.totalPage, "")
+  <!--分页 END-->
+  </form>
+</div>
+</body>
+</html>
+#end

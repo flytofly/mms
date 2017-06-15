@@ -1,0 +1,86 @@
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>企业列表</title>
+<link href="#(BasePath)/public/css/list.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<form name="form" id="form" action="./rlist" method="post">
+<input type="hidden" name="business.status" value="1" />
+<table class="searchtb">
+    <tr class="searchtr2">
+      <td colspan="3"> 
+       <img src="#(BasePath)/public/images/yue-icon.png" style="margin-bottom:-2px;margin-left:20px;">
+                   企业名称： <input type="text" name="business.business_name" size="12" value="#(business.business_name)" id="search" class="input"/>
+<!--        <select name="business.business_type" class="combox"> -->
+<!--            <option value=""  #if(business.business_type == null) selected #end > -- 选择企业类型 --</option> -->
+<!-- 		   <option value="2" #if(business.business_type == 2) selected #end  >普通企业</option> -->
+<!-- 		   <option value="3" #if(business.business_type == 3) selected #end  >代理商</option>  -->
+<!--        </select> -->
+        <input type="submit" name="Submit" value="查询 " class="search"/>
+       </td>
+    </tr>
+</table>
+
+<table class="searchtb" >
+  <tbody>
+    <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2">
+      			<img src="#(BasePath)/public/images/biaoti-icon.png"/>企业列表
+        	    <img src="#(BasePath)/public/images/icon-xiangxia.png" width="11" height="11" />
+      </td>
+      <td class="searchtd3"></td>
+    </tr>
+    <tr>
+      <td colspan="3" id="yue-nr">
+      	<table class="datatb"  cellpadding="3" cellspacing="1" >
+          <tbody>
+            <tr class="listth" >
+            <td width="5%">选择</td>
+            <td width="25%">客户名称</td>
+            <td width="20%">电话</td>
+            <td width="30%">客户地址</td>
+            <td width="25%">客户状态</td>
+            </tr>
+            #for(record:records.getList())
+            <tr class="listtr" onmouseout="this.style.backgroundColor='#ffffff';" onmouseover="this.style.backgroundColor='#E6F2FF'">
+              <td> 
+				 <input type="radio" onclick="check('#(record.bid)','#(record.business_name)')">
+             </td>
+              <td  height="25" ><div ><strong>#(record.business_name)</strong></div></td>
+              <td >
+            	#(record.one_phone)
+             </td>
+             
+              <td ><p style="width:250px;overflow:hidden;text-overflow:ellipsis;word-break:keep-all">
+              #(record.address)
+              </p>
+              </td>
+              <td >
+            	#if(record.status == 0)<span title="待审核">待审核</span>#end
+            	#if(record.status == 1)<span title="正常">正常</span>#end
+            	#if(record.status == 9)<span title="已删除">已删除</span>#end
+             </td>
+            </tr>
+             #end
+          </tbody>
+        </table></td>
+    </tr>
+</table>
+   <div>  
+       <!--分页-->
+    	   #@paginate(records.pageNumber, records.totalPage, "")
+</div>
+</form>
+<!--    	        <%@include file="/public/files/loading.jsp"%>  -->
+<script type="text/javascript">
+function check(id,name){
+	    window.opener.document.getElementById("bid").value=id;
+	    window.opener.document.getElementById("business_name").value=name;
+	    this.close();
+}
+</script>   
+</body>
+</html> 

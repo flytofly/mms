@@ -1,0 +1,204 @@
+#@layout()
+#define main()
+
+<!-- <script src="#(uri)/public/js/My97DatePicker/WdatePicker.js"></script> -->
+<link href="#(uri)/public/jquery/css/validationEngine.jquery.css" rel="stylesheet" type="text/css"/>
+<script src="#(uri)/public/jquery/js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+<script src="#(uri)/public/jquery/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+
+<script>
+	 
+	jQuery(document).ready(function(){
+					jQuery("#cform").validationEngine('attach');
+					
+					var type='#(record.m_type)';
+					if(type==''){
+						var a=$("#m_type_duanxin");
+						a.attr("checked", true);
+						type=2;
+					}
+					changeType(type);
+					
+					$("#m_type_duanxin").on("change",function(){
+			            var a=2;
+						changeType(a);
+					});
+					
+					$("#m_type_zuoxi").on("change",function(){
+						var a=1;
+						changeType(a);					
+					});
+					
+					//文案规则查看
+					var i=0;
+					$("#wenanguize").on("click",function(){			
+						i++;
+						if(i%2==0){
+							$("#wenantishi").hide();
+						}else{
+							$("#wenantishi").show();
+							$("#mes").hide();
+						}
+	
+		             });
+					
+				  var length=0;
+					 $("#content2").blur(function(){
+						var str= $("#content2").val();			
+						 if( str!=undefined&&str.length >=1  ){
+							 
+					                if($("#content2").val().indexOf("#http")!=-1){			                	
+					                	 var str= $("#content2").val().split("#");
+										    var ctLength=str[0].length+str[2].length;
+										    if(ctLength>53){
+										    	$("#mes").show();
+												 $("#wenantishi").hide();  
+												 length=ctLength;
+										     } else{
+										    	 length=0;
+										    		$("#mes").hide();
+													 $("#wenantishi").hide();  
+										     } 
+					                	
+					                }else{
+						                	if($("#content2").val().length>70){
+						                		length=$("#content2").val().length;
+						                		$("#mes").show();
+												 $("#wenantishi").hide();  			                	
+						                	}else{
+						                		$("#mes").hide();
+												 $("#wenantishi").hide();  
+												 length=0;
+						                	}
+					                 }
+								   
+						 }else{
+							 length=0;
+						 }
+					 });
+					 
+					 
+					 $("#cform").submit(function(){			
+						 var str= $("#content2").val();	
+						 if($("#content2").val().indexOf("#http")!=-1){
+							 
+								 if(length>53||str==undefined||str==""){
+										return mySubmit(false);
+								 }else{
+										 $("#cform").sumit();
+								 }
+								 
+						 }else{
+							 
+							     if(length>70||str==undefined||str==""){
+									return mySubmit(false);
+								 }else{
+									 $("#cform").sumit();
+								 }
+						 }
+						
+					  });
+	              			 
+	});
+	
+	//这个方法只是用来做个掩护,没有这个掩护是不行的!  
+	function mySubmit(flag){  
+	    return flag;  
+	} 
+	
+	
+	function changeType(a){
+			if(a == 2){
+				$("#wenan").show();
+				$("#huashu").hide();
+				$("#content1").val("");
+			/* 	$("#li_linkurl").show(); */
+			}else if(a == 1){
+				$("#huashu").show();
+				$("#wenan").hide();
+				$("#content2").val("");
+				/* $("#li_linkurl").hide(); */
+			}
+		}
+	function selectbus(){
+		window.open("#(uri)/data/buscus/rlist?&business.status=1","","width=1000,height=600,location=no");
+	}
+</script>
+
+
+
+<body>
+	<!--数据信息部分-->
+		<div class="tx-con">
+			<!--信息标题-->
+			<div class="tx-con-bt">
+				<ul>
+					<li><a href="#"><span>素材管理</span></a></li>
+					<li><a href="#">&gt; 新建素材</a></li>
+				</ul>
+				<a class="tx-con-bt-fh ri"  onclick="history.go(-1)">返回</a>
+			</div>
+			<!--新建任务-->
+			<form name="cform" id="cform" action="./update" method="post"  onsubmit="return mySubmit(true)"  >
+			<div class="xjrw-con" id="xjrq-con">
+					<input type="hidden" name="record.mid" id="customer_id" value = "#(record.mid)"/>
+					<ul>
+						#if(suser.customer_type !=4)
+						<li class="w200 h30"><span>任务所属客户：</span>
+							<input type="hidden" id="bid" value="#(record.bid)" name="record.bid"/>
+				      		<input type="text" id="business_name" value="#(record.business_name)" name="businessName" class="validate[required] re_input" size="32" readonly />
+		                	<button class="look"
+			           		    onclick="selectbus();event.preventDefault();">
+			           		          查找企业</button>
+						</li>
+						#end
+						<li><span>素材类型：</span>
+							<input type="radio" value="2" #if(record.m_type == 2 ) checked #end name="record.m_type"  id="m_type_duanxin"  />短信
+			        		<input type="radio" value="1" #if(record.m_type == 1 ) checked #end name="record.m_type"  id="m_type_zuoxi"   />外呼坐席
+						</li>
+						
+						<li class="w308 h30"><span>素材名：</span>
+							#if(record.mid != null)
+						    <input type="text" name="record.name"  id="name" maxlength="24" value = "#(record.name)"/>
+						    #end
+						  	#if(record.mid == null)
+						    	<input type="text" class="validate[required] re_input" name="record.name" id="name" maxlength="24" value = "#(record.name)" onchange="valname()"/>
+						    	<span id="validataName"></span>
+						    #end
+						    &nbsp;
+						</li>
+						<!--  <li class="w308 h30" id="li_linkurl"><span>目标链接：</span>
+							<input type="text" class="validate[required] re_input" name="record.linkurl" id="linkurl"   value = "#(record.linkurl)"/>
+						</li> -->
+						<!-- <li class="w308 h30"><span>短链接：</span>
+							<input type="text" class="validate[required] re_input" name="record.shorturl" id="shorturl" maxlength="12" value = "#(record.shorturl)"/>
+						</li> - -->
+						
+						<li class="w308" id="wenan" style="display:none"><span>文案：</span>
+							<textarea rows="4"  class="validate[required] re_input" name="record.content" id="content2">#(record.content)</textarea>
+						   <input type="button" value="文案规则查看" id="wenanguize"    style="float:right;width:136px;margin-right: 177px;-webkit-border-radius: 5px;background-color:#0082cd ; color: #fff; " />
+						   <div id="wenantishi" style="color:#FF3366 ; float: right; width: 312px; height: 51px;display:none;margin-top: -55px;    font-size: 12px;" >备注：文中如有目标链接请以##确定,除去目标链接URL,字符数不能超过53个。例：尊敬的客户，你的话费已发送邮箱，详情查看#http://y.10086.cn#。不包含URL字符不能超过70</div>
+						   <div id="mes" style="color:#FF3366 ; float: right; width: 312px; height: 51px;display:none;margin-top: -42px;    font-size: 12px;" >文案中包含URL,除去URL字符不能超过53。不包含URL字符不能超过70</div>
+						   
+						</li>
+						
+							<li class="w308" style=" display : none" id="huashu" ><span>话术：</span>
+							<textarea rows="4" style="height: 300px" class="validate[required] re_input" name="contentHuaShu" id="content1">#(record.content)</textarea>
+						   </li>
+						<li class="w200 h30" #if(session.suser.customer_type ==4 ||session.suser.customer_type ==5) style="display:none " #end ><span>素材状态：</span>
+							<select class="validate[required] input-xlarge" id="status" name="record.status" >
+									<option value="">-- 请选择 --</option>
+									<option value="0" #if(record.status==0 )selected="selected"#end>待审核</option>
+									<option value="1" #if(record.status==1 )selected="selected"#end>审核通过</option>
+									<option value="2" #if(record.status==2 )selected="selected"#end>审核未通过</option>
+							</select> 
+						</li>
+						
+					</ul>
+					<input class="xjrw-con-sub" type="submit" value="保存"/>
+			</div>	
+		  </form>
+		</div>
+</body>
+</html>
+#end

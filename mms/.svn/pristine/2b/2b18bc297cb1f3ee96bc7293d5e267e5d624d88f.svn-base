@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+	@auther:Adair Yang
+	@createDate:2013-05-27
+	@description:This ant script only for business project's update
+	@email:yangyanzhao@expai.com;adairs@yeah.net
+	@version:1.0	
+	-->
+<project basedir=".." default="build" name="mms">
+    <property environment="env"/>
+    <property file="build/ant.properties"/>
+    <property name="sourceDir" value="src"/>
+    <property name="WebRoot" value="WebContent"/>
+    <property name="destDir" value="${WebRoot}/WEB-INF/classes"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+     <tstamp>
+       <format property="createDate" pattern="yyyy_MM_dd" locale="en"/>
+     </tstamp>
+    <property name="updateBaleName" value="${ant.project.name}_${createDate}_${UPDATE_PACKAGE_NAME}"/>
+    <path id="business.classpath">
+        <pathelement location="${destDir}"/>
+        <path refid="Apache_Tomcat_v7.0.libraryclasspath"/>
+        <path refid="WEB_APP.classpath"/>
+    </path>
+    <target name="init">
+      <echo message="${ant.project.name}: ${ant.file}"/>
+      <mkdir dir="${UPDATE_DIR}/${updateBaleName}" />
+    </target>
+    <target name="clean">
+      <delete dir="${UPDATE_DIR}/${updateBaleName}" />
+    </target>
+
+    <target name="compile" depends="clean,init">
+      <echo message="compile file"/>
+      <echo message="${ant.project.name}: ${ant.file}"/>
+      <javac debug="true" debuglevel="${debuglevel}" 
+      		 srcdir="${sourceDir}"  destdir="${destDir}" 
+      		 includeantruntime="on">
+          <classpath refid="business.classpath"/>
+      </javac>
+    </target>
+    
+    <target name="build" depends="compile">
+	    <echo message="build project(copy file)"/>
+	    <copy todir="${UPDATE_DIR}/${updateBaleName}" >
+	      <fileset dir="${WebRoot}" includes = "${UPDATE_FILE_NAMES}">
+	      </fileset>
+	    </copy>
+    </target>
+    <path id="Apache_Tomcat_v7.0.libraryclasspath">
+        <pathelement location="${TOMCAT_HOME}/lib/*.jar"/>
+    </path>
+    <path id="WEB_APP.classpath">
+        <pathelement location="${WebRoot}/WEB-INF/lib/*.jar"/>
+    </path>
+</project>

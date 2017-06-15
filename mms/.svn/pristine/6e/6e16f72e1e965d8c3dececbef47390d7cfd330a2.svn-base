@@ -1,0 +1,230 @@
+package cn.mmdata.commons.util;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
+import com.jfinal.plugin.activerecord.Record;
+
+import cn.mmdata.mms.data.rule.RuleTemp;
+
+public class ReadExcelEls {
+
+	/**
+	 * 读取加密状态的mdn
+	 * 
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	public List<Record> readXlsDecodeRecord(File file) throws IOException {
+		InputStream is = new FileInputStream(file);
+		HSSFWorkbook hssfWorkbook = new HSSFWorkbook(is);
+		List<Record> records = new ArrayList<Record>();
+		// 循环工作表Sheet
+		HSSFSheet hssfSheet = hssfWorkbook.getSheetAt(0);
+		int rowNums = hssfSheet.getLastRowNum();
+		if (rowNums >= 1) {
+			// 循环行Row ,从第二行取内容，第一行为标题列
+			for (int rowNum = 1; rowNum <= rowNums; rowNum++) {
+				HSSFRow hssfRow = hssfSheet.getRow(rowNum);
+			  // 跳过当前行为空或类型为String的情况
+				if (hssfRow == null) {
+					continue;
+				}
+				if(hssfRow.getCell(0) == null){
+					continue;
+				}
+				if(hssfRow.getCell(0).getStringCellValue().length() == 22){
+			        Record record = new Record();
+			    	String column1 = hssfRow.getCell(0).getStringCellValue();
+			    	record.set("mdnencode", column1);
+			    	records.add(record);
+				}
+		  }
+		}
+		return records;
+	}
+	
+    /**
+     * 读取URL规则到缓存
+     * @param file 被读取文件
+     * @return 内存中的对象
+     * @throws Exception
+     */
+	public List<Record> readXlsUrlRules(File file) throws Exception {
+		InputStream is = new FileInputStream(file);
+		HSSFWorkbook hssfWorkbook = new HSSFWorkbook(is);
+		List<Record> records = new ArrayList<Record>();
+		// 循环工作表Sheet
+		HSSFSheet hssfSheet = hssfWorkbook.getSheetAt(0);
+		int rowNums = hssfSheet.getLastRowNum();
+		if (rowNums >= 1) {
+			// 循环行  从第二行取内容,第一行为标题行
+			for (int rowNum = 1; rowNum <= rowNums; rowNum++) {
+				HSSFRow hssfRow = hssfSheet.getRow(rowNum);
+				/*String cell1tmp = getCellFormatValue(hssfRow.getCell(0));
+				String cell3tmp = getCellFormatValue(hssfRow.getCell(2));
+				String cell4tmp = getCellFormatValue(hssfRow.getCell(3));
+
+				if ("".equals(cell1tmp) || "".equals(cell3tmp) || "".equals(cell4tmp)) {
+					continue;
+				}*/
+
+				String cell1 = getCellFormatValue(hssfRow.getCell(0)).trim();
+				String cell2 = "";
+				if (hssfRow.getCell(1) != null) {
+					 cell2 = getCellFormatValue(hssfRow.getCell(1)).trim();
+				}
+				String cell3 = getCellFormatValue(hssfRow.getCell(2)).trim();
+				String cell4 = getCellFormatValue(hssfRow.getCell(3)).trim();
+				String cell5 = "";
+				if (hssfRow.getCell(4) != null) {
+					cell5 = getCellFormatValue(hssfRow.getCell(4)).trim();
+				}
+				if ("".equals(cell1) || "".equals(cell3) || "".equals(cell4)) {
+					continue;
+				}
+				/*
+				            部署省份为多个的时候的处理代码
+				    List<String> urlRuleProName = new ArrayList<String>();
+				    if (!StringUtil.isNull(cell5) && !"".equals(cell5)) {
+					String[] cell5Str = null;
+					cell5Str = cell5.split(",");
+					for (int i = 0; i < cell5Str.length; i++) {
+						urlRuleProName.add(cell5Str[i]);
+					}
+				}*/
+				Record reocrd = new Record();
+				
+				reocrd.set("urlrule", RuleUtil.formatRule(cell1));
+				reocrd.set("ruledesc", cell2);
+				reocrd.set("cat", cell3);
+				reocrd.set("catdesc",cell4);
+				reocrd.set("province", cell5);
+				records.add(reocrd);
+			}
+		}
+		return records;
+	}
+	
+	/**
+	 * 根据HSSFCell类型设置数据
+	 * 
+	 * @param cell
+	 * @return
+	 */
+	private String getCellFormatValue(HSSFCell cell) {
+		String cellvalue = "";
+		DecimalFormat df = new DecimalFormat("#");
+		if (cell != null) {
+			switch (cell.getCellType()) {
+			case HSSFCell.CELL_TYPE_NUMERIC:
+				if (HSSFDateUtil.isCellDateFormatted(cell)) {
+					Date date = cell.getDateCellValue();
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+					cellvalue = sdf.format(date);
+				} else {
+					// cellvalue =
+					// String.valueOf((int)cell.getNumericCellValue());
+					cellvalue = df.format(cell.getNumericCellValue());
+				}
+				break;
+			case HSSFCell.CELL_TYPE_STRING:
+				cellvalue = cell.getRichStringCellValue().getString();
+				break;
+			case HSSFCell.CELL_TYPE_BOOLEAN:
+				cellvalue = String.valueOf(cell.getBooleanCellValue());
+				break;
+			default:
+				cellvalue = "";
+			}
+		} else {
+			cellvalue = "";
+		}
+		return cellvalue;
+	}
+
+	public List<Record> readImportRules(File file) throws IOException {
+		InputStream is = new FileInputStream(file);
+		HSSFWorkbook hssfWorkbook = new HSSFWorkbook(is);
+		List<Record> records = new ArrayList<Record>();
+		// 循环工作表Sheet
+		HSSFSheet hssfSheet = hssfWorkbook.getSheetAt(0);
+		int rowNums = hssfSheet.getLastRowNum();
+		if (rowNums >= 1) {
+			// 循环行  从第二行取内容,第一行为标题行
+			for (int rowNum = 1; rowNum <= rowNums; rowNum++) {
+				HSSFRow hssfRow = hssfSheet.getRow(rowNum);
+				String cell1 = getCellFormatValue(hssfRow.getCell(0)).trim();
+				String cell2 = getCellFormatValue(hssfRow.getCell(1)).trim();
+				String cell3 = getCellFormatValue(hssfRow.getCell(2)).trim();
+				if ("".equals(cell1) || "".equals(cell2) || "".equals(cell3)) {
+					continue;
+				}
+				/*
+				            部署省份为多个的时候的处理代码
+				    List<String> urlRuleProName = new ArrayList<String>();
+				    if (!StringUtil.isNull(cell5) && !"".equals(cell5)) {
+					String[] cell5Str = null;
+					cell5Str = cell5.split(",");
+					for (int i = 0; i < cell5Str.length; i++) {
+						urlRuleProName.add(cell5Str[i]);
+					}
+				}*/
+				Record reocrd = new Record();
+				reocrd.set("desc", cell1);
+				reocrd.set("urlRule", RuleUtil.formatRule(cell2));
+				reocrd.set("status", 1);
+				/*reocrd.set("location", cell3);*/
+				records.add(reocrd);
+			}
+		}
+		return records;
+	}
+	
+	/**
+	 * 
+	 * @param file
+	 * @return
+	 * @throws Exception
+	 */
+	public List<RuleTemp> readUrlRulesFromXls(File file) throws Exception {
+		InputStream is = new FileInputStream(file);
+		HSSFWorkbook hssfWorkbook = new HSSFWorkbook(is);
+		List<RuleTemp> records = new ArrayList<RuleTemp>();
+		// 循环工作表Sheet
+		HSSFSheet hssfSheet = hssfWorkbook.getSheetAt(0);
+		int rowNums = hssfSheet.getLastRowNum();
+		if (rowNums >= 1) {
+			// 循环行 从第二行取内容,第一行为标题行
+			for (int rowNum = 1; rowNum <= rowNums; rowNum++) {
+				HSSFRow hssfRow = hssfSheet.getRow(rowNum);
+				String cell1 = getCellFormatValue(hssfRow.getCell(0)).trim();
+				String cell2 = getCellFormatValue(hssfRow.getCell(1)).trim();
+				String cell3 = getCellFormatValue(hssfRow.getCell(2)).trim();
+				if ("".equals(cell1) || "".equals(cell2) || "".equals(cell3)) {
+					continue;
+				}
+				RuleTemp record = new RuleTemp();
+				record.set("urlRule",cell1);
+				record.set("level3Name", cell2);
+				record.set("desc", cell3);
+				records.add(record);
+			}
+		}
+		return records;
+	}
+}

@@ -1,0 +1,114 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>场景管理</title>
+<script>
+   function link(){
+	window.location="#(uri)/data/scene/edit?type=add";
+   }
+   function deleteConfirm(){
+	return confirm("你确定要删除该条记录吗？");
+   }
+</script>
+</head>
+<body>
+	<div class="tx-con">
+	  <!-- 页面的标题 -->
+		<div class="tx-con-bt">
+			<ul>
+				<li><a href="#"><span>场景管理</span></a></li>
+			</ul>
+		</div>
+		
+	<form action="" method="post" id="form" id="form">
+		<!--内容筛选-->
+		<div class="tx-con-form">
+				 <input type="text" placeholder=" 场景名" name="record.sname" size="12" value="#(record.sname)" id="search" class="tx-con-form-tet"/>
+				 <input type="text"  placeholder="添加人:" name="customer_name" size="12" value="#(record.customer_name)" id="customer_name" class="tx-con-form-tet"/>
+	
+				      <select name="record.stype" id="stype" >
+						<option value="" >-- 场景类型--</option>
+						<option value="1"  #if(record.stype==1) selected="selected" #end>固话</option>
+						<option value="2" #if(record.stype==2) selected="selected" #end>地理位置</option>
+						<option value="3" #if(record.stype==3) selected="selected" #end>短信关键字</option>
+		             </select>
+		       
+		             <select name="record.status" id="status" class="validate[required] input-xlarge">
+				        <option value="" >--场景状态--</option>
+				        <option value="0" #if(record.status==0) selected="selected" #end>待审核</option>
+				        <option value="1" #if(record.status==1) selected="selected" #end>正常</option>
+				        <option value="2" #if(record.status==2) selected="selected" #end>停用</option>
+					</select>
+		        <input type="submit" name="Submit" value="筛选 " class="tx-con-form-sub"/>
+		        <div style="float: right;padding-right: 50px;">
+               		<!-- <input type="button" value="停用" onclick="batchDisabled();" class="tx-con-form-sub"/>&nbsp;&nbsp;&nbsp; -->
+                	<input name="new" type="button" value="新建场景" onclick="link();" class="tx-con-form-sub"/>
+                </div>
+			<!--  占位的横线  -->
+			<div class="cle"></div>
+		</div>
+		
+<div class="tx-con-xx">
+	<table cellspacing="0" cellpadding="0">
+        <tr>
+	        <th>场景名</th>
+            <th>场景描述</th>
+            <th>场景类型</th>
+            <th>判断条件</th>
+            <th>添加时间</th>
+            <th>添加人</th>
+            <th>状态</th>
+            <th>最后处理时间</th>
+            <th>操作</td>
+		</tr>
+            #for(record:records.getList())
+            <tr onmouseout="this.style.backgroundColor='#ffffff';" onmouseover="this.style.backgroundColor='#E6F2FF'">
+             <td> #(record.sname)</td>
+	           <td> #(record.sdesc)</td>
+	           <td> 
+                	#if(record.stype == 1)固话 #end
+                	#if(record.stype == 2)地理位置 #end
+                	#if(record.stype == 3)短信关键字 #end
+	           </td>
+	           <td> 
+                	#(record.condition)
+             
+	           	</td>
+	           <td> 
+                  #(record.reg_time)
+	           	</td>
+	           <td> 
+                   #(record.customer_name)
+	           	</td>
+	           	   <td> 
+                	#if(record.status == 0)待审核 #end 
+                	#if(record.status == 1)正常#end
+                	#if(record.status == 2)停用#end
+             
+	           	</td>
+	           	<td> 
+                  #(record.lastupdatedate)
+	           	</td>
+	           <td>
+<!-- <%-- 		           <a class="green" href="./detail/#(record.sid)">查看</a> --%> -->
+<!-- 		           | -->
+		           <a class="green" href="./edit/#(record.sid)" style="color:#1a85c1">修改</a>
+<!-- 		           | -->
+<!-- <%-- 		           <a class="green" href="./delete/#(record.sid)" onclick="return deleteConfirm();">删除</a> --%> -->
+	           </td>
+            </tr>
+             #end
+        </table></div>
+ <!--分页-->
+   	   #@paginate(records.pageNumber, records.totalPage, "")
+   	    <!--分页 END-->
+</form>
+   <div>  
+      
+</div>
+ </form>
+ </div>
+</body>
+</html> 
+#end

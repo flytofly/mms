@@ -1,0 +1,24 @@
+.btn_blue { 
+    background:url(../../../images/btn_bg_1.png) 0 -100px no-repeat; 
+    width:68px; height:23px; 
+    color:#fff; 
+    padding-bottom:3px; 
+    cursor:pointer; 
+    border:none; 
+    margin-right:10px; 
+    line-height:23px; 
+    }
+.Groupbox_all{ position:relative;  }
+.Groupbox_title{position:absolute; left:20px; top:0px; padding:5px; height:16px; line-height:16px; z-index:1;font-size:16px;background:url(../../../images/Groupbox_title_bg.png) repeat-x;}
+.Groupbox{clear:both; padding:15px 0px 5px 0px;font-size:12px; }
+.Groupbox ul{ margin-top:5px;}
+.Groupbox li{ float:left; margin:5px; height:20px; line-height:20px; display:block;  }
+.Groupbox li .GroupboxName{background:url(../../../images/Groupbox_bg.png) 0 0  no-repeat; float:left; padding-left:10px; min-width:60px;}
+.Groupbox .close{ background:url(../../../images/Groupbox_bg.png) 0 -20px no-repeat; float:left; width:30px; height:20px;}
+.Groupbox a:hover .close{ background:url(../../../images/Groupbox_bg.png) 0 -40px no-repeat; float:left; width:30px; height:20px;}
+.mgRadio_td { text-align: left; width: 370px; }
+/* .mg_Table {background-color: #eef5f6; width: 370px; float: left;} */
+/* .mg_Table {background-color: #AEDEF4 ; margin-bottom: 20px; width: 370px; float: left; } */
+.mg_Table {background-color: #AEDEF4 ;color:#333; border-radius:4px;padding:8px;;margin-top:10px;float:left; }
+.mg_Groupbox_div {width: 350px; text-align: center; margin: 0px auto;}
+

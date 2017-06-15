@@ -1,0 +1,98 @@
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>投放频度设置</title>
+<link href="#(tp)/public/css/basic.css" rel="stylesheet" type="text/css" />
+<link href="#(tp)/public/css/edit.css" rel="stylesheet" type="text/css" />
+
+<link href="#(uri)/public/jquery/css/validationEngine.jquery.css" rel="stylesheet" type="text/css"/>
+<script src="#(uri)/public/jquery/js/jqsel.js"></script>
+<script src="#(uri)/public/jquery/js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+<script src="#(uri)/public/jquery/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+<script src="#(uri)/public/js/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
+<script>
+
+	jQuery(document).ready(function(){
+		jQuery("#cform").validationEngine('attach');
+	});
+	
+</script>
+</head>
+<body>
+<!-- <div style="width: 100% ;height:5px"></div> -->
+<table class="searchtb" >
+    <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2">
+      		<img src="#(tp)/public/images/scbj-icon.png" style="width:16px; height:16px; margin-bottom:-2px;"/>投放管理-新建任务
+      </td>
+      <td class="searchtd3"></td>
+    </tr>
+    <tr>
+      <td colspan="3">
+    	<form name="cform" id="cform" action="" method="post"  >
+    <input  type="hidden" name="taskids"  value="#(taskids)"/>
+      <table class="datatb"  cellpadding="3" cellspacing="1" >
+          <tbody>
+           
+	   <tr class="listtr">
+		    <td width="25%" class="editleft">用户每日触达次数上限:</td>
+		    <td width="75%" class="editright">
+		        <input type="text" maxlength="50" class="validate[required] re_input" name="record.day_touch_uplimit" value = "" id=""/>
+		    </td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft">用户每周触达次数上限:</td>
+		    <td class="editright">
+                 <input type="text" maxlength="100" class="validate[required] re_input" name="record.week_touch_uplimit" value = "" id=""/>
+		    </td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft">用户每月触达次数上限:</td>
+		    <td class="editright">
+                 <input type="text" maxlength="100" class="validate[required] re_input" name="record.mouth_touch_uplimit" value = "" id=""/>
+		    </td>
+        </tr>
+           <tr class="listtr">
+		    <td class="editleft">每日开始投放时间:</td>
+		    <td class="editright">
+		<input type="text" name="record.day_pick_starttime" id="day_pick_starttime" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'H:mm:00'})" class="Wdate scinput validate[required]"/>
+		    </td>
+        </tr>
+        
+           <tr class="listtr">
+		    <td class="editleft">每日结束投放时间:</td>
+		    <td class="editright">
+		    <input type="text" name="record.day_pick_endtime" id="day_pick_endtime" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'H:mm:59'})" class="Wdate scinput validate[required]"/>
+		    </td>
+        </tr>
+        
+        <tr class="listtr">
+		    <td align="center" colspan="2"><input type="button" value="提交" class="btn" onclick="return clickSubmit();"/>&nbsp;<input type="reset" value="重置" class="btn" /></td>
+        </tr>
+          </tbody>
+        </table>
+        </form>
+        </td>
+    </tr>
+</table>
+
+
+<script>
+function clickSubmit(){
+	var openercid = window.opener.document.getElementById("cids");
+	if(jQuery('#cform').validationEngine('validate')){
+		var paras = $('#cform').serialize();
+		$.post("#(uri)/task/uppickrequency",paras,function(data){
+		if(data=="true"){
+			alert('设置成功！');
+			window.close();
+		}else{
+			alert('设置失败！');
+		}
+		});
+	}else{
+	}
+}
+</script>
+</body>
+</html>

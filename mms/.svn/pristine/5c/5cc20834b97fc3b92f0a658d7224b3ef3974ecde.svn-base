@@ -1,0 +1,339 @@
+package cn.mmdata.commons.util;
+
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class StringUtil {
+
+	public static final String replace(String line, String oldString,
+			String newString) {
+		int i = 0;
+		if ((i = line.indexOf(oldString, i)) >= 0) {
+			char[] line2 = line.toCharArray();
+			char[] newString2 = newString.toCharArray();
+			int oLength = oldString.length();
+			StringBuffer buf = new StringBuffer(line2.length);
+			buf.append(line2, 0, i).append(newString2);
+			i += oLength;
+			int j = i;
+			while ((i = line.indexOf(oldString, i)) > 0) {
+				buf.append(line2, j, i - j).append(newString2);
+				i += oLength;
+				j = i;
+			}
+			buf.append(line2, j, line2.length - j);
+			return buf.toString();
+		}
+		return line;
+	}
+
+	public static final String escapeHTMLTags(String input) {
+		if (input == null || input.length() == 0) {
+			return input;
+		}
+		StringBuffer buf = new StringBuffer();
+		char ch = ' ';
+		for (int i = 0; i < input.length(); i++) {
+			ch = input.charAt(i);
+			switch (ch) {
+			case '<':
+				buf.append("&lt;");
+				break;
+			case '>':
+				buf.append("&gt;");
+				break;
+			case '&':
+				buf.append("&amp;");
+				break;
+			case '"':
+				buf.append("&quot;");
+				break;
+			default:
+				buf.append(ch);
+			}
+		}
+		return buf.toString();
+	}
+
+	public static final String escapeJS(String input) {
+		if (input == null || input.length() == 0) {
+			return input;
+		}
+		StringBuffer buf = new StringBuffer();
+		char ch = ' ';
+		for (int i = 0; i < input.length(); i++) {
+			ch = input.charAt(i);
+			switch (ch) {
+			case '<':
+				buf.append("&lt;");
+				break;
+			case '>':
+				buf.append("&gt;");
+				break;
+			case '&':
+				buf.append("&amp;");
+				break;
+			case '"':
+				buf.append("&quot;");
+				break;
+			case '\\':
+				buf.append("\\\\");
+				break;
+			case '\r':
+				buf.append("\\r");
+				break;
+			case '\n':
+				buf.append("\\n");
+				break;
+			default:
+				buf.append(ch);
+			}
+		}
+		return buf.toString();
+	}
+
+	public static final String escapeJsHtml(String input) {
+		if (input == null || input.length() == 0) {
+			return input;
+		}
+		StringBuffer buf = new StringBuffer();
+		char ch = ' ';
+		for (int i = 0; i < input.length(); i++) {
+			ch = input.charAt(i);
+			switch (ch) {
+			case '<':
+				buf.append("&lt;");
+				break;
+			case '>':
+				buf.append("&gt;");
+				break;
+			case '&':
+				buf.append("&amp;");
+				break;
+			case '"':
+				buf.append("&quot;");
+				break;
+			case '\\':
+				buf.append("\\\\");
+				break;
+			case '\r':
+				buf.append("\\r");
+				break;
+			case '\n':
+				buf.append("\\n");
+				break;
+			case '\'':
+				buf.append("\\'");
+				break;
+			default:
+				buf.append(ch);
+			}
+		}
+		return buf.toString();
+	}
+
+	private static MessageDigest digest = null;
+
+	public synchronized static final String hash(String data) {
+		if (digest == null) {
+			try {
+				digest = MessageDigest.getInstance("MD5");
+			} catch (NoSuchAlgorithmException nsae) {
+				System.err.println("Failed to load the MD5 MessageDigest. ");
+				nsae.printStackTrace();
+			}
+		}
+		digest.update(data.getBytes());
+		return toHex(digest.digest());
+	}
+
+	public static final String toHex(byte hash[]) {
+		StringBuffer buf = new StringBuffer(hash.length * 2);
+		String stmp = "";
+		for (int i = 0; i < hash.length; i++) {
+			stmp = (java.lang.Integer.toHexString(hash[i] & 0XFF));
+			if (stmp.length() == 1)
+				buf.append(0).append(stmp);
+			else
+				buf.append(stmp);
+		}
+		return buf.toString();
+	}
+
+	public static final String notNull(String text, String defaultText) {
+		return isNull(text) ? defaultText : text;
+	}
+
+	public static final boolean isNull(String text) {
+		if ("".equals(text) || text == null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static final byte[] hexToBytes(String hex) {
+		if (null == hex)
+			return new byte[0];
+		int len = hex.length();
+		byte[] bytes = new byte[len / 2];
+		String stmp = null;
+		try {
+			for (int i = 0; i < bytes.length; i++) {
+				stmp = hex.substring(i * 2, i * 2 + 2);
+				bytes[i] = (byte) Integer.parseInt(stmp, 16);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new byte[0];
+		}
+		return bytes;
+	}
+
+	public static final String escapeForXML(String string) {
+		if (string == null || string.length() == 0) {
+			return string;
+		}
+		char[] sArray = string.toCharArray();
+		StringBuffer buf = new StringBuffer(sArray.length);
+		char ch;
+		for (int i = 0; i < sArray.length; i++) {
+			ch = sArray[i];
+			if (ch == '<') {
+				buf.append("&lt;");
+			} else if (ch == '>') {
+				buf.append("&gt;");
+			} else if (ch == '"') {
+				buf.append("&quot;");
+			} else if (ch == '&') {
+				buf.append("&amp;");
+			} else {
+				buf.append(ch);
+			}
+		}
+		return buf.toString();
+	}
+
+	public static final String unescapeFromXML(String string) {
+		string = replace(string, "&lt;", "<");
+		string = replace(string, "&gt;", ">");
+		string = replace(string, "&quot;", "\"");
+		return replace(string, "&amp;", "&");
+	}
+
+	public static final String arrToString(String[] str) {
+		String x = "";
+		for (int i = 0; i < str.length; i++) {
+			x = x + str[i];
+			if (i < str.length - 1) {
+				x = x + ",";
+			}
+		}
+		return x;
+	}
+
+	public static final String listToString(List<String> list) {
+		StringBuffer str = new StringBuffer("");
+		for (Iterator<String> iter = list.iterator(); iter.hasNext();) {
+			str.append(iter.next());
+			if (iter.hasNext()) {
+				str.append(",");
+			}
+		}
+		return str.toString();
+	}
+
+	public static boolean isNumeric(String str) {
+		for (int i = str.length(); --i >= 0;) {
+			if (!Character.isDigit(str.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static boolean isString(String str) {
+		for (int i = str.length(); --i >= 0;) {
+			if (!Character.isLetter(str.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static String formatTitle(int len, String value) throws Exception {
+		if (value == null) {
+			return "";
+		}
+		if (value.getBytes("GBK").length > len && len - 3 > 0) {
+			return value.substring(0, len - 3) + "...";
+		}
+		return value;
+	}
+
+	public static String nullToVarchar(String str) {
+		if (str == null) {
+			return "";
+		}
+		return str;
+	}
+
+	public static boolean isChinese(char c) {
+		Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
+		if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+				|| ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+				|| ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
+				|| ub == Character.UnicodeBlock.GENERAL_PUNCTUATION
+				|| ub == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
+				|| ub == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 判断是否乱码
+	 * @param strName
+	 * @return
+	 */
+	public static boolean isMessyCode(String strName) {
+		Pattern p = Pattern.compile("\\s*|\t*|\r*|\n*");
+		Matcher m = p.matcher(strName);
+		String after = m.replaceAll("");
+		String temp = after.replaceAll("\\p{P}", "");
+		char[] ch = temp.trim().toCharArray();
+//		float chLength = ch.length;
+//		float count = 0;
+		for (int i = 0; i < ch.length; i++) {
+			char c = ch[i];
+			if (!Character.isLetterOrDigit(c)) {
+				if (!isChinese(c)) {
+//					count = count + 1;
+					return true;
+				}
+			}
+		}
+//		float result = count / chLength;
+//		if (result > 0.4) {
+//			return true;
+//		} else {
+//			return false;
+//		}
+		return false;
+	}
+public static void main(String[] args) throws UnsupportedEncodingException {
+//	String str = "919e0e3bb01378c13bbbb0041ebafcbf,http://m.baidu.com/img?tn=bdLISTIphone&word=%E8%89%B2%E8%89%B2%E7%BD%91%E5%9B%BE%E7%89%87&st=103110&prest=111041&pn=0&rn=10&vit=aladdin&from=124y&ssid=0&bd_page_type=1&ref=www_hass&uid=0&pu=sz%401320_480%2Cosname%40android&baiduid=052602999FB75B54CA028A84D924B684&tj=image_2_0_10_title,骞夸笢鐪?浣涘北,2014-04-03 18:26:23,49409,65535";
+//	System.out.println(StringUtil.isMessyCode(str));
+//	System.out.println(new String(str.getBytes("GBK"),"UTF-8"));
+	System.out.println(StringUtil.isMessyCode("𧙕"));
+	System.out.println(StringUtil.isMessyCode("常州丝𧙕按摩"));
+	System.out.println(StringUtil.isMessyCode("？"));
+	System.out.println(StringUtil.isMessyCode("?"));
+	System.out.println(StringUtil.isMessyCode("123%%%￥##@@asdfas"));
+}
+}

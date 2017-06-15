@@ -1,0 +1,26 @@
+package cn.mmdata.mms.interceptor;
+
+import com.jfinal.aop.Interceptor;
+import com.jfinal.aop.Invocation;
+import com.jfinal.core.Controller;
+
+import cn.mmdata.commons.util.Global;
+import cn.mmdata.mms.system.user.UserInfo;
+
+public class GlobalInterceptor implements Interceptor {
+
+	@Override
+	public void intercept(Invocation inv) {
+		Controller controller = inv.getController();
+		controller.setAttr("uri", controller.getRequest().getContextPath());
+		controller.setAttr("tp", controller.getRequest().getContextPath() + "/manager/basic");
+		Global global = Global.getInstance(controller);
+		UserInfo user = global.getSessionUser();
+		if (user != null) {
+			controller.setAttr(Global.SESSION_USER, user);
+			inv.invoke();
+		} else {
+			controller.redirect("/login");
+		}
+	}
+}

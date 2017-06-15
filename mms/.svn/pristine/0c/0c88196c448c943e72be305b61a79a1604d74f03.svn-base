@@ -1,0 +1,72 @@
+#@layout()
+#define main()
+
+<script src="#(uri)/public/js/My97DatePicker/WdatePicker.js"></script>
+<link href="#(uri)/public/jquery/css/validationEngine.jquery.css" rel="stylesheet" type="text/css"/>
+<script src="#(uri)/public/jquery/js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+<script src="#(uri)/public/jquery/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+
+	<!--数据信息部分-->
+		<div class="tx-con">
+			<!--信息标题-->
+			<div class="tx-con-bt">
+				<ul>
+					<li><a href="#"><span>投放管理</span></a></li>
+					<li><a href="#">&gt; 新建任务</a></li>
+				</ul>
+				<a class="tx-con-bt-fh ri"  onclick="history.go(-1)">返回</a>
+			</div>
+			<!--新建任务-->
+			<div class="xjrw-con">
+				<form name="cform" id="cform" action="" method="post"  >
+					<input type="hidden" name="record.mid" id="customer_id" value = "#(record.mid)"/>
+					<ul>
+						<li><span>素材类型：</span>
+							<input disabled="disabled" type="radio" value="2" #if(record.m_type == 2 ) checked #end name="record.m_type"  id="m_type_duanxin"  />短信
+			        		<input disabled="disabled" type="radio" value="1" #if(record.m_type == 1) checked #end name="record.m_type"  id="m_type_zuoxi"   />外呼坐席
+						</li>
+						
+						<li class="w308 h30"><span>素材名：</span>
+							#if(record.mid != null)
+						    <input disabled="disabled" type="text" name="record.name"  id="name" maxlength="24" value = "#(record.name)"/>
+						    
+						    #end
+						  	#if(record.mid == null)
+						    	<input disabled="disabled" type="text" class="validate[required] re_input" name="record.name" id="name" maxlength="24" value = "#(record.name)" onchange="valname()"/>
+						    	<span id="validataName"></span>
+						    #end
+						</li>
+					<!-- 	#if(record.m_type == 2 )
+						 <li class="w308 h30" ><span>目标链接：</span>
+							<input type="text"  disabled="disabled"  class="validate[required] re_input" name="record.linkurl" id="linkurl" maxlength="12" value = "#(record.linkurl)"/>
+						</li>
+						#end -->
+						<!-- <li class="w308 h30"><span>短链接：</span>
+							<input type="text" class="validate[required] re_input" name="record.shorturl" id="shorturl" maxlength="12" value = "#(record.shorturl)"/>
+						</li>  -->
+						#if(record.m_type == 2 )
+						<li class="w308" id="wenan" style="display:block"><span>文案：</span>
+							<textarea disabled="disabled" rows="4"  class="validate[required] re_input" name="record.content" id="content">#(record.content)</textarea>
+						</li>
+						#end
+						
+						#if(record.m_type == 1 )
+							<li class="w308" style="display:block" id="huashu" ><span>话术：</span>
+							<textarea disabled="disabled" rows="4" maxlength="1000" style="min-height:200px;;height: 400px" class="validate[required] re_input" name="record.content" id="content">#(record.content)</textarea>
+						   </li>
+						   #end
+						<li class="w200 h30"><span>素材状态：</span>
+							<select disabled="disabled" class="validate[required] input-xlarge" id="status" name="record.status" >
+									<option value="">-- 请选择 --</option>
+									<option value="0" #if(record.status==0 )selected="selected"#end>待审核</option>
+									<option value="1" #if(record.status==1 )selected="selected"#end>正常</option>
+									<option value="2" #if(record.status==2 )selected="selected"#end>审核中</option>
+									<option value="3" #if(record.status==3 )selected="selected"#end>审核未通过</option>
+							</select> 
+						</li>
+					</ul>
+					
+				</form>
+			</div>	
+		</div>
+#end

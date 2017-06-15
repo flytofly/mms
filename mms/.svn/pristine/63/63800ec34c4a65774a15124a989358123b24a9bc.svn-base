@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>广告主信息</title>
+<link href="${tp}/public/css/layout.css" rel="stylesheet" type="text/css">
+<link href="${tp}/public/css/cb.css" rel="stylesheet" type="text/css">
+<link href="${tp}/public/css/list.css" rel="stylesheet" type="text/css"> 
+<link href="${tp}/public/css/list.css" rel="stylesheet" type="text/css">
+<script src="${uri}/public/jquery/js/jqsel.js"></script>
+<style type="text/css"></style>
+
+<script type="text/javascript">
+function changeproject(bid,businessName){
+    window.opener.document.getElementById("bid").value=bid;
+    window.opener.document.getElementById("businessName").value=businessName;
+    window.close();
+}
+
+</script>
+
+</head>
+<body marginwidth="0" marginheight="0">
+<form name="form" id="form" action="bsearch">
+ <input type="hidden" id="type" name="type" value="search" />
+ <input type="hidden" id="optional" name="optional" value="${optional}"/>
+ <input type="hidden" id="businessType" name="businessType" value="${businessType}" />
+<table class="searchtb">
+    <tr class="searchtr2">
+      <td colspan="3"> 
+  
+    <img src="${tp}/public/images/yue-icon.png" style="margin-bottom:-2px;margin-left:20px;">  客户搜索  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        
+      客户名称:&nbsp;&nbsp;
+       <input type="text" name="search" size="12" value="#(search)" id="search" class="input"/>
+        <input type="submit" name="Submit" value="查询 " class="search"/>
+    </tr>
+</table>
+
+<!-- <div style="width: 100% ;height:5px"></div> -->
+<table class="searchtb" >
+  <tbody>
+    <tr>
+      <td colspan="3" id="yue-nr"><table class="datatb"  cellpadding="3" cellspacing="1" >
+          <tbody >
+            <tr class="listth" >
+              <td width="5%">选择</td>
+              <td width="25%">客户名称</td>
+              <td width="20%">电话</td>
+              <td width="30%">客户地址</td>
+              
+            </tr>
+            #for(record:records.getList())
+<!--             #(record) -->
+            <tr class="listtr" onmouseout="this.style.backgroundColor='#ffffff';" onmouseover="this.style.backgroundColor='#E6F2FF'">
+             
+              <td> 
+
+				#if(record.status == 1 || optional == 'all')
+             		<input type="radio" onclick="changeproject('#(record.bid)','#(record.business_name)');"/> 
+				#end
+				#if(record.status != 1 && optional != 'all')
+					<input type="radio" onclick="this.disabled=true;alert('用户未通过审核,请到用户管理页面先进行审核')">
+				#end
+             </td>
+              <td  height="25" ><div ><strong>#(record.business_name)</strong></div></td>
+              <td >
+            	#(record.one_phone)
+             </td>
+             
+              <td ><p style="width:250px;overflow:hidden;text-overflow:ellipsis;word-break:keep-all">
+              #(record.address)
+              </p>
+              </td>
+            </tr>
+             #end
+          </tbody>
+        </table></td>
+    </tr>
+</table>
+   <div>  
+       <!--分页-->
+   	   #@paginate(records.pageNumber, records.totalPage, "") 
+   	    <!--分页 END-->
+</div>
+</form>
+
+</body>
+</html>

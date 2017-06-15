@@ -1,0 +1,70 @@
+#define header()
+<!--头部-->
+  <div class="tx-top">
+	<div class="le">
+		<a href="#(BasePath)/home"><img style="float:left; margin-top:14px; margin-right:4px;" src="#(BasePath)/public/img/#(URLPath)/logo.png" alt="美美数大数据营销系统"></a>
+		<span>#(URLTitle)</span>
+        <div class="cle"></div>
+	</div>
+	<div class="ri">
+		<p>
+			上次登录时间：
+			<font>
+			  #(session.suser_log.logintime)	
+			</font>
+		</p>
+		<p>
+			上次登录IP：
+			<font>#if(session.suser_log ==null )暂无 #end
+				#if(session.suser_log.ip !=null ) #(session.suser_log.ip ) #end
+			</font>
+		</p>
+	</div>
+</div>
+<div class="tx-top-nav">
+			<ul class="le">
+				<li>
+					<a title="" class="multiselect" href="#(BasePath)/home">首页</a>
+				</li>
+				<li>
+					<a title="" class="multiselect">数据管理</a>
+					<ol>
+						<li><a href="#(BasePath)/data/crowd/list" title="" class="multiselect">人群管理</a></li>
+<!-- 						<li><a href="#(BasePath)/data/scene/list" title=""  class="multiselect" >场景管理</a></li> -->
+						<li><a href="#(BasePath)/data/rule/list" title=""  class="multiselect" >DMP规则</a></li>
+					</ol>
+				</li>
+				<li>
+					<a title="" class="multiselect" >投放管理</a>
+					<ol>
+						<li><a href="#(BasePath)/material/manage/list" title="" class="multiselect" >素材管理</a></li>
+						<li><a href="#(BasePath)/task/list" title="" class="multiselect" >任务管理</a></li>
+					</ol>
+				</li>
+				<li>
+					<a title="">用户星图</a>
+					<ol>
+						<li><a href="#(BasePath)/data/starpic/list" title="">动作配置</a></li>
+						<li><a href="#(BasePath)/data/starpic/zslist?ruleid=1279" title="">临时测试</a></li>
+						<li><a href="javascript:void(0);" title="">效果统计</a></li>
+					</ol>
+				</li>
+				<li>
+					<a title="" href="#(BasePath)/statis/statopti/list" class="multiselect" >统计优化</a>
+					<!-- <ol>
+						<li><a href="#(BasePath)/statis/statopti/list" title="">统计优化</a></li>
+						<li><a href="#(BasePath)/statis/rulestatis/list" title="">规则统计</a></li>
+					</ol> -->
+				</li>
+				<li>
+					<a title="" href="#(BasePath)/host/hostdetail">用户生命周期</a>
+				</li>
+				
+			</ul>
+			<div class="ri" >
+				<span>Hi, <a href="#" title="">#(session.suser.customer_name)</a> | <a href="#" title="">#(session.suserBusiness.business_name)</a></span>
+				<button onclick="location.href='#(BasePath)/loginout'">注销</button>
+				
+			</div>
+		</div>
+#end

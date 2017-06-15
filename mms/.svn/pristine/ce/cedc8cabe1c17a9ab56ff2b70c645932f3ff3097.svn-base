@@ -1,0 +1,27 @@
+#define left()
+	   	
+	    <div class="nav">
+	        <ul>
+	            <li class="icon-1 
+	    #if(uri.contains("/home"))
+	   		current
+        #end
+        "><a href="#(BasePath)/home" ><sup></sup>首 页</a></li>
+	            <li class="icon-2
+	    #if(uri.contains("/data/crowd"))
+	   		current
+        #end
+        "><a href="#(BasePath)/data/crowd/list" ><sup></sup>人 群</a></li>
+	            <li class="icon-3
+	    #if(uri.contains("/task"))
+	   		current
+        #end
+        "><a href="#(BasePath)/task/list"><sup></sup>投 放</a></li>
+	            <li class="icon-4
+	    #if(uri.contains("/statis"))
+	   		current
+        #end
+        "><a href="#(BasePath)/statis/statopti/list" ><sup></sup>统 计</a></li>
+	        </ul>
+	    </div>
+#end

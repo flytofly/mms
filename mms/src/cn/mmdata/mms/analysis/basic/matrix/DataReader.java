@@ -1,0 +1,349 @@
+package cn.mmdata.mms.analysis.basic.matrix;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import cn.mmdata.commons.util.StringUtil;
+import cn.mmdata.mms.util.DataUtil;
+
+public class DataReader
+{
+	private static final String _MATRIX_FILE = "/matrix.txt";
+	private static DataReader _instance;
+	private static HashMap<String,AppMatrix> _app_map;
+
+	/**
+	* 获取单例
+	*/
+	public static DataReader getInstance()
+	{
+		if (_instance == null) {
+			_instance = new DataReader();
+			_instance.init();
+			_instance.parse();
+		}
+
+		return _instance;
+	}
+
+	/**
+	* 初始化MAP
+	*/
+	public void init()
+	{
+		if (_app_map == null) {
+			_app_map = new HashMap<String,AppMatrix>();
+		}
+	}
+
+	/**
+	* 获取map中的所有DomainUnit对象
+	*/
+	private DomainUnit[] getAllDomainUnits(HashMap<String,DomainUnit> map)
+	{
+		if (map == null) { return null; }
+
+		ArrayList<DomainUnit> results = new ArrayList<DomainUnit>();
+		Iterator<Map.Entry<String, DomainUnit>>  iter = map.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry<String, DomainUnit> entry = iter.next();
+			DomainUnit du = (DomainUnit) entry.getValue();
+
+			results.add(du);
+		}
+		return (DomainUnit[]) results.toArray(new DomainUnit[0]);
+	}
+
+	/**
+	* 获取Map对象中前rank个最高用户量的域名集合
+	* @map，主键是域名，键值是DomainUnit对象
+	*/
+	private DomainUnit[] getRankAppNodesFromMap(HashMap<String,DomainUnit> map, int rank)
+	{
+		DomainUnit[] unitArray = getAllDomainUnits(map);
+		if (unitArray == null) { return null; }
+
+		// 初始化排序指针数组
+		int length = unitArray.length;
+		int[] group = new int[length];
+		for (int i=0; i < length; i++) {
+			group[i] = i;
+		}
+
+		// 对数组排序
+		for (int m=0; m < length && m < rank; m++) {
+			for (int n=m+1; n < length; n++) {
+				if (unitArray[group[m]].getCount() < unitArray[group[n]].getCount()) {
+					int tmp = group[m];
+					group[m] = group[n];
+					group[n] = tmp;
+				}
+			}
+		}
+
+		// 返回Top对象集合
+		ArrayList<DomainUnit> results = new ArrayList<DomainUnit>();
+		for (int k=0; k < rank && k < length; k++) {
+			results.add( unitArray[group[k]] );
+		}
+		return (DomainUnit[]) results.toArray(new DomainUnit[0]);
+		
+	}
+
+	/**
+	* 获取访问domains的用户群中，访问其它APP的前rank个最高用户量的域名集合
+	*/
+	public DomainUnit[] getRankAppNodes(String[] domains, int rank)
+	{
+		HashMap<String,DomainUnit> map = new HashMap<String,DomainUnit>();
+		for (int i=0; i < domains.length; i++)
+		{
+			// 遍历每个域名对应的Matrix
+			String domain = domains[i];
+			AppMatrix matrix = getAppMatrix(domain);
+			if (matrix == null) { continue; }
+			
+			// 每个Matrix下取按交叉人群量Top排名的AppNode对象
+			AppNode[] nodes = matrix.getRankAppNodes();
+			for (int j=0; nodes != null && j < nodes.length; j++)
+			{
+				AppNode node = nodes[j];
+				String nodeDomain = node.getDomain();
+				if (DataUtil.contains(domains, nodeDomain)) {
+					continue;
+				}
+
+				// 加入到Map集合中
+				DomainUnit du = (DomainUnit) map.get(nodeDomain);
+				if (du == null) {
+					du = new DomainUnit();
+					du.setDomain(nodeDomain);
+					du.setCount(node.getCrossCount());
+					du.setRelevency(node.getRelevency());
+					du.setCrossCount(node.getCrossCount());
+
+					map.put(nodeDomain, du);
+				} else {
+					du.addCount(node.getCrossCount());
+				}
+			}
+		}
+
+		return getRankAppNodesFromMap(map, rank);
+	}
+
+	/**
+	* 获取访问domains的用户群中，访问其它APP的前rank个相关的域名集合
+	*/
+	public DomainUnit[] getReleAppNodes(String[] domains, int rank)
+	{
+		HashMap<String,DomainUnit> map = new HashMap<String,DomainUnit>();
+		for (int i=0; i < domains.length; i++)
+		{
+			// 遍历每个域名对应的Matrix
+			String domain = domains[i];
+			AppMatrix matrix = getAppMatrix(domain);
+			if (matrix == null) { continue; }
+			
+			// 每个Matrix下取按相关度Top排名的AppNode对象
+			AppNode[] nodes = matrix.getReleAppNodes();
+			for (int j=0; nodes != null && j < nodes.length; j++)
+			{
+				AppNode node = nodes[j];
+				String nodeDomain = DataUtil.parseDomainByHost( node.getDomain() );
+				if (DataUtil.contains(domains, nodeDomain) || DomainUnit.invalid(nodeDomain)) {
+					continue;
+				}
+
+				DomainUnit du = (DomainUnit) map.get(nodeDomain);
+				if (du == null) {
+					du = new DomainUnit();
+					du.setDomain(nodeDomain);
+					du.setCount(node.getIntRelevancy());
+					du.setRelevency(node.getRelevency());
+					du.setCrossCount(node.getCrossCount());
+
+					map.put(nodeDomain, du);
+				} else {
+					if (node.getIntRelevancy() > du.getCount()) {
+						du.setCount(node.getIntRelevancy());
+					}
+				}
+			}
+		}
+
+		return getRankAppNodesFromMap(map, rank);
+	}
+
+	/**
+	* 获取域名domain匹配的关联Matrix对象
+	*/
+	public AppMatrix getAppMatrix(String domain)
+	{
+		if (_app_map == null) {
+			return null;
+		} else {
+			return (AppMatrix) _app_map.get(domain);
+		}
+	}
+
+	/**
+	* 获取域名domain匹配的关联Matrix对象
+	*/
+	public int getAppUserCount(String domain)
+	{
+		AppMatrix matrix = (AppMatrix) _app_map.get(domain);
+		if (matrix == null) {
+			return 0;
+		} else {
+			return matrix.getCount();
+		}
+	}
+
+	/**
+	* 添加AppMatrix对象，设置属性
+	*/
+	private void addElement(String domain1, String domain2, int count1, int count2, int cross, String relevancy, String type)
+	{
+		AppMatrix obj = (AppMatrix) _app_map.get(domain1);
+		if (obj == null) {
+			obj = new AppMatrix();
+			obj.setDomain(domain1);
+			obj.setCount(count1);
+			obj.addMatrixApp(domain2, count2, cross, relevancy, type);	
+
+			_app_map.put(domain1, obj);
+		} else {
+			obj.addMatrixApp(domain2, count2, cross, relevancy, type);
+		}
+	}
+
+	/**
+	* 调整数字后再展示
+	*/
+	private int adjustNum(int num)
+	{
+		/*
+		int rnd = (int) (Math.random() * 400);
+		return num * 400 + rnd;
+		*/
+		return (int) ((double) num * 3.4);
+	}
+
+	/**
+	* 解析行内容
+	*/
+	public void parseLine(String line)
+	{
+		String[] parts = line.split("\\|");
+		if (parts.length < 7) { return; }
+
+		// 获取参数值
+		String domain1 = parts[0];
+		int count1 = StringUtil.parseInt(parts[1], -1);
+		String domain2 = parts[2];
+		int count2 = StringUtil.parseInt(parts[3], -1);
+		int cross = StringUtil.parseInt(parts[4], -1);
+		String relevancy = parts[5];
+		String type = parts[6];
+
+		// 判断交叉数量，如果为0，则不处理
+		if (cross <= 0 || count1 < 0 || count2 < 0) { return; }
+
+		// 为两个域名结点添加AppMatrix对象
+		addElement(domain1, domain2, adjustNum(count1), adjustNum(count2), adjustNum(cross), relevancy, type);
+	}
+
+	/**
+	* 开始解析
+	*/
+	public void parse() {
+		parseWebFile(_MATRIX_FILE);
+	}
+
+	/**
+	* 读取文本文件内容
+	*/
+	public void parseWebFile(String fileName)
+	{
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+				DataReader.class.getResourceAsStream(fileName), "utf-8"));
+			DataUtil.debug("parse begin ...");
+			
+			String line;
+			int count = 0;
+			while ( (line = br.readLine()) != null) 
+			{
+				// 解析过滤日志
+				parseLine(line);
+
+				count++;
+				if (count % 100000 == 0) {
+					DataUtil.debug("analyze " + count + " lines ... ");
+				}
+			}
+
+			DataUtil.debug("parse end ...");
+			br.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	* 读取文本文件内容
+	*/
+	public void parseFile(String fileName)
+	{
+		File file = new File(fileName);
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+				new FileInputStream(file), "utf-8"));
+			DataUtil.debug("parse begin ...");
+			
+			String line;
+			int count = 0;
+			while ( (line = br.readLine()) != null) 
+			{
+				// 解析过滤日志
+				parseLine(line);
+
+				count++;
+				if (count % 100000 == 0) {
+					DataUtil.debug("analyze " + count + " lines ... ");
+				}
+			}
+
+			DataUtil.debug("parse end ...");
+			br.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void main(String[] args)
+	{
+		String fileName = "C:\\Users\\Administrator\\Desktop\\20170509\\matrix\\WEB-INF\\data\\matrix.txt";
+
+		DataReader obj = new DataReader();
+		obj.init();
+		obj.parseFile(fileName);
+
+		String queryDomain = "ctrip.com";
+		String[] parts = queryDomain.split(",");
+		DomainUnit[] units = obj.getReleAppNodes(parts, 19);
+
+		for (int i=0; i < units.length; i++) {
+			System.out.println(units[i].getDomain()+","+units[i].getCount());
+		}
+	}
+}

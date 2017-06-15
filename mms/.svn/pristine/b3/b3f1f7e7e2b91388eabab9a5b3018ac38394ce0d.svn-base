@@ -1,0 +1,105 @@
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>人群管理</title>
+<link href="#(BasePath)/public/css/list.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+<form name="form" id="form" action="./rlist">
+ <input type="hidden" id="type" name="type" value="search" />
+<table class="searchtb">
+  <tbody>
+    <tr class="searchtr2">
+      <td colspan="3"> 
+  	 <img src="#(BasePath)/public/images/yue-icon.png" style="margin-bottom:-2px;margin-left:20px;">  人群搜索  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      人群名:&nbsp;&nbsp;
+      <input type="text" name="record.cname" size="12" value="#(record.cname)" id="search" class="input"/>
+        <input type="submit" name="Submit" value="查询 " class="search"/>
+       </td>
+    </tr>
+  </tbody>
+</table>
+<table class="searchtb" >
+ 
+    <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2">
+			<img src="#(BasePath)/public/images/biaoti-icon.png"/>人群列表
+        	<img src="#(BasePath)/public/images/icon-xiangxia.png" width="11" height="11" />
+	  </td>
+      <td class="searchtd3"></td>
+    </tr>
+    <tr>
+      <td colspan="3" id="yue-nr"><table class="datatb"  cellpadding="3" cellspacing="1" >
+          <tbody>
+            <tr class="listth" >
+             <td width="5%">选择</td>
+            <td width="20%">人群名</td>
+           <td width="15%">添加时间</td>
+           <td width="10%">状态</td>
+            </tr>
+            #for(record:records.getList())
+            <tr class="listtr" onmouseout="this.style.backgroundColor='#ffffff';" onmouseover="this.style.backgroundColor='#E6F2FF'">
+             <td><input type="checkbox" onclick="check('#(record.cid)','#(record.cname)');"/></td>
+             <td> #(record.cname)</td>
+	           <td> 
+                  #(record.import_time)
+	           	</td>
+	           	   <td> <!-- 状态{0:待审核;1:正常;2:停用}  -->
+                	 #if(record.status == 0)待审核#end 
+                	 #if(record.status == 1)正常#end
+                	 #if(record.status == 2)停用#end
+	           	</td>
+            </tr>
+            #end
+          </tbody>
+        </table></td>
+    </tr>
+</table>
+   <div>  
+       
+       <!--分页-->
+   	   #@paginate(records.pageNumber, records.totalPage, "") 
+   	    <!--分页 END-->
+
+    
+</div>
+<!-- <div align="center"> -->
+<!-- 	<button onclick="javascript:window.close()">关闭窗口</button> -->
+<!-- </div> -->
+ </form>
+<!--    	    <%@include file="/public/files/loading.jsp"%>  -->
+
+
+
+<script>
+function isCon(array, val){
+	if(array.length == 1){
+		return false;
+	}
+	for(var i=0; i<array.length; i++){
+		if(array[i] == val && array[i] != "undefined"){
+			return true;
+		}
+	}
+	return false;
+}
+
+function check(cid,cname){
+	var openercid = window.opener.document.getElementById("cids");
+	var openercidarray = openercid.value.split(",");
+	var ttaskcrowd = window.opener.document.getElementById("ttaskcrowd");
+	if (cid && (!isCon(openercidarray, cid))) {
+		openercid.value = openercid.value + cid + ",";
+		ttaskcrowd.innerHTML+='<em ><input type="hidden" name="cid" value='+cid+' />'+cname+'<img onClick="removebus(this)"  src="#(uri)/public/img/red_delete.png" /></em>';
+	
+		//newTd0.innerHTML = '<input type=hidden  name="cid" value='+cid+' class="cl_cid"/>'
+		//		+ cname + '';
+		//newTd1.innerHTML = '<button class="look" onclick="removebus(this)">删除</button>';
+	}
+
+}
+</script>
+
+</body>
+</html> 

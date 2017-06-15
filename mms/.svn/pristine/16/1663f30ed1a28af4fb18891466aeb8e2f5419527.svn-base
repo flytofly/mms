@@ -1,0 +1,64 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>统计优化</title>
+<script src="#(BasePath)/public/jquery/js/jqsel.js"></script>
+<script src="#(BasePath)/public/My97DatePicker/WdatePicker.js"></script>
+
+</head>
+<body>
+	<div class="tx-con">
+	  <!-- 页面的标题 -->
+		<div class="tx-con-bt">
+			<ul>
+				<li><a href="#"><span>统计优化</span></a></li>
+			</ul>
+		</div>
+	 <!-- 条件筛选框的位置 -->
+	  <form action="#(BasePath)/statis/statopti/detailList" id="form" method="post">
+	  <input type="hidden" name="out_type" value="#(record.out_type)">
+	  <input type="hidden" name="detail_id" value="#(record.detail_id)">
+		<div class="tx-con-form">
+			<!--  占位的横线  -->
+					 <input style="width:185px; text-align:center; padding-left:0;" type="text" name="pickday" size="10" readonly onClick="WdatePicker({el:'pickday'})"
+		        value='#(record.pickday)'   placeholder="选择统计日期"  id="pickday" class="scinput validate[required] tx-con-form-tet" />
+				<input class="tx-con-form-sub" style="margin-left: 20px;" type="submit" value="筛选" />
+			
+		  <div class="cle"></div>
+        </div>
+	<!--列表的详细信息 -->
+		<div class="tx-con-xx">
+			<table cellspacing="0" cellpadding="0">
+				<tr style="height:40px;">
+					<th style="width:40px;">序号</th>
+					<th>统计日期</th>
+					<th>发送成功数</th>
+					<th>点击数</th>
+					<th>注册数</th>
+					<th>点击率</th>
+					<th>注册率</th>
+				</tr>
+				#for(record:records.getList())
+				 <tr  onmouseout="this.style.backgroundColor='#ffffff';"
+					onmouseover="this.style.backgroundColor='#E6F2FF'">
+					<td>#(for.index+1)</td>
+					<td>#(record.pickday )</td>
+					<td>#(record.ok_count )</td>
+					<td>#(record.dj_count )</td>
+					<td>#(record.zc_count )</td>
+					<td>#(record.djl ) %</td>
+					<td>#(record.zcl ) %</td>
+					</td>
+				</tr>
+				#end
+			</table>
+		</div>
+<!--分页-->
+#@paginate(records.pageNumber, records.totalPage, "")
+<!--分页 END-->
+    </form>
+</div>
+</body>
+
+#end

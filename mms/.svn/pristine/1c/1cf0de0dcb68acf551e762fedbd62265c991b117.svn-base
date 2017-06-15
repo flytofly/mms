@@ -1,0 +1,204 @@
+#@layout()
+#define main()
+
+	<div class="tx-con">
+	<div class="tx-con-bt">
+		<ul>
+			<li><a href="#"><span>动作配置</span></a></li>
+		</ul>
+	</div>
+	<form name="form" id="form" action="#(BasePath)/data/starpic/list" method="post">
+	<div>
+		<div class="g-nr-left-right">
+			<div class="g-nr-left">
+				<div class="g-kuang g-yhgk-1">
+					<span>任务名		这是一个测试任务<br>
+		投放方式	外呼坐席<br>
+		所选人群	李磊的测试人群1</span>
+				</div>
+			</div>
+		</div>
+		<div class="g-nr-left-right">
+			<div class="g-nr-left">
+				<div class="g-kuang g-yhgk-1">
+					<div class="g-kuang-bt">
+						人群拓展列表
+					</div>
+					<div class="g-kuang-nr" style="min-width: 400px; height: 550px;">
+						<div style="height:  550px; margin: 0 auto; OVERFLOW: auto;">
+							<table style="min-width: 95%;margin: 0 auto;text-align:center;border-collapse:separate; border-spacing:0px 15px;">
+								<thead style="color:#08a1e0;">
+									<tr>
+										<th width="10%">规则ID</th>
+										<th width="30%">中文名</th>
+										<th width="10%">预估日用户数</th>
+										<th width="15%">重合数</th>
+										<th width="15%">重合度</th>
+										<th width="15%">相关度</th>
+										<th width="5%">配置</th>
+									</tr>
+								</thead>	
+								<tbody id="selected-web">
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="g-nr-right">
+				<div class="g-kuang g-yhgk-1">
+					<div class="g-kuang-bt">
+						相关网站图
+					</div>
+					<div class="g-kuang-nr" id="media-rank" style="min-width: 400px; height: 550px;">
+						
+					</div>
+				</div>
+			</div>
+		</div>
+		<div>
+			
+		</div>
+	</div>
+		
+	
+	</form>
+</div>
+
+#end
+<script src="#(BasePath)/data/starpic/build/dist/echarts.js"></script>
+
+<!-- 相关网站图-->
+<script type="text/javascript">
+		var resultnodes = [];  
+        var tempnodes = {};  
+        var resultlinks = [];  
+        var templinks = {};  
+        
+		$.ajax({  
+                url: '#(BasePath)/data/starpic/zscorrweb?ruleid=#(ruleid)',  
+                dataType: "json",  
+                type: "post",  
+                contentType: "json",  
+                async: false,  
+                success : function(data){  
+                    $.each(data.nodes, function(i, item){  
+                        tempnodes = {category:item.ceng, name:item.rule.toString(), value:item.overlap_uv};  
+                        resultnodes.push(tempnodes);  
+                    });
+                    $.each(data.links, function(i, item){  
+                        templinks =  {source : item.rele_rule.toString(), target : item.rule.toString(),weight:item.relevancy, name: '相关网站'};
+              			resultlinks.push(templinks);  
+                    });
+                    $.each(data.table, function(i, item){  
+                        $("#selected-web").append("<tr>"+
+												"<td>"+item.rele_ruleid+"</td>"+
+												"<td>"+item.desc+"</td>"+
+												"<td>"+item.rele_rule_uv+"</td>"+
+												"<td>"+item.overlap_uv+"</td>"+
+												"<td>"+Math.round(item.overlap_uv / item.rele_rule_uv * 100000) / 1000.000 + "%" +"</td>"+
+												"<td>"+Math.round(item.relevancy * 100000) / 1000.000 + "%"+"</td>"+
+												"<td><input type='checkbox' class='cids'></td>"+
+											"</tr>");
+                    });
+                }
+            });  
+        
+		require.config({
+            paths: {
+                echarts: 'build/dist'
+            }
+        });
+        require(
+            [
+                'echarts',
+                'echarts/chart/force',
+            ],
+ 
+		function (ecrank) {
+                var rankChart = ecrank.init(document.getElementById('media-rank'));
+				/* // 添加点击事件  
+		        var ecConfig = require('echarts/config');  
+		        rankChart.on(ecConfig.EVENT.CLICK, eConsole);     */
+				rankoption = {
+			    title : {
+			        text: '相关网站图',
+			        subtext: '#(rule)',
+			        x:'right',
+			        y:'bottom'
+			    },
+			    tooltip : {
+			        trigger: 'item',
+			        formatter: '{a} : {b}'
+			    },
+			    toolbox: {
+			        show : true,
+			        feature : {
+			            restore : {show: true},
+			            magicType: {show: true, type: ['force', 'chord']},
+			            saveAsImage : {show: true}
+			        }
+			    },
+			    legend: {
+			        x: 'left',
+			        data:['相似'],
+			        selected: {
+			            '相关' : false
+			        },
+			    },
+			    series : [
+			        {
+			            type:'force',
+			            name : "网站",
+			            ribbonType: false,
+			            categories : [
+			                {
+			                    name: '相似'
+			                }
+			            ],
+			            itemStyle: {
+			                normal: {
+			                    label: {
+			                        show: true,
+			                        textStyle: {
+			                            color: '#333'
+			                        }
+			                    },
+			                    nodeStyle : {
+			                        brushType : 'both',
+			                        borderColor : 'rgba(255,215,0,0.4)',
+			                        borderWidth : 1
+			                    },
+			                    linkStyle: {
+			                        type: 'curve'
+			                    }
+			                },
+			                emphasis: {
+			                    label: {
+			                        show: false
+			                        // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+			                    },
+			                    nodeStyle : {
+			                        //r: 30
+			                    },
+			                    linkStyle : {}
+			                }
+			            },
+			            useWorker: false,
+			            minRadius : 20,
+			            maxRadius : 40,
+						coolDown: 0.995,
+			            gravity: 1.1,
+			            scaling: 1.1,
+			            nodes:resultnodes,
+			
+			            links:resultlinks
+			        }
+			    ]
+				};
+
+				rankChart.setOption(rankoption);
+            }
+	
+        );
+</script>

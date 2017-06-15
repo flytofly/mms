@@ -1,0 +1,170 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>客户维护</title>
+
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+
+<link href="${tp}/public/css/common.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="<%=request.getContextPath()%>/jquery/development-bundle/themes/smoothness/jquery-ui.css" />
+<script src="<%=request.getContextPath()%>/jquery/js/jqsel.js"></script>
+<script src="<%=request.getContextPath()%>/jquery/js/jquery-ui-1.10.2.custom.js"></script>
+<script src="<%=request.getContextPath()%>/jtable/jquery.jtable.js" type="text/javascript"></script>
+<link href="<%=request.getContextPath()%>/jtable/themes/lightcolor/gray/jtable.css" rel="stylesheet" type="text/css" />
+
+<!-- 文本框验证 -->
+<link href="<%=request.getContextPath()%>/jquery/css/validationEngine.jquery.css" rel="stylesheet" type="text/css" />
+<script src="<%=request.getContextPath()%>/jquery/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+<script src="<%=request.getContextPath()%>/jquery/js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+
+</head>
+
+<body>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			var messages = {
+				serverCommunicationError : '服务器出现未知错误！',
+				loadingMessage : 'Loading Data...',
+				noDataAvailable : '暂无数据!',
+				addNewRecord : '添加客户信息',
+				editRecord : '修改客户信息',
+				areYouSure : '您确定吗?',
+				deleteConfirmation : '您确定要删除该条信息吗?',
+				save : '保存',
+				saving : '保存中...',
+				cancel : '取消',
+				deleteText : '删除',
+				deleting : '删除中...',
+				error : '错误',
+				close : '关闭',
+				cannotLoadOptionsFor : '不能载入数据 {0}',
+				pagingInfo : '第 {0} 条至 {1} 条, 总{2}条'
+			};
+
+			$('#clientContainer').jtable({
+				title : '客户列表',
+				messages : messages,
+				paging : true, //Enable paging
+				pageSize : 15, //Set page size (default: 10)
+				sorting : false, //Enable sorting
+				defaultSorting : 'bid', //Set default sorting
+				actions : {
+					listAction : '<%=request.getContextPath()%>/business/clientList?btype=2',
+					deleteAction: '<%=request.getContextPath()%>/business/clientDelete',
+					updateAction : '<%=request.getContextPath()%>/business/clientUpdate',
+					createAction : '<%=request.getContextPath()%>/business/clientCreate'
+				},
+				fields : {
+					bid : {
+						key : true,
+						create : false,
+						edit : false,
+						list : false,
+						name : 'record.bid'
+					},
+					business_name : {
+						title : '客户名称',
+						width : '25%',
+						name : 'record.business_name'  
+					},
+					one_phone : {
+						title : '客户电话',
+						width : '10%',
+						name : 'record.one_phone'
+					},
+					/*
+					calleeNumbers: {
+						title : '400转接号码',
+						width : '25%',
+						type : 'textarea',
+						name : 'record.calleeNumbers'
+					},*/
+					address : {
+						title : '客户地址',
+						width : '30%',
+						type : 'textarea',
+						name : 'record.address'
+					}
+				},
+				//Initialize validation logic when a form is created
+	            formCreated: function (event, data) {
+	            	//ajaxNameCall
+	            	//data.form.find('input[name="business_name"]').addClass('validate[ajaxUserCall]');
+	            	data.form.find('input[name="business_name"]').attr("maxlength","400").addClass('validate[required]');
+	            	data.form.find('input[name="one_phone"]').attr("maxlength","30").addClass('validate[required]');
+	            	//data.form.find('input[name="calleeNumbers"]').attr("maxlength","256").addClass('validate[required]');
+	            	
+	            	<%-- var forms = data.form;
+	            	forms.validate({
+	                	rules: {		
+	                		business_name: {
+	                            required: true,
+	                            remote: {
+	                                url: '<%=request.getContextPath()%>/business/clientExist', //后台处理程序    
+	                                type: 'get',  //数据发送方式   
+	                                dataType: 'json',       //接受数据格式       
+	                                data: {  //要传递的数据   
+	                                	business_name: function () {
+	                                        return data.form.find('input[name="business_name"]').val();
+	                                    }
+	                                }
+	                     		}
+		                	}
+	                	},
+	                	messages: {
+	                		business_name: {
+	                			required:"客户名称不能为空",
+	                            remote: "客户名称已经被注册!"
+	                        }
+	                	}
+	                }); --%>
+	            	
+	                data.form.validationEngine();
+	            },
+	            //Validate form when it is being submitted
+	            formSubmitting: function (event, data) {
+	                return data.form.validationEngine('validate');
+	            },
+	            //Dispose validation logic when form is closed
+	            formClosed: function (event, data) {
+	                data.form.validationEngine('hide');
+	                data.form.validationEngine('detach');
+	            }
+
+			});
+			//搜索
+			//Re-load records when user click 'load records' button.
+			$('#LoadRecordsButton').click(function(e) {
+				e.preventDefault();
+				$('#clientContainer').jtable('load', {
+					search : $('#search').val()
+				});
+			});
+
+			//Load student list from server 构建表格控件
+			//Load all records when page is first shown
+			$('#LoadRecordsButton').click();
+
+		});
+	</script>
+
+
+<div id="mainpage" class="glist_main">
+	<!-- 搜索 -->
+	<div class="filtering">
+		<form>
+			客户名称：<input type="text" name="search" id="search" />
+			<button type="submit" id="LoadRecordsButton">搜索</button>
+		</form>
+	</div>
+
+	<!-- 表格 -->
+	<div id="clientContainer"></div>
+</div>
+</body>
+</html>

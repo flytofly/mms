@@ -1,0 +1,188 @@
+#@layout()
+#define main()
+<head>
+    <meta charset="UTF-8">
+    <title>新建自定义人群</title>
+    <link rel="stylesheet" type="text/css" href="#(BasePath)/public/jquery/css/validationEngine.jquery.css"/>
+    <script src="#(BasePath)/public/jquery/js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+    <script src="#(BasePath)/public/jquery/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+        <div class="crumbs">
+            <a href="javascript:history.back()" class="back">&lt;返回</a>
+            <span class="title">新建自定义人群</span>
+        </div>
+        <div class="main-box">
+          <form enctype="multipart/form-data" method="post" action="edit" >
+            <input type="hidden" id="is_all" name="is_all" value="" />
+            <!-- 省份编号_市区编号,省份编号_市区编号, -->
+            <input type="hidden" id="citys" name="citys" value="" />
+            <div class="custom-info">
+                <dl>
+                    <dt>人群名</dt>
+                    <dd><input type="text" placeholder="请输入人群名" maxlength="50" class="validate[required] re_input"></dd>
+                    <dt>上传自定义规则</dt>
+                    <dd>
+                        <input type="text" placeholder="请按照模板格式提交">
+                        <div class="upload">
+                           <input type="file" value="">
+                           <input type="button" value="浏览文件">
+                        </div>                    
+                        <input type="button" value="下载模板" class="download">
+                    </dd>
+                </dl>
+            </div>
+            <!--地区设置-->
+            <div class="locale n-bor">
+                <div class="title">地区设置</div>
+                <dl>
+                    <dt>全选：</dt>
+                    <dd>
+                        <ul>
+                            <li><label><input type="checkbox">全选</label></li>
+                        </ul>
+                    </dd>
+                    <dt>直辖市：</dt>
+                    <dd>
+                        <ul>
+                            <li><label><input type="checkbox" class="provicne" value="110000">北京</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="310000">上海</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="120000">天津</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="500000">重庆</label></li>
+                        </ul>                                 
+                    </dd>                                     
+                    <dt>省份：</dt>
+                    <dd>
+                        <ul>
+                            <li><label><input type="checkbox" class="provicne" value="130000"><span>河北省</span></label></li>
+                            <li><label><input type="checkbox" class="provicne" value="140000">山西省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="610000">陕西省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="210000">辽宁省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="220000">吉林省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="230000">黑龙江省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="320000">江苏省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="330000">浙江省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="340000">安徽省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="350000">福建省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="360000">江西省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="370000">山东省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="410000">河南省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="420000">湖北省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="430000">湖南省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="440000">广东省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="460000">海南省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="500000">海南省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="510000">四川省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="520000">贵州省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="530000">云南省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="620000">甘肃省</label></li>
+
+                            <li><label><input type="checkbox" class="provicne" value="630000">青海省</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="150000">内蒙古自治区</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="450000">广西装族自治区</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="540000">西藏自治区</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="640000">宁夏回族自治区</label></li>
+                            <li><label><input type="checkbox" class="provicne" value="650000">新疆维吾尔族自治区</label></li>
+                        </ul>
+                    </dd>
+                </dl>
+                <input type="hidden" id="province_now" value="130000">
+                <dl class="bor-t">
+                    <dt>市：</dt>
+                    <dd>
+                        <ul id="current_city">
+                            <li><label><input type="checkbox" class="city">石家庄市</label></li>
+                            <li><label><input type="checkbox" class="city">保定市</label></li>
+                            <li><label><input type="checkbox" class="city">廊坊市</label></li>
+                            <li><label><input type="checkbox" class="city">承德市</label></li>
+                            <li><label><input type="checkbox" class="city">沧州市</label></li>
+                            <li><label><input type="checkbox" class="city">唐山市</label></li>
+                            <li><label><input type="checkbox" class="city">邢台市</label></li>
+                            <li><label><input type="checkbox" class="city">衡水市</label></li>
+                            <li><label><input type="checkbox" class="city">秦皇岛市</label></li>
+                        </ul>
+                    </dd>
+                </dl>
+            </div>
+            <div class="create-renqun-submit">
+                <input type="submit" value="确认提交">
+            </div>
+            </form>
+        </div>
+  </div>
+
+<script>
+  // 省份选择添加事件
+  $(".provicne").change(function(e){
+	  var provicne_code = e.target.value;
+	  var provicne_code_now = $("#province_now").val();
+	  if(e.target.checked){
+		  if(provicne_code_now == provicne_code){
+			 $(".city").prop("checked",true);
+		  }else{
+			  $.ajax({
+					type : "post",
+					async : false,
+					url : "/mms/getCityByPid",
+					dataType :"text",
+					data : {"pid":provicne_code},
+					success:function(data){
+						// 清空所有的市区
+						$("#current_city").empty();
+						var citys = jQuery.parseJSON(data);
+						var cityInfo = "";
+						var cityStr = "";
+						for(var i in citys){
+							cityInfo += '<li><label><input type="checkbox" class="city" checked="checked" value="'+ citys[i].cityID + '" >'+ citys[i].city + '</label></li>';
+							cityStr += provicne_code + "|" + citys[i].cityID + ",";
+						}
+						$("#province_now").val(provicne_code);
+						$("#current_city").append($(cityInfo));
+						$("#citys").val($("#citys").val() + cityStr);
+			}});
+		  }
+	  }else{
+		  if(provicne_code_now == provicne_code){
+			  $(".city").removeAttr("checked");
+		  }else{
+			  // 从隐藏域中查询数据
+			  $.ajax({
+					type : "post",
+					async : false,
+					url : "/mms/getCityByPid",
+					dataType :"text",
+					data : {"pid":provicne_code},
+					success:function(data){
+						// 清空所有的市区
+						$("#current_city").empty();
+						var citys = jQuery.parseJSON(data);
+						var cityStr = "";
+						for(var i in citys){
+							cityStr += '<li><label><input type="checkbox" class="city" value="'+ citys[i].cityID + '" >'+ citys[i].city + '</label></li>';
+						}
+						$("#province_now").val(provicne_code);
+						$("#current_city").append($(cityStr));
+						
+						
+			}});
+			  
+		  }
+	  }
+  });
+  
+  // 得到已选的市区的列表 
+  function getCheckedItems(provicne_code){
+	  var citys = $().val();
+	  var cityArray = citys.split(",");
+	  var checkedArray = new Array();
+	  $(cityArray).each(function(index,element){
+		  if(element.indexOf(provicne_code) > -1){
+			  checkedArray.push(element.split("|")[1]);
+		  }
+	  });
+	  return checkedArray;
+  }
+  
+</script>
+ </body>
+#end

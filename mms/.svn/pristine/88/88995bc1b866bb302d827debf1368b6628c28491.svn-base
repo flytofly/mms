@@ -1,0 +1,426 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>新建规则人群</title>
+</head>
+<body>
+        <div class="crumbs">
+            <a href="javascript:history.back()" class="back">< 返回</a>
+            <span class="title">新建规则人群</span>
+        </div>
+        <!--覆盖人数-->
+        <div class="coverage clearfix">
+            <input type="text" placeholder="请输入人群名" class="input-people-name">
+            <div class="getinfo">
+                <dl>
+                    <dt>预估覆盖人数</dt>
+                    <dd class="num1">0</dd>
+                    <dt id="select-rule">已选规则</dt>
+                    <dd>106</dd>
+                </dl>
+            </div>
+            <!--时间轴-->
+            <div class="time-line">
+                <div class="words-s cf" id="amountSpan">
+                    <ul>
+                        <li>1天</li>
+                        <li>3天</li>
+                        <li>5天</li>
+                        <li>7天</li>
+                        <li>30天</li>
+                        <li>60天</li>
+                        <li>90天</li>
+                        <li>180天</li>
+                    </ul>
+                </div>
+                <div class="jindu">
+                    <span class="jindu-blue"></span>
+                    <span id="jindu-icon" class="jindu-icon"></span>
+                    <span class="dot clearfix">
+                        <li></li>
+                        <li></li>
+                        <li></li>
+                        <li></li>
+                        <li></li>
+                        <li></li>
+                        <li></li>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="main-box">
+            <!--规则-->
+            <div class="rule-info" id="ruleInfo">
+                <div class="tab clearfix">
+                    <ul>
+                        <li class="on">按行业配置规则</li>
+                        <li>按标签配置规则</li>
+                        <li>按电商配置规则</li>
+                    </ul>
+                </div>
+                <div class="hy-search">
+                        <input type="text" placeholder="输入关键词搜索">
+                        <input type="submit" class="search-icon">
+                    </div>
+                <!--按行业配置规则-->
+                <div class="tab-con" style="display:block;">                
+                    <div class="hy-result">
+                        <img src="temp/u645.png" alt="">
+                    </div>
+                </div>
+                <!--按标签配置规则-->
+                <div class="tab-con">
+                    <div class="search-result">
+                        <div class="search-tab clearfix">
+                            <ul>
+                                <li class="on">搜索结果</li>
+                                <li>相关推荐</li>
+                            </ul>
+                        </div>
+                        <div class="tags clearfix" style="display:block;">
+                            <ul>
+                                <li>木鸟租房</li>
+                                <li>在线短租</li>
+                                <li>相关推荐</li>
+                                <li>短租公寓</li>
+                                <li>家庭短租</li>
+                                <li>短租公寓</li>
+                                <li>长租短租</li>
+                                <li>短租公寓</li>
+                                <li>家庭短租</li>
+                                <li>短租公寓</li>
+                                <li>长租短租</li>
+                                <li>短租公寓</li>
+                                <li>家庭短租</li>
+                                <li>短租公寓</li>
+                                <li>长租短租</li>
+                                <li>短租公寓</li>
+                                <li>家庭短租</li>
+                                <li>短租公寓</li>
+                                <li>长租短租</li>
+                                <li>短租公寓</li>
+                                <li>家庭短租</li>
+                                <li>短租公寓</li>
+                                <li>长租短租</li>
+                                <li>短租公寓</li>
+                            </ul>
+                        </div>
+                        <div class="tags clearfix">
+                            <ul>
+                                <li>相关推荐</li>
+                                <li>相关推荐</li>
+                                <li>相关推荐</li>
+                                <li>相关推荐</li>
+                                <li>家庭短租</li>
+                                <li>相关推荐</li>
+                                <li>相关推荐</li>
+                                <li>相关推荐</li>
+                                <li>相关推荐</li>
+                                <li>短租公寓</li>
+                                <li>长租短租</li>
+                                <li>短租公寓</li>
+                                <li>家庭短租</li>
+                                <li>短租公寓</li>
+                                <li>相关推荐</li>
+                                <li>短租公寓</li>
+                                <li>家庭短租</li>
+                                <li>短租公寓</li>
+                                <li>相关推荐</li>
+                                <li>短租公寓</li>
+                                <li>家庭短租</li>
+                                <li>短租公寓</li>
+                                <li>相关推荐</li>
+                                <li>短租公寓</li>
+                            </ul>
+                        </div>
+                    </div>             
+                </div>
+                <!--按电商配置规则-->
+                <div class="tab-con">
+                    暂无内容
+                </div>
+            </div>
+            <!--详情-->
+            <div class="rule-list">
+                <div class="title">
+                    详情
+                    <span class="page-num">共5条 1页</span>
+                    <div class="pages">
+                        <span class="prev"><</span>
+                        <span class="num">1</span>
+                        <span class="next">></span>
+                    </div>
+                </div>
+                <table cellpadding="0" cellspacing="0">
+                    <tr>
+                        <th><input type="checkbox"></th>
+                        <th>规则ID</th>
+                        <th>规则名称</th>
+                        <th>预估日用户数</th>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td>00982</td>
+                        <td>房天下</td>
+                        <td>3000</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td>07483</td>
+                        <td>链家网</td>
+                        <td>200</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td>07483</td>
+                        <td>安居客</td>
+                        <td>200</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td>07483</td>
+                        <td>房天下</td>
+                        <td>3000</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td>00982</td>
+                        <td>爱屋吉屋</td>
+                        <td>200</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="clearfix"></div>
+            <!--地区设置-->
+            <div class="locale">
+                <div class="title">地区设置</div>
+                <dl>
+                    <dt>全选：</dt>
+                    <dd>
+                        <ul>
+                            <li><label><input type="checkbox">全选</label></li>
+                        </ul>
+                    </dd>
+                    <dt>直辖市：</dt>
+                    <dd>
+                        <ul>
+                            <li><label><input type="checkbox">北京</label></li>
+                            <li><label><input type="checkbox">上海</label></li>
+                            <li><label><input type="checkbox">天津</label></li>
+                            <li><label><input type="checkbox">重庆</label></li>
+                        </ul>
+                    </dd>
+                    <dt>省份：</dt>
+                    <dd>
+                        <ul>
+                            <li><label><input type="checkbox">河北省</label></li>
+                            <li><label><input type="checkbox">陕西省</label></li>
+                            <li><label><input type="checkbox">辽宁省</label></li>
+                            <li><label><input type="checkbox">吉林省</label></li>
+                            <li><label><input type="checkbox">黑龙江省</label></li>
+                            <li><label><input type="checkbox">江办省</label></li>
+                            <li><label><input type="checkbox">浙江省</label></li>
+                            <li><label><input type="checkbox">安徽省</label></li>
+                            <li><label><input type="checkbox">福建省</label></li>
+                            <li><label><input type="checkbox">江西省</label></li>
+                            <li><label><input type="checkbox">山东省</label></li>
+                            <li><label><input type="checkbox">河南省</label></li>
+                            <li><label><input type="checkbox">湖北省</label></li>
+                            <li><label><input type="checkbox">湖南省</label></li>
+                            <li><label><input type="checkbox">广东省</label></li>
+                            <li><label><input type="checkbox">海南省</label></li>
+                            <li><label><input type="checkbox">四川省</label></li>
+                            <li><label><input type="checkbox">贵州省</label></li>
+                            <li><label><input type="checkbox">云南省</label></li>
+                            <li><label><input type="checkbox">甘肃省</label></li>
+
+                            <li><label><input type="checkbox">青海省</label></li>
+                            <li><label><input type="checkbox">台湾省</label></li>
+                            <li><label><input type="checkbox">内蒙古自治区</label></li>
+                            <li><label><input type="checkbox">广西装族自治区</label></li>
+                            <li><label><input type="checkbox">西藏自治区</label></li>
+                            <li><label><input type="checkbox">宁夏回族自治区</label></li>
+                            <li><label><input type="checkbox">新疆维吾尔族自治区</label></li>
+                            <li><label><input type="checkbox">香港特别行政区</label></li>
+                            <li><label><input type="checkbox">澳门特别行政区</label></li>
+                        </ul>
+                    </dd>
+                </dl>
+                <dl class="bor-t">
+                    <dt>市：</dt>
+                    <dd>
+                        <ul>
+                            <li><label><input type="checkbox">石家庄市</label></li>
+                            <li><label><input type="checkbox">保定市</label></li>
+                            <li><label><input type="checkbox">廊坊市</label></li>
+                            <li><label><input type="checkbox">承德市</label></li>
+                            <li><label><input type="checkbox">沧州市</label></li>
+                            <li><label><input type="checkbox">唐山市</label></li>
+                            <li><label><input type="checkbox">邢台市</label></li>
+                            <li><label><input type="checkbox">衡水市</label></li>
+                            <li><label><input type="checkbox">秦皇岛市</label></li>
+                        </ul>
+                    </dd>
+                </dl>
+            </div>
+
+            <!-- <div class="pv-setting">
+                <div class="title">PV设置</div>
+                <ul class="clearfix">
+                    <li><input type="text" placeholder="设置PV下限"></li>
+                    <li>~</li>
+                    <li><input type="text" placeholder="设置PV下限"></li>
+                </ul>
+            </div> -->
+            <div class="create-renqun-submit">
+                <input type="submit" value="确认提交">
+            </div>
+        </div>
+    </div>
+    <!--已选规则-->
+    <div class="pop-selected-rule" id="ruleResult">
+        <div class="title">已选规则</div>
+        <div id="close"></div>
+        <div class="pad-10">
+            <div class="rule-search clearfix">
+                <input type="text" placeholder="输入关键词搜索">
+                <input type="submit" class="search-icon">
+            </div>
+            <table cellspacing="0" cellpadding="0">
+                <tr>
+                    <th>规则ID</th>
+                    <th>规则名称</th>
+                    <th>预估日用户数</th>                    
+                    <th>操作</th>
+                </tr>
+                <tr>
+                    <td>00982</td>
+                    <td>房天下</td>
+                    <td>3000</td>
+                    <td>删除</td>
+                </tr>
+                <tr>
+                    <td>07483</td>
+                    <td>链家网</td>
+                    <td>200</td>
+                    <td>删除</td>
+                </tr>
+                <tr>
+                    <td>07483</td>
+                    <td>安居客</td>
+                    <td>200</td>
+                    <td>删除</td>
+                </tr>
+                <tr>
+                    <td>07483</td>
+                    <td>房天下</td>
+                    <td>3000</td>
+                    <td>删除</td>
+                </tr>
+                <tr>
+                    <td>00982</td>
+                    <td>爱屋吉屋</td>
+                    <td>200</td>
+                    <td>删除</td>
+                </tr>
+            </table>
+            <div class="page-info clearfix">
+                <div class="count">共1页 第1页 总5条</div>
+                <div class="pages">
+                    <a href="">首页</a>
+                    <a href="">上一页</a>
+                    <a href="">下一页</a>
+                    <a href="">末页</a>
+                    <span class="skip-page">第<input type="text">页</span>
+                    <input type="button" class="skip-btn" value="跳转">
+                </div>
+            </div>
+            <input type="submit" value="确认" class="rule-submit">
+        </div>
+    </div>
+    <script src="js/main.js"></script>
+    <script>
+        window.onload=popWin("ruleResult","select-rule");
+    </script>
+    <script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="js/jquery.placeholder.min.js"></script>
+    <script charset="UTF-8" type="text/javascript" src="js/jquery.drag.js"></script>
+    <script type="text/javascript">
+    $(function(){ $('input, textarea').placeholder(); });
+    </script>
+    <script>
+    $(function(){
+        var ruleInfo = $('#ruleInfo');
+        var ruleTabs = ruleInfo.find('.tab li');
+        var sTabs = ruleInfo.find('.search-tab li');
+        var tags = ruleInfo.find('.search-result .tags');
+        var tabCon = ruleInfo.find('.tab-con');
+            ruleTabs.click(function(){
+                var $this = $(this);
+                var ind = $this.index();
+                    $this.addClass('on').siblings().removeClass('on');
+                    tabCon.eq(ind).show().siblings('.tab-con').hide();
+            });
+
+            //搜索结果 相关推荐
+            sTabs.click(function(){
+                var $this = $(this);
+                var ind = $this.index();
+                    $this.addClass('on').siblings().removeClass('on');
+                    tags.eq(ind).show().siblings('.tags').hide();
+            });
+
+
+        //时间轴
+        var investAmounts = [1,3,5,7,30,60,90,180];
+        //拖动
+        var yell_s_width = $('.jindu-blue').width();
+        var s_width = $('#amountSpan').width();
+        var jindu_icon_width = $('#jindu-icon').width() / 2;
+        function setAmount(left){
+            var index = Math.round(left / (s_width/8));
+            var left = index * (s_width/8)-5;
+            if(index == 0){
+                left -= 10;
+            }
+            else if(index == 5){
+                left += 10;
+            }
+            else if(index == 6){
+                left += 10;
+            }
+            else if(index == 7){
+                left += jindu_icon_width;
+            }
+            console.log(index)
+            //console.log(left)
+            
+            $('.jindu-blue').css("width", left);
+            $('#jindu-icon').css("left", left);
+            $('#jindu-icon').data('amount', investAmounts[index]);
+            //calcIncome();
+        }
+        setAmount( $('.jindu-blue').width());
+        $('#jindu-icon').drag({
+            before: function(e) {
+                // $(this).text('拖动前' + e.pageX);  
+            },
+            process: function(e) {
+                // document.title = '拖动中' + e.pageY; 
+                var position = $('#jindu-icon').position(); //获取p元素的position()  
+                var left = position.left;
+                $('.jindu-blue').css("width", left);
+            },
+            end: function(e) {
+                var position = $('#jindu-icon').position(); //获取p元素的position()  
+                var left = position.left;
+                setAmount(left);
+                
+            }
+        });
+    })
+    </script>
+</body>
+</html>
+#end

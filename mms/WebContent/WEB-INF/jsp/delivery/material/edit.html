@@ -1,0 +1,166 @@
+#@layout()
+#define main()
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新建素材</title>
+    <link href="#(BasePath)/public/jquery/css/validationEngine.jquery.css" rel="stylesheet" type="text/css"/>
+   <script src="#(BasePath)/public/jquery/js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+   <script src="#(BasePath)/public/jquery/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+    
+</head>
+
+
+<script>
+	 
+	jQuery(document).ready(function(){
+					jQuery("#cform").validationEngine('attach');
+					
+				       var length=0;
+					 $("#content").blur(function(){
+						         var type=$('input:radio[name="record.m_type"]:checked').val();		
+						         if(typeof(type)=="undefined"){
+						        	 alert("请选着素材类型")
+                                	 return;
+						         }       
+                                 if(type==1){
+                                	 return;
+                                 }
+						           var str= $("#content").val();			
+					                if(str.indexOf("#")!=-1){			                	
+					                	    str= $("#content").val().split("#");	
+					                	      if(str[2]==undefined){
+					                	    	 alert("URL请以#http://www.baidu.com#的形式书写")
+					                	    	 length=71;
+					                	    	 return;
+					                	     }					       
+										    var ctLength=str[0].length+str[2].length;
+										    if(ctLength>53){										   
+												 length=ctLength;
+												 alert("文案内容包含URL,字符不能超过53")
+										     } else{
+										    	 length=0;										    	
+										     } 					                	
+					                }else{					                	
+						                	if(str.length>70){
+						                		length=str.length;			
+						                		alert("文案内容不包含URL,字符不能超过70")
+						                	}else{
+												 $("#wenantishi").hide();
+												 length=0;
+						                	}
+					                 }								   
+					 });
+		
+					 
+					 
+					 
+					 
+					 $("#cform").submit(function(){			
+						 
+						 var val=$('input:radio[name="record.m_type"]:checked').val();		
+					 	 var str= $("#content").val();	
+						 if(val!=null&&val==1){
+								 if(str!=null){
+									 $("#cform").sumit();
+								 }						 
+						 }else{						       							 
+							 if(str.indexOf("#")!=-1){							 
+									 if(length>53||str==undefined||str==""){
+											return mySubmit(false);
+									 }else{
+											 $("#cform").sumit();
+									 }								 
+							 }else{								 
+								     if(length>70||str==undefined||str==""){
+										return mySubmit(false);
+									 }else{
+										 $("#cform").sumit();
+									 }
+							 } 							 
+						 }				
+					  });
+	              			 
+	});
+	
+	//这个方法只是用来做个掩护,没有这个掩护是不行的!  
+	function mySubmit(flag){  
+	    return flag;  
+	} 
+	
+
+	function selectbus(){
+		window.open("#(BasePath)/data/buscus/rlist?&business.status=1","","width=1000,height=600,location=no");
+	}
+</script>
+
+<body>
+
+    <div class="crumbs">
+        <a href="javascript:history.back()" class="back">< 返回</a>
+        <span class="title">新建素材</span>
+    </div>
+    
+    
+    <div class="main-box">
+    <form name="cform" id="cform" action="./update" method="post"  onsubmit="return mySubmit(true)"  >
+        <div class="material">
+            <dl>
+                
+                <dt>
+                    <input type="hidden" name="record.mid" id="customer_id" value = "#(record.mid)"/>
+                   	<input type="hidden" id="bid" value="#(record.bid)" name="record.bid"/>
+				      		<input type="text" id="business_name" value="#(record.business_name)" name="businessName" class="validate[required] re_input" size="32" readonly />
+		                	<button class="look"
+			           		    onclick="selectbus();event.preventDefault();">
+			           		          查找企业</button>
+                
+                </dt>
+                
+                <dt>素材名</dt>
+                <dd><input type="text"  maxlength="30" placeholder="请输入素材名称"  class="validate[required] re_input" name="record.name"  value="#(record.name)"></dd>
+                <dt>选择素材类型</dt>
+                <dd>
+                     <ul>
+                        <li><label><input   type="radio" value="1" #if(record.m_type == 1) checked #end name="record.m_type"  id="m_type_zuoxi"   />外呼坐席</label></li>
+                        <li><label><input   type="radio" value="2" #if(record.m_type == 2 ) checked #end name="record.m_type"  id="m_type_duanxin"  />短信</label></li>                        
+                    </ul>
+                </dd>
+                <dt>文案</dt>
+                <dd>
+                    <div class="txtbox">
+                        <textarea   rows="4"  style="height: 300px" maxlength="1000" class="textarea validate[required] re_input" name="record.content"  id="content" >#(record.content)</textarea>                      
+                        <p>1条短信  0/70</p>
+                    </div>
+                    <div class="tips"   id="wenantishi" style="width: 13%;">文案输入规则：<br>
+  	                        (1)如果文案中包含URL：请用#http://www.baidu.com/#的形式,除去目标链接,字符数不能超过53个。
+							例：[上海技维]尊敬的客户，你的话费已发送邮箱，详情查看#http://y.10086.cn#，退订回T。
+							<br>(2)如果文案中不包含URL，那么总字符数不能超过70个。</div>
+                </dd>
+                <dt>审核 </dt>
+                <dd>
+                         	<select class="validate[required] input-xlarge" id="status" name="record.status" >
+									<option value="">-- 请选择 --</option>
+									<option value="0" #if(record.status==0 )selected="selected"#end>待审核</option>
+									<option value="1" #if(record.status==1 )selected="selected"#end>审核通过</option>
+									<option value="2" #if(record.status==2 )selected="selected"#end>审核未通过</option>
+					</select> 
+                </dd>
+            </dl>
+        </div>
+        <div class="create-renqun-submit">
+            <input type="submit"   value="确认提交">
+        </div>
+        </form>
+    </div>
+    
+    <script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="js/jquery.placeholder.min.js"></script>
+    <script type="text/javascript">
+    $(function(){ $('input, textarea').placeholder(); });
+    </script>
+</body>
+</html>
+#end

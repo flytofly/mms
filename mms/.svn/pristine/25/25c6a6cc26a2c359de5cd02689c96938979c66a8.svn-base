@@ -1,0 +1,30 @@
+#define layout()
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></meta>
+	<title>MMS大数据营销系统</title>
+   
+    <!-- 公有js -->
+    <script type="text/javascript" src="#(BasePath)/public/js/jquery-1.11.0.js"></script>
+	<script type="text/javascript" src="#(BasePath)/public/js/style.js"></script>
+    <script type="text/javascript" src="#(BasePath)/public/js/jquery.treeview.js" ></script>
+    <script type="text/javascript" src="#(BasePath)/public/js/jquery.cookie.js" ></script>
+	
+	<!-- 公有css -->
+	<link href="#(BasePath)/public/css/jquery.treeview.css" rel="stylesheet" type="text/css">
+    <link href="#(BasePath)/public/css/style.css" rel="stylesheet" type="text/css">
+</head>
+<body>  
+	<div id="page_container">  
+	    <div class="heading" id="header">#@header()</div>
+	    <div class="container">
+	        <div class="main" id="center">#@main()</div>
+	    </div>
+	    <div style="clear:both"></div>
+	    <div class="footing" id="footer">#@footer()</div> 
+	</div>  
+</body>  
+</html>
+#end

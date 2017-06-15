@@ -1,0 +1,244 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>模块信息管理</title>
+<link href="${tp}/public/css/basic.css" rel="stylesheet" type="text/css" />
+<link href="${tp}/public/css/edit.css" rel="stylesheet" type="text/css" />
+
+<link href="${uri}/public/jquery/css/validationEngine.jquery.css" rel="stylesheet" type="text/css"/>
+<script src="${uri}/public/jquery/js/jqsel.js"></script>
+<script src="${uri}/public/jquery/js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+<script src="${uri}/public/jquery/localization/jquery.validationEngine-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+<script src="${uri}/public/jquery/js/jquery.md5.js" type="text/javascript"></script>
+</head>
+<body>
+<!-- <div style="width: 100% ;height:5px"></div> -->
+<table class="searchtb" >
+ 
+    <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2">
+      		<img src="${tp}/public/images/scbj-icon.png" style="width:16px; height:16px; margin-bottom:-2px;"/>系统管理-模块管理-模块信息编辑
+      </td>
+      <td class="searchtd3"></td>
+    </tr>
+    <tr>
+      <td colspan="3">
+    	<form name="cform" id="cform" action="${uri }/system/module/update" method="post"  >
+    	<input type="hidden" name="record.module_id" value = "${record.module_id}"/>
+    	<input type="hidden" id="has_clicked" value="0"/>
+    	<input type="hidden" name="module_layer_mark" id="module_layer_mark_0" value = "000000000"/>
+		<c:forEach items="${records}" var="module">
+    		<input type="hidden" name="module_layer_mark" id="module_layer_mark_${module.module_id}" value = "${module.module_layer_mark}"/>
+		</c:forEach> 
+   	
+      <table class="datatb"  cellpadding="3" cellspacing="1" >
+          <tbody>
+       
+  
+  
+        <tr class="listtr">
+		    <td width="25%" class="editleft">模块名:</td>
+		    <td width="75%" class="editright">
+		        <input type="text" size="16" class="validate[required] re_input" name="record.module_name" value = "${record.module_name}" id="module_name"/>
+		    </td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft">模块URL:</td>
+		    <td class="editright">
+		        <input type="text" size="32" class="re_input" name="record.module_url" value = "${record.module_url}" id="module_url"/>
+		    </td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft">模块说明:</td>
+		    <td class="editright">
+		        <input type="text" size="32" class="re_input" name="record.module_desc" value = "${record.module_desc}" id="module_desc"/>
+		    </td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft">是否显示:</td>
+		    <td class="editright">
+                	<select name="record.is_show" id="is_show" class="validate[required] input-xlarge">
+									<option value="">请选择</option>
+									<option value="0"
+										<c:if  test="${record.is_show==0}"  >selected="selected"</c:if>>不显示</option>
+									<option value="1"
+										<c:if  test="${record.is_show==1}" >selected="selected"</c:if>>显示</option>
+								</select> 
+		    </td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft">父模块:</td>
+		    <td class="editright">
+                    <select id="parent_module_id" class="re_select" name="record.parent_module_id" >
+	                    <option value="0" <c:if  test="${record.parent_module_id == 0}" >selected</c:if>>根节点</option>
+						 <c:forEach items="${records}" var="module" varStatus="status">
+	                       <option value="${module.module_id}" <c:if  test="${module.module_id == record.parent_module_id}" >selected</c:if>>
+	                       	 <c:if  test="${module.parent_module_id != 0}" >&nbsp;&nbsp;</c:if>&nbsp;&nbsp;|__${module.module_name}
+	                       	</option>
+	                    </c:forEach>
+                    </select>
+		    </td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft">模块层次:</td>
+		    <td class="editright">
+		        <input type="text" class="re_input" name="record.module_layer_mark" value = "${record.module_layer_mark}" id="module_layer_mark" readonly="readonly"/>
+		    </td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft">帐号状态:</td>
+		    <td class="editright">
+               	<select name="record.status" id="status" class="validate[required] input-xlarge">
+									<option value="">请选择</option>
+									<option value="0"
+										<c:if  test="${record.status==0}" >selected="selected"</c:if>>无效</option>
+									<option value="1"
+										<c:if  test="${record.status==1}" >selected="selected"</c:if>>有效</option>
+			     </select> 
+			</td>
+        </tr>
+        <tr class="listtr">
+		    <td align="center" colspan="2"><input type="button" value="提交" class="btn" onclick="return clickSubmit();"/><input type="reset" value="重置" class="btn" /></td>
+        </tr>
+  
+  
+  
+  
+  
+  
+          </tbody>
+        </table>
+        </form>
+        </td>
+    </tr>
+</table>
+
+
+
+<script language="javascript">
+	function clickSubmit(){
+		//alert("11111111");
+	    //alert(jQuery('#cform').validationEngine('validate'));
+		if(jQuery('#cform').validationEngine('validate')){
+		    //alert("22222222");
+		    var hasClick = $("#has_clicked").val();
+		    //alert("hasClick = " +hasClick);
+			if("1"== hasClick){
+			    window.alert("表单页面不能重复提交，30秒钟后请提交该页面！");
+			    setTimeout('if($("#has_clicked")){ $("#has_clicked").val("0");}',10000);
+			    return false;
+			}
+			$("#has_clicked").val("1");
+			//alert("页面等待提交！")
+			//setTimeout("alert(\"页面提交！\")",30000);
+			//return false;
+			$('#cform').submit()
+		}else{
+		    //alert("3333333333");
+		}
+	}
+    
+    //根据父节点layermark，得到子节点的layermark
+    function getChangedLaryerMark(parentLaryerMark){
+        var mlayer = getmLayer(parentLaryerMark);
+        //alert("mlayer = " + mlayer);
+        var formatLayerMaxNumber = getLayerMaxNumber(parentLaryerMark,mlayer);
+        //alert("formatLayerMaxNumber = " + formatLayerMaxNumber);
+        var layerMark = parentLaryerMark;
+        if(mlayer == 0){
+            layerMark = formatLayerMaxNumber + parentLaryerMark.substring(3);
+        }else if(mlayer == 1){
+            layerMark = parentLaryerMark.substring(0,3) + formatLayerMaxNumber + parentLaryerMark.substring(6);
+        }else {
+            layerMark = parentLaryerMark.substring(0,6) + formatLayerMaxNumber;
+        }
+        return layerMark;
+    }
+    //得到父节点所处层数：Layer = 0 第一层，最左三位为"000",Layer = 1 第二层，中间三位为"000",Layer = 2 第三层，最右三位为"000"
+    function getmLayer(parentLaryerMark){
+        var mlayer = 0;
+        if(parentLaryerMark.substring(0,3) == "000"){
+            mlayer = 0;
+        }else if(parentLaryerMark.substring(3,6) == "000"){
+            mlayer = 1;
+        }else{
+            mlayer = 2;
+        }
+        return mlayer;
+    }
+    
+    //得到父节点所处层数,得到该层最大的数值：
+    //      Layer = 0 第一层，得到最左三位最大值
+    //      Layer = 1 第二层，得到中间三位最大值
+    //      Layer = 2 第三层，得到最右三位最大值
+    function getLayerMaxNumber(parentLaryerMark,mlayer){
+        var startIndex = mlayer * 3;
+        
+        var start = parentLaryerMark.substring(0,startIndex);
+        //alert("mlayer = " + mlayer + ",startIndex = " + startIndex + ",start = " + start);
+        var maxNumber = 0;
+        var laryermarks = $("input[name='module_layer_mark']");
+        laryermarks.each(function(){
+            var layermark = $(this).val();
+            //alert(layermark + ",layer = " + getmLayer(layermark) + ",start = " + start + ",sub=" + layermark.substring(0,startIndex));
+            if(getmLayer(layermark) == (mlayer + 1) && start == layermark.substring(0,startIndex)){
+                var larerNumber = parseInt(layermark.substring(startIndex,startIndex +3),10);
+                if(mlayer == 0 && larerNumber >= 900){
+                	maxNumber =  maxNumber;
+                }else{
+                	maxNumber =  larerNumber > maxNumber ? larerNumber : maxNumber;
+            	}
+                //alert("larerNumber = " + larerNumber + ",maxNumber = " + maxNumber);
+            }
+        });
+        //alert("maxNumber = " + maxNumber);
+        return formatNumber(maxNumber + 1);
+    }
+    
+    function formatNumber(maxNumber){
+        var maxNumberString = "";
+        if(maxNumber < 10){
+            maxNumberString = "00" + maxNumber + "";
+        }else if(maxNumber < 100){
+            maxNumberString = "0" + maxNumber + "";
+        }else{
+            maxNumberString = maxNumber + "";
+        }
+        //alert("maxNumberString = " + maxNumberString);
+        return maxNumberString;
+    }
+    if ('${record.module_id}' !="") {
+    	 currParentId = '${record.parent_module_id}';
+    	 var currParentLayerMark = "${record.module_layer_mark}";
+	}else{
+	 	var currParentId = 0;
+    	var test = getChangedLaryerMark("000000000");
+    	var currParentLayerMark = test;
+	}
+	 
+   
+	$("#module_layer_mark").val(currParentLayerMark);
+    $(document).ready(function(){ 
+		jQuery("#cform").validationEngine('attach');
+		$('#parent_module_id').change(function(){ 
+		    var parent_module_id = $("#parent_module_id").val();
+		    
+		    //alert("parent_module_id = " + parent_module_id);
+		    var layerMark = currParentLayerMark;
+		    if(currParentId != parent_module_id){
+			    var parentLayerMark = $("#module_layer_mark_" + parent_module_id).val();
+			    //alert("parentLayerMark = " + parentLayerMark);
+			    //alert("currParentLayerMark = " + currParentLayerMark);
+    		    layerMark = getChangedLaryerMark(parentLayerMark);
+    		}
+		    $("#module_layer_mark").val(layerMark);
+		})
+	}); 
+</script>
+</body>
+</html>

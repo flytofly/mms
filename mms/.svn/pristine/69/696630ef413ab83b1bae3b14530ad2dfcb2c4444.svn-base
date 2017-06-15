@@ -1,0 +1,104 @@
+package cn.mmdata.mms.analysis.basic.matrix;
+
+import java.util.ArrayList;
+
+import cn.mmdata.mms.analysis.conf.DataConfig;
+
+public class DomainUnit
+{
+	private String _domain;
+	private int _count;
+	private int _cross_count;
+	private String _relevency;
+
+	public String getDomain() {
+		return _domain;
+	}
+
+	public void setDomain(String _domain) {
+		this._domain = _domain;
+	}
+
+	public int getCount() {
+		return _count;
+	}
+
+	public void setCount(int _count) {
+		this._count = _count;
+	}
+
+	public void addCount(int num) {
+		setCount( getCount() + num);
+	}
+
+	public int getCrossCount() {
+		return _cross_count;
+	}
+
+	public void setCrossCount(int _cross_count) {
+		this._cross_count = _cross_count;
+	}
+
+	public String getRelevency() {
+		return _relevency;
+	}
+
+	public void setRelevency(String _relevency) {
+		this._relevency = _relevency;
+	}
+
+	public int getIntRelevancy()
+	{
+		float rele = 0.0f;
+		try {
+			rele = Float.parseFloat(getRelevency()) * 10000;
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		return (int)rele;
+	}
+
+
+	/**
+	* 返回指定页面的查询结果
+	*/
+	public static DomainUnit[] getPageUnits(DomainUnit[] duArray, int pageNo, int pageSize)
+	{
+		int maxPage = (duArray.length - 1) / pageSize + 1;
+
+		if (pageNo < 1) { pageNo = 1; }
+		if (pageNo > maxPage) { pageNo = maxPage; }
+
+		// 获取子集
+		int start = (pageNo - 1) * pageSize;
+		int end = pageNo * pageSize;
+
+		ArrayList results = new ArrayList();
+		for (int i = start; i < duArray.length && i < end; i++) {
+			results.add(duArray[i]);
+		}
+
+		return (DomainUnit[]) results.toArray(new DomainUnit[0]);
+	}
+
+
+
+	/**
+	* 判断域名是否噪声
+	*/
+	public static  boolean invalid(String domain)
+	{
+		// 判断域名，是否包含噪声子串
+		String[] filters = DataConfig.getInstance().getAppFilter();
+		for (int i=0; i < filters.length; i++)
+		{
+			if (domain.indexOf(filters[i]) >= 0) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+}

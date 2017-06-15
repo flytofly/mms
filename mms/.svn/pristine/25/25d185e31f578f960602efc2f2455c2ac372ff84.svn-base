@@ -1,0 +1,998 @@
+package cn.mmdata.mms.data.crowd;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.alibaba.fastjson.JSONObject;
+import com.jfinal.core.Controller;
+import com.jfinal.kit.StrKit;
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Page;
+import com.jfinal.plugin.activerecord.Record;
+
+import cn.mmdata.commons.util.Global;
+import cn.mmdata.commons.util.RuleUtil;
+import cn.mmdata.mms.data.rule.UrlRule;
+import cn.mmdata.mms.system.role.EUTreeModule;
+
+public class CrowdController extends Controller {
+
+	public void list() {
+		Crowd record = getModel(Crowd.class, "record");
+	    Integer pageNumber = getParaToInt("pageNumber", 1);
+	    pageNumber = pageNumber < 1 ? 1 : pageNumber;
+		String submit = getPara("Submit");
+		String businessname = getPara("businessname");
+		record.put("businessname", businessname);
+		
+		int custype = Global.getInstance(this).getSessionUserType();
+		Integer bid = Global.getInstance(this).getSessionBId();
+		record.put("custype", custype);
+		record.put("bid", bid);
+		
+		if (StrKit.notBlank(submit)) {
+			
+			setAttr("records", record.paginate(1, 5));
+		} else {
+			setAttr("records", record.paginate(pageNumber, 5));
+		}
+		setAttr("record", record);
+		render("/WEB-INF/jsp/data/crowd/list.html");
+	}
+	public void rlist() {
+		Crowd record = getModel(Crowd.class, "record");
+		record.put("custype", 4);
+		
+		String submit = getPara("Submit");
+		if(StrKit.notBlank(submit)){
+			// 查询时将pageNumber置1
+			setAttr("records", record.paginate(1, 10));
+		}else{
+			setAttr("records", record.paginate(getParaToInt("pageNumber", 1), 10));
+		}
+		setAttr("record", record);
+		render("/WEB-INF/jsp/data/crowd/rlist.html");
+	}
+
+	
+	public void edit() {
+		String cid = getPara("cid");
+		Integer UserId=0;
+		
+		if(Global.getInstance(this).getSessionBId()>0){
+			UserId=Global.getInstance(this).getSessionUserId();
+		}
+		
+		if (StrKit.notBlank(cid)) {
+			Crowd record = Crowd.dao.findByCid(Integer.parseInt(cid));
+			List<Record> scenes= CrowdScene.dao.findScenesByCid(cid);
+			String sids="";
+			for (Record record2 : scenes) {
+				sids+=record2.getInt("sid")+",";
+			}
+			List<Record> rules= CrowdRule.dao.findRulesByCid(cid);
+			List<Record> groups = Crowd.dao.findCrowdGroups(cid);
+			String groupStr = "";
+			for(Record r : groups){
+				groupStr += r.get("group_num") + " ";
+			}
+			if(StrKit.notBlank(groupStr) && record.get("group_type") != null && record.getInt("group_type") == 1){
+				record.put("group_num",groupStr);
+			}else if(StrKit.notBlank(groupStr) && record.get("group_type") != null && record.getInt("group_type") == 2){
+				record.put("group_ratio",groupStr);
+			}
+			record.put("scenes", scenes);
+			record.put("rules",rules);
+			record.put("sids",sids);
+		
+			setAttr("record", record);
+		
+		}else{
+			setAttr("record", new Crowd());
+		}
+		setAttr("UserId", UserId);
+		render("/WEB-INF/jsp/data/crowd/editcrowd.html");
+	}
+	
+    public void editrulecrowd(){
+    	render("/WEB-INF/jsp/data/crowd/editrulecrowd.html");
+    }
+
+	/**
+	 * 处理用户需求地区
+	 * 
+	 * @param project
+	 * @return
+	 */
+	public void getAreaTree() {
+		List<Record> areas = Crowd.dao.findArea();
+		 List<Record> checkList =CrowdArea.dao.findCheckArea(getPara("cid"));
+		Set<String> checkbox = new HashSet<String>();
+		 for (Record record : checkList) {
+		 checkbox.add(record.get("city_id").toString());
+		 }
+		List<EUTreeModule> list = new ArrayList<EUTreeModule>();
+		for (Record record : areas) {
+			EUTreeModule module = new EUTreeModule();
+			module.setId(record.getStr("id"));
+			module.setText(record.getStr("text"));
+			module.setPid(record.getStr("pid"));
+			if ("0".equals(module.getPid())) {
+				list.add(module);
+			}
+		}
+		for (Record record : areas) {
+			EUTreeModule module = new EUTreeModule();
+			module.setId(record.getStr("id"));
+			module.setText(record.getStr("text"));
+			module.setPid(record.getStr("pid"));
+			if (checkbox.contains(module.getId())) {
+				module.setChecked(true);
+			}
+			EUTreeModule parent = new EUTreeModule();
+			parent.setId(module.getPid());
+			if (list.contains(parent)) {
+				list.get(list.indexOf(parent)).getChildren().add(module);
+			}
+		}
+		renderJson(list);
+	}
+	
+	
+	// 
+	public void getLevelSelect() {
+		List<Record> province = Crowd.dao.findAreaList();
+	HashMap<String , String> map=	new HashMap<String , String>();
+	
+		for (Record record : province) {
+			String id=	record.getStr("pid");
+			String text=  record.getStr("text");
+		    map.put(id,text);
+		}
+		
+		renderJson(map);
+	}
+	
+	
+	
+	
+	
+	public void batchOperator() {
+		int i = 0;
+		String paraStr = "";
+		String ids = getPara("crowdids");
+		int use_status = getParaToInt("use_status");
+		if (StrKit.notBlank(ids)) {
+			for(String id : ids.split(",")){
+				paraStr += (id + ",");
+			}
+			paraStr = paraStr.substring(0, paraStr.lastIndexOf(","));
+			i = new Crowd().batchUpdateUseStatus(getParaToInt("status",use_status), paraStr);
+		}
+		renderJson(i);
+	}
+    
+	public void klist(){
+		Crowd crowd = new Crowd();
+	     String type="";
+		if(this.getPara("type")!=null&&!this.getPara("type").equals("")){
+			type=this.getPara("type");
+		}
+		
+		
+		
+		String id = getPara("id");
+		String cid = getPara("cid");
+		List<Record> records = new ArrayList<Record>();
+		HashMap<Integer,Integer> level3IdLevel1IdMap = new HashMap<Integer,Integer>(); // 保存三级Id与 一级Id的map
+		HashMap<Integer,Integer> level3IdLevel2IdMap = new HashMap<Integer,Integer>(); // 保存三级Id与 二级Id的map
+		HashMap<Integer,String> level1Map = new HashMap<Integer,String>(); // 保存一级的id和name的map
+		HashSet<Integer> checkedSet = new HashSet<Integer>(); // 回显选中的记录
+		List<Record> threeLevelsList = crowd.getThreeLevels(type);
+		List<Record> checkedList = new ArrayList<Record>();
+		if(StrKit.notBlank(cid)){
+			checkedList = crowd.getRuleList(cid);
+		}
+		for(Record record : threeLevelsList){
+			if(!level3IdLevel1IdMap.containsKey(record.get("level3Id"))){
+				level3IdLevel1IdMap.put(Integer.valueOf(record.get("level3Id").toString()), Integer.valueOf(record.get("level1Id").toString()));
+			}
+			if(!level3IdLevel2IdMap.containsKey(record.get("level3Id"))){
+				level3IdLevel2IdMap.put(Integer.valueOf(record.get("level3Id").toString()),Integer.valueOf(record.get("level2Id").toString()));
+			}
+			if(!level1Map.containsKey(record.get("level1Id"))){
+				level1Map.put(record.getInt("level1Id"), record.getStr("level1Name"));
+			}
+		}
+		if(StrKit.notBlank(id)){
+			String[] idArray = id.split("\\|");
+			if(idArray.length == 1 && level3IdLevel1IdMap.containsValue(Integer.parseInt(id))){
+			    // 得到选择的二级标签
+			    for(Record record : checkedList){
+			    	checkedSet.add(level3IdLevel2IdMap.get(record.get("level3Id")));
+			    }
+			    // 得到二级标签
+				for(Record record : threeLevelsList){
+					if(record.getInt("level1Id").equals(Integer.parseInt(id))){
+						Record menu2 = new Record();
+						menu2.set("id",record.getInt("level2Id") + "|" + record.get("level2Name"));
+						menu2.set("pid",id);
+						menu2.set("checked",checkedSet.contains(record.getInt("level2Id")));
+						menu2.set("isLeaf",false);
+						menu2.set("expanded",false);
+						menu2.set("text",record.get("level2Name"));
+						if (!records.contains(menu2)) {
+							records.add(menu2);
+						}
+					}
+				}
+				
+			}else if(idArray.length == 2 && level3IdLevel2IdMap.containsValue(Integer.parseInt(idArray[0]))){
+			    // 得到选择三级标签
+			    for(Record record : checkedList){
+			    	checkedSet.add(Integer.valueOf(record.get("level3Id").toString()));
+			    }
+				// 此时查询得到三级标签
+				for(Record record : threeLevelsList){
+					if(record.getInt("level2Id").equals(Integer.parseInt(idArray[0]))){
+						Record menu3 = new Record();
+						menu3.set("id",record.get("level3Id") + "|" + record.getStr("level3Name")+ "|" + null);
+						menu3.set("pid",record.getInt("level2Id"));
+						menu3.set("checked",checkedSet.contains(record.get("level3Id")));
+						menu3.set("isLeaf",false);
+						menu3.set("expanded",false);
+						menu3.set("text",record.getStr("level3Name"));
+						if (!records.contains(menu3)) {
+							records.add(menu3);
+						}
+					}
+				}
+			}
+			if(idArray.length == 3){
+			    // 得到选中四级标签
+			    for(Record record : checkedList){
+			    	checkedSet.add(record.getInt("rid"));
+			    }
+				// 此时查询得到四级的标签
+				Integer level3Idstr = Integer.parseInt(idArray[0]); 
+				String level3Name = idArray[1];
+				String projectIdstr = null;
+				Record record = new Record();
+				record.set("level3Id",level3Idstr);
+				List<Record> rules = crowd.getRulesByLevel3Id(record);
+				for (Record rule : rules) {
+					int ruleId = rule.getInt("ruleId");
+					String ruleStr = rule.getStr("rule");
+					String desc = rule.getStr("desc");
+					Record menu4 = new Record();
+					menu4.set("id",level3Idstr + "|" + level3Name + "|" + ruleId + "|" + ruleStr + "|" + projectIdstr);
+					menu4.set("pid",level3Idstr+ "|" + level3Name + "|" + projectIdstr);
+					menu4.set("text",desc);
+					menu4.set("isLeaf",true);
+					menu4.set("checked",checkedSet.contains(ruleId));
+					menu4.set("expanded",false);
+					if (!records.contains(menu4)) {
+						records.add(menu4);
+					}
+				}
+			}
+		}else{  
+				// 得到选择的一级标签
+			    for(Record record : checkedList){
+			       checkedSet.add(level3IdLevel1IdMap.get(record.get("level3Id")));
+			    }
+			    // 加载第一级的标签
+				for(Map.Entry<Integer, String> entry : level1Map.entrySet()){
+					Record menu1 = new Record();
+					menu1.set("id", entry.getKey());
+					menu1.set("pid",0);
+					menu1.set("text",entry.getValue());
+					menu1.set("isLeaf",false);
+					menu1.set("checked",checkedSet.contains(entry.getKey()));
+					menu1.set("expanded",false);
+					if (!records.contains(menu1)) {
+						records.add(menu1);
+					}
+				}
+			}
+		renderJson(records);
+	}
+	
+	public void editkeywordupdate(int cid2){
+		Crowd crowd = new Crowd();
+		String cid = String.valueOf(cid2);
+		// 权限部分
+		/*Integer userType = Global.getInstance(this).getSessionUserType();
+		if (userType != 4) {
+			redirect("/wapsms/smsproject/editklist");
+			return;
+		}
+		Integer projectId = crowd.findProjectId();
+		if(projectId == null){
+			redirect("/wapsms/smsproject/editklist");
+			return;
+		}
+		crowd.put("project_id", projectId);
+		*/
+		
+		// 获取选中的一级
+		String selectedLevel1 = getPara("selectedLevel1");
+		if(StrKit.isBlank(selectedLevel1)){
+			// 删除选中的cid(人群)对应的所有规则
+			crowd.deleteRulesByCid(cid);
+		}else{
+			// 获取选中的二三四级
+			String selectedLevel2 = getPara("selectedLevel2");
+			String selectedLevel3 = getPara("selectedLevel3");
+			String selectedLevel4 = getPara("selectedLevel4");
+			String[] selectedLevel1Array = selectedLevel1.split(",");
+			String[] selectedLevel2Array = selectedLevel2.split(",");
+			String[] selectedLevel3Array = selectedLevel3.split(",");
+			String[] selectedLevel4Array = selectedLevel4.split(",");
+			Map<Integer,Integer> selectedLevel1Map = new HashMap<Integer,Integer>();
+			Map<Integer,Integer> selectedLevel2Map = new HashMap<Integer,Integer>();
+			Map<Integer,Integer> selectedLevel3Map = new HashMap<Integer,Integer>();
+			Map<Integer,String> selectedLevel4Map = new HashMap<Integer,String>();
+			if(StrKit.notBlank(selectedLevel1Array[0])){
+			 for(String str : selectedLevel1Array){
+				int catagoryId1 = Integer.parseInt(str.split("\\|")[0]);
+				int expand1 = Integer.parseInt(str.split("\\|")[1]);
+				selectedLevel1Map.put(catagoryId1, expand1);
+			  }
+			 }
+			if(StrKit.notBlank(selectedLevel2Array[0])){
+			   for(String str : selectedLevel2Array){
+				int catagoryId2 = Integer.parseInt(str.split("\\|")[0]);
+				int expand2 = Integer.parseInt(str.split("\\|")[2]);
+				selectedLevel2Map.put(catagoryId2, expand2);
+			  }
+			}
+			if(StrKit.notBlank(selectedLevel3Array[0])){
+			   for(String str : selectedLevel3Array){
+				int catagoryId3 = Integer.parseInt(str.split("\\|")[0]);
+				int expand3 = Integer.parseInt(str.split("\\|")[3]);
+				selectedLevel3Map.put(catagoryId3, expand3);
+			  }
+			}
+			if(StrKit.notBlank(selectedLevel4Array[0])){
+				  for(String str : selectedLevel4Array){
+					int catagoryId4 = Integer.parseInt(str.split("\\|")[2]);
+					String catagoryName4 = str.split("\\|")[3];
+					selectedLevel4Map.put(catagoryId4, catagoryName4);
+				  }
+				}
+			
+			  String type="";
+				if(this.getPara("type")!=null&&!this.getPara("type").equals("")){
+					type=this.getPara("type");
+				}
+				
+			HashMap<Integer,Integer> level3IdLevel1IdMap = new HashMap<Integer,Integer>(); // 保存三级Id与 一级Id的map
+			HashMap<Integer,Integer> level3IdLevel2IdMap = new HashMap<Integer,Integer>(); // 保存三级Id与 二级Id的map
+			HashMap<Integer,String> level1Map = new HashMap<Integer,String>(); // 保存一级的id和name的map
+			HashMap<Integer,Integer> level2level1Map21 = new HashMap<Integer,Integer>(); // 保存 二级Id 与 一级Id的map
+			HashSet<Integer> checkedSet = new HashSet<Integer>(); // 获取选中的标签
+			HashMap<Integer,Integer> ridLevel3IdMap = new HashMap<Integer,Integer>(); // 保存 四级Id与 三级Id的map
+			HashMap<Integer,Object> ridDescMap = new HashMap<Integer,Object>(); // 保存规则id与规则说明的map
+			List<Record> threeLevelsList = crowd.getThreeLevels(type);
+			
+			List<Record> checkedList = crowd.getRuleList(cid);
+			List<Record> rulesList = crowd.getAllRules();
+			for(Record record : threeLevelsList){
+				if(!level3IdLevel1IdMap.containsKey(record.get("level3Id"))){
+					level3IdLevel1IdMap.put(Integer.valueOf(record.get("level3Id").toString()), Integer.valueOf(record.get("level1Id").toString()));
+				}
+				if(!level3IdLevel2IdMap.containsKey(record.get("level3Id"))){
+					level3IdLevel2IdMap.put(Integer.valueOf(record.get("level3Id").toString()),Integer.valueOf(record.get("level2Id").toString()));
+				}
+				if(!level1Map.containsKey(record.get("level1Id"))){
+					level1Map.put(record.getInt("level1Id"), record.getStr("level1Name"));
+				}
+				if(!level2level1Map21.containsKey(record.get("level2Id"))){
+					level2level1Map21.put(record.getInt("level2Id"), record.getInt("level1Id"));
+				}
+			}
+			for(Record record : rulesList){
+				if(!ridLevel3IdMap.containsKey(record.get("ruleId"))){
+					ridLevel3IdMap.put(Integer.valueOf(record.get("ruleId").toString()), Integer.valueOf(record.get("level3Id").toString()));
+				}
+				if(!ridDescMap.containsKey(record.get("ruleId"))){
+					ridDescMap.put(Integer.valueOf(record.get("ruleId").toString()),record.get("desc"));
+				}
+			}
+			
+			// 得到原有选择的一级标签
+		    for(Record record : checkedList){
+		    	checkedSet.add(level3IdLevel1IdMap.get(record.get("level3Id")));
+		    }
+		    
+		    Set<Integer> addLevel1Set = new HashSet<Integer>(); // 获取所有新增的未打开一级标签
+		    List<Integer> deleteLevel1List = new ArrayList<Integer>(); // 获取删除的一级标签
+		    Set<Integer> selectedOpenedLevel1Set = new HashSet<Integer>(); // 获取选中打开的一级标签
+		    for(Map.Entry<Integer, Integer> entry : selectedLevel1Map.entrySet()){
+		    	if(!checkedSet.contains(entry.getKey()) && entry.getValue() == 0 ){
+		    		addLevel1Set.add(entry.getKey());
+		    	}
+		    	selectedOpenedLevel1Set.add(entry.getKey());
+		    }
+		    
+		    // 选中二级推测选中的一级
+		    Set<Integer> guestSelectedLevel1Set = new HashSet<Integer>();
+			for(Map.Entry<Integer, Integer> entry : selectedLevel2Map.entrySet()){
+				guestSelectedLevel1Set.add(level2level1Map21.get(entry.getKey()));
+			}
+			
+			// 得到排除后的选中未打开的一级标签
+			Set<Integer> addLevel1SetTemp = new HashSet<Integer>();
+			addLevel1SetTemp.addAll(addLevel1Set);
+			for(Integer i : addLevel1SetTemp){
+				if(guestSelectedLevel1Set.contains(i)){
+					addLevel1Set.remove(i);
+				}
+			}
+		    // 获取删除的一级标签
+		    for(Integer i : checkedSet){
+		    	 Set<Integer> level1IdSet = selectedLevel1Map.keySet();
+		         if(!level1IdSet.contains(i)){
+		        	deleteLevel1List.add(i);
+		    	}
+		    }
+		    
+		    // 插入addLevelSet1对应的所有的规则
+		    Set<Integer> addLevel3IdSet1 = new HashSet<Integer>();
+		    List<Integer> delLevel3IdList1 = new ArrayList<Integer>();
+		    for(Map.Entry<Integer, Integer> entry : level3IdLevel1IdMap.entrySet()){
+		    	if(addLevel1Set.contains(entry.getValue())){
+		    		addLevel3IdSet1.add(entry.getKey());
+		    	}
+		    	if(deleteLevel1List.contains(entry.getValue())){
+		    		delLevel3IdList1.add(entry.getKey());
+		    	}
+		    }
+		    if(addLevel3IdSet1.size() > 0){
+		       crowd.put("addLevel3IdSet1", addLevel3IdSet1);
+		       crowd.insertNewRulesByLevel3Id(cid);
+		    }
+		    if(delLevel3IdList1.size() > 0){
+		      crowd.deleteRulesByLevel3Id(delLevel3IdList1);
+		    }
+		    
+		    Set<Integer> addLevelSet2 = new HashSet<Integer>();
+		    Set<Integer> selectedLevelSet2 = new HashSet<Integer>(); // 获取选中未打开的二级标签
+		    // 由三级推测出选中的二级标签
+			Set<Integer> guestSelectedLevel2Set = new HashSet<Integer>();
+			// 根据选中的四级推测出应该选中的三级标签
+	    	Set<Integer> guestSelectedLevel3Set = new HashSet<Integer>();
+		    if(StrKit.notBlank(selectedLevel2)){
+				// 得到原有的二级标签
+		    	checkedSet.clear();
+		    	for(Record record : checkedList){
+			    	checkedSet.add(level3IdLevel2IdMap.get(record.get("level3Id")));
+			    }
+				List<Integer> deleteLevelList2 = new ArrayList<Integer>();
+				
+				// 获取选中未打开的所有一级
+				selectedOpenedLevel1Set.removeAll(guestSelectedLevel1Set);
+				Set<Integer> selectedUnopenLevel1 = selectedOpenedLevel1Set;
+				// 获取所有选中未打开的一级标签下属的所有二级标签
+			    Set<Integer> unOpenedLevelId2 = new HashSet<Integer>();
+			    for(Record record : threeLevelsList){
+			        if(selectedUnopenLevel1.contains(record.get("level1Id"))){
+			        	unOpenedLevelId2.add(record.getInt("level2Id"));
+			        }
+			    }
+				for (Map.Entry<Integer, Integer> entry : selectedLevel2Map.entrySet()) {
+					if (!checkedSet.contains(entry.getKey()) && entry.getValue() == 0) {
+						addLevelSet2.add(entry.getKey());
+					}
+					selectedLevelSet2.add(entry.getKey());
+				}
+				
+				for(Map.Entry<Integer, Integer> entry : selectedLevel3Map.entrySet()){
+					guestSelectedLevel2Set.add(level3IdLevel2IdMap.get(entry.getKey()));
+			    }
+				
+				// 得到真正选中未打开的二级标签
+				 Set<Integer> addLevelSet2Temp = new HashSet<Integer>();
+				 addLevelSet2Temp.addAll(addLevelSet2);
+				for(Integer i : addLevelSet2Temp){
+					if(guestSelectedLevel2Set.contains(i)){
+						addLevelSet2.remove(i);
+					}
+				}
+				
+				for (Integer i : checkedSet) {
+					Set<Integer> level2IdSet = selectedLevel2Map.keySet();
+					if (!level2IdSet.contains(i) && !unOpenedLevelId2.contains(i)) {
+						deleteLevelList2.add(i);
+					}
+				}
+				// 插入addLevel3Set2对应的规则`
+			    Set<Integer> addLevel3Set2 = new HashSet<Integer>();
+			    List<Integer> delLevel3IdList12 = new ArrayList<Integer>();
+			    for(Map.Entry<Integer, Integer> entry : level3IdLevel2IdMap.entrySet()){
+			    	if(addLevelSet2.contains(entry.getValue())){
+			    		addLevel3Set2.add(entry.getKey());
+			    	}
+			    	if(deleteLevelList2.contains(entry.getValue())){
+			    		delLevel3IdList12.add(entry.getKey());
+			    	}
+			    }
+			    if(addLevel3Set2.size() > 0){
+			       crowd.put("addLevel3IdSet1", addLevel3Set2);
+			       crowd.insertNewRulesByLevel3Id(cid);
+			    }
+			    if(delLevel3IdList12.size() > 0){
+			      crowd.put("delLevel3IdList1", delLevel3IdList12);
+			      crowd.deleteRulesByLevel3Id(delLevel3IdList12);
+			    }
+			}
+			    
+		        // 获取所有选中未打开的一级标签下属的所有三级标签
+		        Set<Integer> unOpenedLevelId3 = new HashSet<Integer>();
+		        Set<Integer> addLevelSet3 = new HashSet<Integer>();
+		    	if (StrKit.notBlank(selectedLevel3)){
+		    	// 得到原有的三级标签
+		    	checkedSet.clear();
+		    	for(Record record : checkedList){
+			    	checkedSet.add(Integer.valueOf(record.get("level3Id").toString()));
+			    }
+		    	List<Integer> deleteLevelList3 = new ArrayList<Integer>();
+		    	
+		    	// 获取选中未打开的二级标签
+				selectedLevelSet2.removeAll(guestSelectedLevel2Set);
+		    	
+			    for(Record record : threeLevelsList){
+			        if(selectedOpenedLevel1Set.contains(record.get("level1Id"))){
+			        	unOpenedLevelId3.add(record.getInt("level3Id"));
+			        }
+			    }
+		    	// 获取所有选中未打开的二级标签下属的所有三级标签
+			    for(Record record : threeLevelsList){
+			        if(selectedLevelSet2.contains(record.get("level2Id"))){
+			        	unOpenedLevelId3.add(record.getInt("level3Id"));
+			        }
+			    }
+		    	for (Map.Entry<Integer, Integer> entry : selectedLevel3Map.entrySet()) {
+		    		if (!checkedSet.contains(entry.getKey()) && entry.getValue() == 0) {
+		    			addLevelSet3.add(entry.getKey());
+		    		}
+		    	}
+		    	
+			     for(Map.Entry<Integer, String> entry : selectedLevel4Map.entrySet()){
+			     	guestSelectedLevel3Set.add(ridLevel3IdMap.get(entry.getKey()));
+			     }
+			     
+			     // 得到真正选中未打开的三级标签
+			     Set<Integer> addLevelSet3Temp = new HashSet<Integer>();
+			     addLevelSet3Temp.addAll(addLevelSet3);
+			     for(Integer i : addLevelSet3Temp){
+						if(guestSelectedLevel3Set.contains(i)){
+							addLevelSet3.remove(i);
+						}
+				}
+			     
+		    	for (Integer i : checkedSet) {
+		    		Set<Integer> catagory3IdSet = selectedLevel3Map.keySet();
+		    		if (!catagory3IdSet.contains(i) && !unOpenedLevelId3.contains(i) ) {
+		    			deleteLevelList3.add(i);
+		    		}
+		    	}
+		    	if(addLevelSet3.size() > 0){
+		    		crowd.put("addLevel3IdSet1", addLevelSet3);
+		    		crowd.insertNewRulesByLevel3Id(cid);
+		    	}
+		    	if(deleteLevelList3.size() > 0){
+		    		crowd.deleteRulesByLevel3Id(deleteLevelList3);
+		    	}
+		    }
+		    // 这里已经将属于未打开三级的所有四级已经插入到表中，只要插入前端传来的选中的四级
+		    if(selectedLevel4Map != null && selectedLevel4Map.size() > 0){
+		    	List<Integer> deleteLevelList4 = new ArrayList<Integer>();
+		    	unOpenedLevelId3.addAll(addLevelSet3);
+		    	Set<Integer> unOpenLevel4 = new HashSet<Integer>();
+		    	for(Integer a : unOpenedLevelId3){
+		    		for(Map.Entry<Integer, Integer> entry :ridLevel3IdMap.entrySet()){
+		    			if(entry.getValue() == a.intValue()){
+		    				unOpenLevel4.add(entry.getKey());
+		    			}
+		    		}
+		    	}
+		    	checkedSet.clear();
+		    	for (Map.Entry<Integer, String> entry : selectedLevel4Map.entrySet()) {
+		    		if (!checkedSet.contains(entry.getKey())) {
+		    			addLevelSet3.add(entry.getKey());
+		    		}
+		    	}
+		    	for(Record record : checkedList){
+			    	checkedSet.add(Integer.valueOf(record.get("rid").toString()));
+			    }
+		    	for (Integer i : checkedSet) {
+		    		Set<Integer> catagory4IdSet = selectedLevel4Map.keySet();
+		    		if (!catagory4IdSet.contains(i) && !unOpenedLevelId3.contains(i)) {
+		    			deleteLevelList4.add(i);
+		    		}
+		    	}
+		    	Set<Integer> addLevel4IdSet = new HashSet<Integer>();
+		    	for (Map.Entry<Integer, String> entry : selectedLevel4Map.entrySet()) {
+		    		if (!checkedSet.contains(entry.getKey())) {
+		    			addLevel4IdSet.add(entry.getKey());
+		    		}
+		    	}
+		    	crowd.insertRules(addLevel4IdSet,ridLevel3IdMap,selectedLevel4Map,ridDescMap,cid);
+		    	crowd.deleteRulesByRid(deleteLevelList4);
+		    }
+		}
+	}
+	
+	public void searchCatRules() {
+		Integer level3Id = getParaToInt("level3Id");
+		String level3Name = getPara("level3Name");
+		String rule = getPara("rule", "");
+		List<Record> records = Crowd.dao.findRulesByLevel3Id(level3Id, rule);
+		// 构造树的Json
+		ZTree level1 = null;
+		if(records.size() > 0){
+			List<ZTree> level1SubList = new ArrayList<ZTree>();
+			List<ZTree> level2SubList = new ArrayList<ZTree>();
+			List<ZTree> level3SubList = new ArrayList<ZTree>();
+			for(Record record :records){
+				ZTree child = new ZTree();
+				child.setName(record.getStr("rule"));
+				child.setChecked(false);
+				level3SubList.add(child);
+			}
+			String level1Name = records.get(0).getStr("level1Name");
+			String level2Name = records.get(0).getStr("level2Name");
+			level1 = new ZTree();
+			ZTree level2 = new ZTree();
+			ZTree level3 = new ZTree();
+			level1.setName(level1Name);
+			level2.setName(level2Name);
+			level3.setName(level3Name);
+			level3.setChildren(level3SubList);
+			level2SubList.add(level3);
+			level2.setChildren(level2SubList);
+			level1SubList.add(level2);
+			level1.setChildren(level1SubList);
+		}
+		renderJson(level1);
+	}
+
+	public void update() {
+		Crowd record = getModel(Crowd.class, "record");
+		String rules = this.getPara("rules");
+		String sids = this.getPara("sids");
+		String has_setrules = this.getPara("has_setrules");
+		String has_setrulesByTag = this.getPara("has_setrulesByTag");
+		String setrulesfromtag = this.getPara("setrulesfromtag");
+		// 分组数据
+		String group_num=this.getPara("group_num");
+		String group_ratio=this.getPara("group_ratio");
+		Global global = Global.getInstance(this);
+		int log_id = global.getSessionUserId();
+		String log_user = global.getSessionUserName();
+		
+		Integer UserId=global.getSessionUserId();
+		int bid=global.getSessionBId();
+		if(record.get("bid")!=null){
+			bid = record.getInt("bid");
+		}
+		
+		if (record.get("cid", null) != null) {
+			record.update();
+		} else {
+			record.set("log_id", log_id);
+			record.set("log_user", log_user);
+
+			if(UserId!=1){
+				record.set("status", 1);				
+			}
+			record.set("bid", bid);
+			record.save();
+		} 
+		int cid = record.getInt("cid");
+		
+		if(!"0".equals(has_setrules)){
+			editkeywordupdate(cid);
+		}else if(!"0".equals(has_setrulesByTag)){
+			saveTagRuels(setrulesfromtag,cid);
+		}
+		
+		if (StrKit.notBlank(group_num) || StrKit.notBlank(group_ratio)) {
+			processGroup(record);
+		}
+		
+		if (StrKit.notBlank(rules)) {
+			processRules(rules, cid, record);
+		}
+		if (StrKit.notBlank(sids)) {
+			processScenes(sids, cid, record);
+		}
+		//processArea(cid);
+		processAreas(cid);
+        redirect("/data/crowd/list");
+	}
+    
+	private void saveTagRuels(String setrulesfromtag,int cid) {
+		// 逻辑删除cid(人群)对应的所有规则
+		new Crowd().deleteRulesByCid(String.valueOf(cid));
+		if(!"0".equals(setrulesfromtag) && StrKit.notBlank(setrulesfromtag)){
+			int bid = Global.getInstance(this).getSessionBId();
+			List<Record> rulesList = Crowd.dao.getAllRules();
+			Map<Integer,LinkedList<String>> vLevel4Map = new HashMap<Integer,LinkedList<String>>();
+			for(Record record : rulesList){
+				LinkedList<String> ruleInfo = new LinkedList<String>();
+				ruleInfo.add(record.get("level3Id").toString());
+				ruleInfo.add(record.get("rule").toString());
+				ruleInfo.add(record.get("desc") == null ? "" : record.getStr("desc"));
+				vLevel4Map.put(record.getInt("ruleId"), ruleInfo);
+			}
+			String[] rulesArray = setrulesfromtag.split(",");
+			List<String> sqlList = new ArrayList<String>();
+			for(String ruldId : rulesArray){
+				int rid = Integer.parseInt(ruldId);
+				if(!vLevel4Map.containsKey(rid)){
+				continue;
+				}
+			String sql = "insert into crowd_rule (cid,bid,level3Id,rid,rule,rule_desc,`status`)"
+					+ " values("+ cid +","+ bid +","+ vLevel4Map.get(rid).get(0) + ","+ rid +",'"+ vLevel4Map.get(rid).get(1) + "','"+ vLevel4Map.get(rid).get(2) + "',1)";
+			sqlList.add(sql);
+		}
+		   Db.batch(sqlList, sqlList.size());
+		}
+	}
+	
+	/**
+	 * 处理分组
+	 * @param record
+	 */
+	private void processGroup(Crowd record) {
+		int cid = record.getInt("cid");
+		int group_type = record.getInt("group_type");
+		String group_num = this.getPara("group_num");
+		String group_ratio = this.getPara("group_ratio");
+		// 删除原来分组
+		new Crowd().deleteGroupByCid(cid);
+		List<String> list = new ArrayList<String>();
+		if(group_type == 1){
+			list.add(group_num);
+		}else if(group_type == 2){
+			for(String str : group_ratio.split(" ")){
+				list.add(str);
+			}
+		}
+		new Crowd().insertGroupInfo(cid,list);
+	}
+	
+	private void processScenes(String sids, int cid, Crowd record) {
+		// List<Record> listhis = Crowd.dao.getCrowdScenes(cid);
+		CrowdScene.dao.deleteByCid(cid);
+		List<CrowdScene> list = new ArrayList<CrowdScene>();
+		for (String ssid : sids.split(",")) {
+			CrowdScene sc = new CrowdScene();
+			int sid = Integer.valueOf(ssid);
+			sc.set("cid", cid).set("sid", sid);
+			list.add(sc);
+		}
+		Db.batchSave(list, list.size());
+
+	}
+     // 
+	private void processAreas(int cid) {
+         
+		
+	    CrowdArea crowdArea=new CrowdArea();
+	    crowdArea.deleteAreasByCid(cid);
+		String areas = getPara("areas");
+		if(StrKit.isBlank(areas)){
+			return;
+		}
+
+		List<CrowdArea> areaList = new ArrayList<CrowdArea>();
+		if (!StrKit.isBlank(areas)) {
+			String[] provinceIdArr = areas.split(",");
+			for (int i = 0; i < provinceIdArr.length; i++) {
+				CrowdArea area = new CrowdArea();
+				String tmp = provinceIdArr[i];
+				if (tmp != null && tmp.length() > 1 && !"0".equals(tmp)) {
+					
+					List <Record>list=crowdArea.findArea(tmp);
+					if(list.size()>0){
+						area.put("cid", cid);
+						String a=list.get(0).get("provinceID");
+						area.put("province_id",list.get(0).get("provinceID"));
+						area.put("province",list.get(0).get("province"));
+						area.put("city_id", list.get(0).get("cityID"));
+						area.put("city",list.get(0).get("city"));
+						areaList.add(area);
+					}
+					
+				}
+			}
+		}
+		Db.batchSave(areaList,areaList.size());
+	}
+	
+/*	private void processArea(int cid) {
+		new CrowdArea().deleteAreasByCid(cid);
+		String areas = getPara("areas");
+		if(StrKit.isBlank(areas)){
+			return;
+		}
+		List<Record> areaAll = CrowdArea.dao.findArea();
+		Map<String, String> areaMap = new HashMap<>();
+		for (Record record : areaAll) {
+			areaMap.put(record.getStr("id"), record.getStr("text"));
+		}
+		List<CrowdArea> areaList = new ArrayList<CrowdArea>();
+		if (!StrKit.isBlank(areas)) {
+			String[] provinceIdArr = areas.split(",");
+			for (int i = 0; i < provinceIdArr.length; i++) {
+				CrowdArea area = new CrowdArea();
+				String[] tmp = provinceIdArr[i].split("_");
+				if (tmp != null && tmp.length > 1 && !"0".equals(tmp[1])) {
+					area.put("cid", cid);
+					area.put("province_id", tmp[1]);
+					area.put("province", areaMap.get(tmp[1]));
+					area.put("city_id", tmp[0]);
+					area.put("city", areaMap.get(tmp[0]));
+					areaList.add(area);
+				}
+			}
+		}
+		Db.batchSave(areaList,areaList.size());
+	}*/
+
+	public void processRules(String rules, int cid, Crowd record) {
+		Map<String, Integer> map = new HashMap<String, Integer>();
+		List<Record> listrules = Crowd.dao.getAllRules();
+		CrowdRule.dao.updateStatus();
+		List<Record> listhis = CrowdRule.dao.getCrowdRules(cid);
+		Map<String,Integer> sethis = new HashMap<String,Integer>();
+		for (Record record3 : listhis) {
+			sethis.put(record3.getStr("rule"),record3.getInt("id"));
+		}
+		for (Record record2 : listrules) {
+			map.put(record2.getStr("rule"), record2.getInt("rid"));
+		}
+		Set<String> set = new HashSet<String>();
+		if (StrKit.notBlank(rules)) {
+			String[] rule = rules.split("\r\n");
+			for (String str : rule) {
+				set.add(RuleUtil.formatRule(str.trim()));
+			}
+		}
+		List<CrowdRule> addlist = new ArrayList<CrowdRule>();
+		List<CrowdRule> updatelist = new ArrayList<CrowdRule>();
+		for (String string : set) {
+			if (map.containsKey(string)) {
+				CrowdRule cr = new CrowdRule();
+				cr.set("rid", map.get(string)).set("cid", record.get("cid")).set("rule", string).set("status", 1);
+				if (sethis.containsKey(string)) {
+					cr.set("id",sethis.get(string) );
+					updatelist.add(cr);
+				} else {
+					addlist.add(cr);
+				}
+
+			}
+
+		}
+
+		if (addlist.size() > 0) {
+			Db.batchSave(addlist, addlist.size());
+		}
+		if (updatelist.size() > 0) {
+			Db.batchUpdate(updatelist, updatelist.size());
+		}
+	}
+	
+	public void setrules(){
+	   String cid = getPara("cid");
+	   setAttr("cid",cid);
+	   String type = getPara("type","tag");
+       
+	   if("level3".equals(type)||"retailers".equals(type)){
+		   // 按照行业配置规则
+		   setAttr("type",type);
+		   render("/WEB-INF/jsp/data/crowd/setrulesbylevel3.html");
+		   return;
+	   }else{
+		   // 按照标签配置规则
+		   render("/WEB-INF/jsp/data/crowd/setrulesbytag.html");
+	   }
+	}
+	
+	/**
+	 *  说明：
+	 *   产品设计样模板是设计成分页的形式 ,这里目前没有做分页展示，而是一次性的显示所有的记录。  
+	 *  
+	 */
+	public void detail(){
+		String cid = getPara("cid");
+		Integer pageNumber = getParaToInt("pageNumber",0);
+		pageNumber = pageNumber < 1 ? 1 : pageNumber;
+		Crowd crowd = new Crowd();
+		Crowd record = crowd.findById(cid);
+		Page<Record> rules = crowd.findCustomizeRules(pageNumber,10,cid);
+		Page<Record> scenes = crowd.findCustomizeScenes(pageNumber,Integer.MAX_VALUE,cid);
+		List<Record> areas = crowd.findCustomizeAreas(cid);
+		Map<String,String> areasMap = new LinkedHashMap<String,String>();
+		for(Record r : areas){
+			areasMap.put(r.getStr("province"), r.getStr("citystr"));
+		}
+		setAttr("record",record);
+		setAttr("records",rules);
+		setAttr("scenes",scenes);
+		setAttr("areasMap",areasMap);
+		render("/WEB-INF/jsp/data/crowd/detail.html");
+	}
+	
+	public void statis(){
+		String cid = getPara("cid");
+		Crowd record = new Crowd();
+		record.set("cid", cid);
+	    Integer pageNumber = getParaToInt("pageNumber", 1);
+	    pageNumber = pageNumber < 1 ? 1 : pageNumber;
+		String submit = getPara("Submit");
+		if (StrKit.notBlank(submit)) {
+			setAttr("records", record.statis(1, 10));
+		} else {
+			setAttr("records", record.statis(pageNumber, 10));
+		}
+		setAttr("record", record);
+		render("/WEB-INF/jsp/data/crowd/statis.html");
+	}
+	
+	public void dailyUsers(){
+		String selectedLevel3 = getPara("selectedLevel3");
+		String selectedLevel4 = getPara("selectedLevel4");
+		Set<String> level3Set = new HashSet<String>();
+		Set<String> level4Set = new HashSet<String>();
+		Set<String> isAllSet = new HashSet<String>();
+		
+		for(String treelevel3 : selectedLevel3.split(",")){
+			if(StrKit.notBlank(treelevel3)){
+				level3Set.add(treelevel3.split("\\|")[0]);
+			}
+		}
+		Set<String> ruleIdSet = new HashSet<String>();
+		for(String treelevel4 : selectedLevel4.split(",")){
+			if(StrKit.notBlank(treelevel4)){
+				level4Set.add(treelevel4.split("\\|")[0]);
+				ruleIdSet.add(treelevel4.split("\\|")[2]);
+			}
+		}
+		
+		for(String treelevel3 : level3Set){
+			if(!level4Set.contains(treelevel3)){
+				isAllSet.add(treelevel3);
+			}
+		}
+		
+		if(isAllSet.size() > 0){
+			List<Record>  records = UrlRule.dao.selectRulesByLevel3(isAllSet);
+			for(Record record : records){
+				ruleIdSet.add(record.get("ruleId").toString());
+			}
+		}
+		
+		// 预估日均覆盖用户数
+		Record  r = Crowd.dao.dailyUsers(ruleIdSet);
+		renderJson(r.get("pv"));
+	}
+	
+	public void area(){
+		
+		render("/WEB-INF/jsp/data/crowd/area.html");
+	}
+	
+
+}

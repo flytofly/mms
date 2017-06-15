@@ -1,0 +1,106 @@
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>素材列表</title>
+<link href="#(BasePath)/public/css/list.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<form name="form" id="form" action="./rlist" method="post">
+ <input type="hidden" id="type" name="type" value="search" />
+<table class="searchtb">
+    <tr class="searchtr2">
+      <td colspan="3"> 
+       <img src="#(BasePath)/public/images/yue-icon.png" style="margin-bottom:-2px;margin-left:20px;">  素材搜索  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <select name="record.m_type" class="combox">
+    		<option value=""  #if(record.m_type == null) selected #end > -- 素材类型 --</option>
+			<option value="2" #if(record.m_type == 2) selected #end  >短信</option>
+			<option value="1" #if(record.m_type == 1) selected #end  >外呼坐席</option>
+ 	   </select>
+       <select name="record.status" class="combox">
+    		<option value=""  #if(record.status == null) selected #end > -- 状态 --</option>
+			<option value="0" #if(record.status == 0) selected #end  >待审核</option>
+			<option value="1" #if(record.status == 1) selected #end  >正常</option>
+			<option value="2" #if(record.status == 2) selected #end  >停用</option>
+ 	   </select>
+      	&nbsp;素材名:&nbsp;&nbsp;
+        <input type="text" name="record.name" size="12" value="#(record.name)" id="search" class="input"/>
+        <input type="submit" name="Submit" value="查询 " class="search"/>
+       </td>
+    </tr>
+</table>
+
+<table class="searchtb" >
+  <tbody>
+    <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2">
+      			<img src="#(BasePath)/public/images/biaoti-icon.png"/>素材列表
+        	    <img src="#(BasePath)/public/images/icon-xiangxia.png" width="11" height="11" />
+      </td>
+      <td class="searchtd3"></td>
+    </tr>
+    <tr>
+      <td colspan="3" id="yue-nr">
+      	<table class="datatb"  cellpadding="3" cellspacing="1" >
+          <tbody>
+            <tr class="listth" >
+            <td width="5%">选择</td>
+              <td width="10%">素材名 </td>
+              <td width="10%">素材类型</td>
+              <td width="25%">素材内容 </td>
+              <td width="14%">添加时间</td>
+              <td width="8%">添加人</td>
+              <td width="5%">状态 </td>
+              <td width="14%">最后处理时间 </td>
+            </tr>
+            #for(record:records.getList())
+            <tr class="listtr" onmouseout="this.style.backgroundColor='#ffffff';" onmouseover="this.style.backgroundColor='#E6F2FF'">
+             <td> 
+             <input type="checkbox" onclick="check('#(record.mid)','#(record.name)','#(record.content )');"/>
+             </td>
+              <td  height="25" ><div ><strong>#(record.name )</strong></div></td>
+              <td >
+              	#if(record.m_type == 2)<span title="短信">短信</span>#end
+            	#if(record.m_type == 1)<span title="外呼坐席">外呼坐席</span>#end
+              </td>
+              <td >              
+                     #if (record.content.toString().length()>20 )
+						#(record.content.toString().substring(0,20)).............
+					 #end
+					 #if (record.content.toString().length()<20 )
+						#(record.content)
+					#end
+              </td>
+              
+              <td >#(record.import_time)</td>
+              <td >#(record.log_user)</td>
+              <td >
+              	#if(record.status == 0)<span title="待审核">待审核</span>#end
+            	#if(record.status == 1)<span title="正常">正常</span>#end
+              	#if(record.status == 2)<span title="审核中">审核中</span>#end
+            	#if(record.status == 3)<span title="审核未通过">审核未通过</span>#end
+              </td>
+              <td >#(record.lastupdatedate)</td>
+            </tr>
+             #end
+          </tbody>
+        </table></td>
+    </tr>
+</table>
+   <div>  
+       <!--分页-->
+    	   #@paginate(records.pageNumber, records.totalPage, "")
+</div>
+</form>
+<!--    	        <%@include file="/public/files/loading.jsp"%>  -->
+<script type="text/javascript">
+function check(id,name,content){
+	    window.opener.document.getElementById("mid").value=id;
+	    window.opener.document.getElementById("mname").value=name;
+	    window.opener.document.getElementById("tcontent").value=content;
+	    this.close();
+}
+</script>   
+</body>
+</html> 

@@ -1,0 +1,124 @@
+package cn.mmdata.conf;
+
+import java.util.*;
+import java.io.*;
+import java.net.*;
+import cn.mmdata.util.*;
+
+public class DataConfig
+{
+	private static final String _CONFIG_FILE = "config";
+	private static final String _APP_FILTER = "app-filter";
+	private static final String _OFFSET_DOMAIN_FILTER = "offset-domain-filter";
+	private static final String _HOST_PATH = "host-path";
+	private static DataConfig _instance;
+
+	public HashMap _para_hash;
+
+	/**
+	* 获取单例
+	*/
+	public static DataConfig getInstance()
+	{
+		if (_instance == null) {
+			_instance = new DataConfig();
+			_instance.initConfig();
+		}
+
+		return _instance;
+	}
+
+	/**
+	* 刷新读取配置文件
+	*/
+	public void refresh()
+	{
+		_para_hash = null;
+		initConfig();
+	}
+
+	public String[] getAppFilter()
+	{
+		if (_para_hash == null) {
+			initConfig();
+		}
+
+		String filterList = (String) _para_hash.get(_APP_FILTER);
+		return filterList.split(",");
+	}
+
+	public String[] getOffsetDomainFilter()
+	{
+		if (_para_hash == null) {
+			initConfig();
+		}
+
+		String filterList = (String) _para_hash.get(_OFFSET_DOMAIN_FILTER);
+		return filterList.split(",");
+	}
+
+	public String getHostPath()
+	{
+		if (_para_hash == null) {
+			initConfig();
+		}
+
+		return (String) _para_hash.get(_HOST_PATH);
+	}
+
+	/**
+	* 解析每行内容，读取配置文件信息
+	*/
+	protected void parseConfig(String line)
+	{
+		if (line == null ) { return; }
+		if (_para_hash == null) { _para_hash = new HashMap(); }
+
+		int pos = line.indexOf("=");
+		if (pos < 0) { return; }
+
+		String name = line.substring(0, pos).trim();
+		String value = line.substring(pos + 1).trim();
+
+		DataUtil.debug("DataConfig::parseConfig, name -> " + name + ", value -> " + value);
+		_para_hash.put(name, value);
+	}
+
+	/**
+	* 获取Class路径
+	*/
+	private String getClassPath()
+	{
+		final String _PREFIX = "file:";
+		
+		String classPath = this.getClass().getResource("/").toString();
+		int pos = classPath.indexOf(_PREFIX);
+		if (pos >= 0) {
+			classPath = classPath.substring(pos + _PREFIX.length()+1);
+		}
+
+		return classPath;
+	}
+	
+	/**
+	* 读取初始化的配置文件信息
+	*/
+	public void initConfig()
+	{
+		String configFile = DataUtil.getAbsPath(getClassPath(), _CONFIG_FILE);
+		
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+				new FileInputStream(configFile), "utf-8"));
+			
+			String line;
+			while ( (line = br.readLine()) != null) {
+				parseConfig(line);
+			}
+			br.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}

@@ -1,0 +1,65 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>用户管理</title>
+<link href="#(tp)/public/css/basic.css" rel="stylesheet" type="text/css" />
+<link href="#(tp)/public/css/detail.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+<table class="searchtb" >
+ 
+    <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2">
+      	<img src="${tp}/public/images/scbj-icon.png" style="width:16px; height:16px; margin-bottom:-2px;"/>系统管理-用户管理-用户角色编辑
+      </td>
+      <td class="searchtd3"></td>
+    </tr>
+    <tr>
+      <td colspan="3">
+      	<form name="cform" id="cform" action="#(uri)/system/user/editroleupdate" method="post"  >
+    	<input type="hidden" name="record.customer_id" value = "#(record.customer_id)"/>
+   	  
+      <table class="datatb"  cellpadding="3" cellspacing="1" >
+          <tbody>
+          
+          
+          
+          <tr class="listtr">
+		    <td class="editleft">用户名:</td>
+		    <td class="editright">#(record.customer_name)</td>
+        </tr>
+        <tr class="listtr">
+		    <td class="editleft">角色信息:</td>
+		    <td class="editright">
+					#for(role : roles)
+									#if(role.isChecked ==true)
+										<input type="checkbox" name="role" checked="checked"
+											value="#(role.role_id)" />#(role.role_name)
+	    			#else
+										<input type="checkbox" name="role" value="#(role.role_id)" />#(role.role_name)
+	    			#end
+	    			&nbsp;
+    		#end
+		    </td>
+        </tr>
+        <tr class="listtr">
+		    <td align="center" colspan="2">
+			    <input type="submit" value="提交"  class="btn2"/> &nbsp;
+			    <input type="reset" value="重置" class="btn2" />
+		    </td>
+        </tr>
+          
+       
+          </tbody>
+        </table>
+        </form>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
+#end

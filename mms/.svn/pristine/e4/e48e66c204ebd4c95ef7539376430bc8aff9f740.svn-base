@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+	@auther:Adair Yang
+	@createDate:2013-05-27
+	@description:This ant script only for business project's upload
+	@email:yangyanzhao@expai.com;adairs@yeah.net
+	@version:1.0	
+	-->
+<project basedir=".." default="upload" name="business">
+    <property environment="env"/>
+    <property file="build/ant.properties"/>
+    <property name="sourceDir" value="src"/>
+    <property name="WebRoot" value="WebContent"/>
+    <property name="destDir" value="${WebRoot}/WEB-INF/classes"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+     <tstamp>
+       <format property="createDate" pattern="yyyy_MM_dd" locale="en"/>
+     </tstamp>
+    <property name="updateBaleName" value="${ant.project.name}_${createDate}_${UPDATE_PACKAGE_NAME}"/>
+    <path id="business.classpath">
+        <pathelement location="${destDir}"/>
+        <path refid="Apache_Tomcat_v7.0.libraryclasspath"/>
+        <path refid="WEB_APP.classpath"/>
+    </path>
+    <target name="init">
+      <echo message="${ant.project.name}: ${ant.file}"/>
+      <mkdir dir="${UPDATE_DIR}/${updateBaleName}/server_bak_${createDate}" />
+    </target>
+    <target name="clean">
+      <delete dir="${UPDATE_DIR}/${updateBaleName}/server_bak_${createDate}" />
+    </target>
+
+    <target name="download" depends="clean,init">
+      <echo message="download file from FTP"/>
+	  <ftp server="${ftpHttpUrl}"
+	       port="${ftpPort}"
+	       userid="${ftpUsername}"
+	       password="${ftpPassword}"
+	  	   action="get">
+	      <fileset dir="/business" includes = "index.jsp">
+	      </fileset>
+	   </ftp>
+    </target>
+	
+    <target name="upload" depends="download">
+      <echo message="upload file to FTP"/>
+    </target>
+</project>

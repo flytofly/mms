@@ -1,0 +1,489 @@
+#@layout()
+#define main()
+
+	<div class="tx-con">
+	<div class="tx-con-bt">
+		<ul>
+			<li><a href="#"><span>动作配置</span></a></li>
+		</ul>
+	</div>
+	<form name="form" id="form" action="#(BasePath)/data/starpic/list" method="post">
+	 <div class="tx-con-form">
+	 	   <input style="margin-left:0;" type="text" name="rule" maxlength="50" value="#if(cptrdata!=null)#(cptrdata.rule)#else无查询结果#end" placeholder="网站查询" id="search" class="tx-con-form-tet" />
+		   <input style="margin-left:20px;" class="tx-con-form-sub" type="submit"value="查询"/>
+		<div class="cle"></div>
+	</div>
+	<div>
+		<div class="g-nr-left-right">
+			<div class="g-nr-left">
+				<div class="g-kuang g-yhgk-1">
+					<div class="g-kuang-bt">
+						自有数据
+					</div>
+					<div class="g-kuang-nr">
+						<div id="week-uv-container" style="min-width: 310px; height: 90px; margin: 0 auto">
+							<div class="jrgk-con-xx"> 
+						       <ul> 
+						        <li><span>&nbsp;&nbsp;月覆盖用户量&nbsp;&nbsp;<img src="#(BasePath)/public/img/wenhao.png"></span><p>#if(cptrdata!=null)#(cptrdata.mth_uv)#end</p></li>
+						        <li style="height:60px;border-right:2px solid #ddd;"><span></span><p><p></li>  
+						        <li><span>&nbsp;&nbsp;日覆盖用户量&nbsp;&nbsp;<img src="#(BasePath)/public/img/wenhao.png"></span><p>#if(cptrdata!=null)#(cptrdata.daily_uv)#end</p></li> 
+						      	<li style="height:60px;border-right:2px solid #ddd;"><span></span><p><p></li>  
+						        <li><span>&nbsp;月非活跃用户量&nbsp;<img src="#(BasePath)/public/img/wenhao.png"></span><p>#if(cptrdata!=null)#(cptrdata.mth_act_users)#end</p></li> 
+						       </ul> 
+						    </div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="g-nr-right">
+				<div class="g-kuang g-yhgk-1">
+					<div class="g-kuang-bt">
+						竞品数据
+					</div>
+					<div class="g-kuang-nr">
+						<div id="week-uv-container" style="min-width: 310px; height: 90px; margin: 0 auto">
+							<div class="jrgk-con-xx"> 
+						       <ul> 
+						        <li><span>竞品月覆盖用户量<img src="#(BasePath)/public/img/wenhao.png"></span><p>#if(cptrdata!=null)#(cptrdata.cptr_mth_uv)#end</p></li> 
+						        <li style="height:60px;border-right:2px solid #ddd;"><span></span><p><p></li>  
+						        <li><span>竞品日覆盖用户量<img src="#(BasePath)/public/img/wenhao.png"></span><p>#if(cptrdata!=null)#(cptrdata.cptr_daily_uv)#end</p></li> 
+						        <li style="height:60px;border-right:2px solid #ddd;"><span></span><p><p></li>  
+						        <li><span>竞品月重合用户量<img src="#(BasePath)/public/img/wenhao.png"></span><p>#if(cptrdata!=null)#(cptrdata.cptr_mth_cro_users)#end</p></li> 
+						       </ul> 
+						    </div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="g-nr-left-right">
+			<div class="g-nr-left">
+				<div class="g-kuang g-yhgk-1">
+					<div class="g-kuang-bt">
+						相关网站图
+					</div>
+					<div class="g-kuang-nr"  id="media-rank" style="min-width: 400px; height: 550px;">
+					</div>
+				</div>
+			</div>
+			<div class="g-nr-right">
+				<div class="g-kuang g-yhgk-1">
+					<div class="g-kuang-bt">
+						已选网站
+					</div>
+					<div class="g-kuang-nr">
+						<div style="height:  550px; margin: 0 auto; OVERFLOW: auto;">
+							<table style="min-width: 95%;margin: 0 auto;text-align:center;border-collapse:separate; border-spacing:0px 15px;">
+								<thead style="color:#08a1e0;">
+									<tr>
+										<th width="10%"></th>
+										<th width="20%">网站</th>
+										<th width="20%">月重合用户量</th>
+										<th width="20%">月重合用户比率</th>
+										<th width="15%">相关性</th>
+										<!-- <th>网站类型</th> -->
+										<th width="15%">配置</th>
+									</tr>
+								</thead>	
+								<tbody id="selected-web">
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+		
+	<div class="g-nr-left-right">
+	  <div class="g-kuang g-yhgk-1">
+		  <div class="g-kuang-bt">相关标签图</div>
+		  <div class="g-kuang-nr-tao">
+	          <div class="g-youxi-huoyue-n">
+				<div class="g-kuang g-yhgk-1">
+					<div>
+						<div id="tag-container" style="min-width: 310px; height: 512px; margin: 0 auto"></div>
+					</div>
+				</div>
+			  </div>
+
+			  <div class="g-youxi-huoyue-n">
+				<div class="g-kuang g-yhgk-1">
+					<div>
+						<div id="retain-compare-container" style="min-width: 310px; height: 512px; margin: 0 auto; OVERFLOW: auto;">
+							<table style="min-width: 95%;margin: 0 auto;text-align:center;border-collapse:separate; border-spacing:0px 15px;">
+								<thead>
+									<tr style="color:#08a1e0;">
+										<th>序号</th>
+										<th>标签</th>
+										<th>网站数量</th>
+										<th>月总计用户量</th>
+										<th>月重合用户量</th>
+										<th>月重合用户比率</th>
+										<th>配置</th>
+									</tr>
+								</thead>	
+								<tbody id="biaoq">
+									<tr>
+										<td>1</td>
+										<td>航班</td>
+										<td>121</td>
+										<td>427.1万</td>
+										<td>67.3万</td>
+										<td>17.3%</td>
+										<td><input type='checkbox' class='cids'></td>
+									</tr>
+									<tr>
+										<td>2</td>
+										<td>飞机票</td>
+										<td>83</td>
+										<td>387.2万</td>
+										<td>53.9万</td>
+										<td>15.8%</td>
+										<td><input type='checkbox' class='cids'></td>
+									</tr>
+									
+								</tbody>
+							</table>
+						
+						</div>
+					</div>
+				</div>
+			  </div>
+		  </div>
+	  </div>
+	</div>
+	
+	</form>
+</div>
+
+#end
+<script src="#(BasePath)/data/starpic/build/dist/echarts.js"></script>
+
+<!-- 相关网站图-->
+<script type="text/javascript">
+		var resultnodes = [];  
+        var tempnodes = {};  
+        var resultlinks = [];  
+        var templinks = {};  
+        
+		$.ajax({  
+                url: '#(BasePath)/data/starpic/corrweb?rule=#(cptrdata.rule)',  
+                dataType: "json",  
+                type: "post",  
+                contentType: "json",  
+                async: false,  
+                success : function(data){  
+                	if(data.first!=null){
+                		var id = data.first.cptr_rule.replace(/\./g,"_");
+			        	 $("#selected-web").append("<tr id='"+id+"'>"+
+			        	 						"<td><a href='javascript:trdelete(\""+id+"\");'><img src='#(BasePath)/public/img/red_delete.png'></a></td>"+
+												"<td>"+data.first.desc+"</td>"+
+												"<td>"+data.first.mth_cro_users+"</td>"+
+												"<td>"+Math.round(data.first.mth_cro_users / data.first.rule_uv * 100000) / 1000.000+ "%" +"</td>"+
+												"<td>"+Math.round(data.first.relevancy * 100000) / 1000.000+ "%" +"</td>"+
+												/* "<td>"+data.type+"</td>"+ */
+												"<td><input type='checkbox' class='cids'></td>"+
+											"</tr>");
+                	}
+                    $.each(data.nodes, function(i, item){  
+                        tempnodes = {host:item.host.toString() ,category:item.ceng, name:item.rule.toString(), value:item.mth_cro_users};  
+                        resultnodes.push(tempnodes);  
+                    });
+                    $.each(data.links, function(i, item){  
+                        templinks =  {source : item.cptr_rule.toString(), target : item.rule.toString(),weight:item.relevancy, name: '相关网站'};
+              			resultlinks.push(templinks);  
+                    });
+                }
+            });  
+        
+		require.config({
+            paths: {
+                echarts: 'build/dist'
+            }
+        });
+        require(
+            [
+                'echarts',
+                'echarts/chart/force',
+            ],
+ 
+		function (ecrank) {
+                var rankChart = ecrank.init(document.getElementById('media-rank'));
+				// 添加点击事件  
+		        var ecConfig = require('echarts/config');  
+		        rankChart.on(ecConfig.EVENT.CLICK, eConsole);    
+				rankoption = {
+			    title : {
+			        text: '相关网站图',
+			        subtext: '#(cptrdata.rule)',
+			        x:'right',
+			        y:'bottom'
+			    },
+			    tooltip : {
+			        trigger: 'item',
+			        formatter: '{a} : {b}'
+			    },
+			    toolbox: {
+			        show : true,
+			        feature : {
+			            restore : {show: true},
+			            magicType: {show: true, type: ['force', 'chord']},
+			            saveAsImage : {show: true}
+			        }
+			    },
+			    legend: {
+			        x: 'left',
+			        data:['相似'],
+			        selected: {
+			            '相关' : false
+			        },
+			    },
+			    series : [
+			        {
+			            type:'force',
+			            name : "网站",
+			            ribbonType: false,
+			            categories : [
+			                {
+			                    name: '相似'
+			                },
+			                {
+			                    name: '相关',
+			                }
+			            ],
+			            itemStyle: {
+			                normal: {
+			                    label: {
+			                        show: true,
+			                        textStyle: {
+			                            color: '#333'
+			                        }
+			                    },
+			                    nodeStyle : {
+			                        brushType : 'both',
+			                        borderColor : 'rgba(255,215,0,0.4)',
+			                        borderWidth : 1
+			                    },
+			                    linkStyle: {
+			                        type: 'curve'
+			                    }
+			                },
+			                emphasis: {
+			                    label: {
+			                        show: false
+			                        // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+			                    },
+			                    nodeStyle : {
+			                        //r: 30
+			                    },
+			                    linkStyle : {}
+			                }
+			            },
+			            useWorker: false,
+			            minRadius : 20,
+			            maxRadius : 40,
+						coolDown: 0.995,
+			            gravity: 1.1,
+			            scaling: 1.1,
+			            nodes:resultnodes,
+			
+			            links:resultlinks
+			        }
+			    ]
+				};
+
+				rankChart.setOption(rankoption);
+            }
+	
+        );
+        
+        
+        function eConsole(param) {    
+        	if(param.data.category==1){
+        		return;
+        	}
+			var trList = $("#selected-web").children("tr");
+			for (var i=0;i<trList.length;i++) {
+				var tdArr = trList.eq(i).find("td");
+				var webtext = tdArr.eq(1).text();//网站
+				     
+				if(param.name==webtext){
+					return;
+				}
+			}
+		    $.ajax({
+			    url:'#(BasePath)/data/starpic/selectedweb',
+			    type:'POST', //GET
+			    async:true,    //或false,是否异步
+			    data:{
+			        rule:'#(cptrdata.rule)',cptrrule:param.data.host
+			    },
+			    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+			    /* beforeSend:function(xhr){
+			        console.log(xhr)
+			        console.log('发送前')
+			    }, */
+			    success:function(data,textStatus,jqXHR){
+			        console.log(data);
+			        console.log(textStatus);
+			        console.log(jqXHR);
+			        if(data!=null){
+			        	var id = data.cptr_rule.replace(/\./g,"_");
+			        	 $("#selected-web").append("<tr id='"+id+"'>"+
+			        	 						"<td><a href='javascript:trdelete(\""+id+"\");'><img src='#(BasePath)/public/img/red_delete.png'></a></td>"+
+												"<td>"+data.desc+"</td>"+
+												"<td>"+data.mth_cro_users+"</td>"+
+												"<td>"+Math.round(data.mth_cro_users / data.rule_uv * 100000) / 1000.000+ "%" +"</td>"+
+												"<td>"+Math.round(data.relevancy * 100000) / 1000.000+ "%" +"</td>"+
+												/* "<td>"+data.type+"</td>"+ */
+												"<td><input type='checkbox' class='cids'></td>"+
+											"</tr>");
+			        }
+			       
+			    }/* ,
+			    error:function(xhr,textStatus){
+			        console.log('错误')
+			        console.log(xhr)
+			        console.log(textStatus)
+			    },
+			    complete:function(){
+			        console.log('结束')
+			    } */
+			});
+		}  
+		
+		function trdelete(id) {
+        	$("#"+id).remove();
+		}
+</script>
+
+<!-- 相关标签图 -->
+<script type="text/javascript">
+		var tagnodes = [];  
+        var tagtempnodes = {};  
+        var taglinks = [];  
+        var tagtemplinks = {};  
+        
+		$.ajax({  
+                url: '#(BasePath)/data/starpic/gettags?ruleid=#(cptrdata.ruleid)',  
+                dataType: "json",  
+                type: "post",  
+                contentType: "json",  
+                async: false,  
+                success : function(data){  
+                	var tags = data.tags;	
+                	for(var i=0;i<tags.length;i++){
+                		tagtempnodes = {category:0, name:tags[i], value:40};  
+                        tagnodes.push(tagtempnodes);  
+                	}
+                }
+            });  
+		require.config({
+            paths: {
+	                echarts: 'build/dist'
+	            }
+	        });
+	        require(
+	            [
+	                'echarts',
+	                'echarts/chart/force'
+	            ],
+
+	function (ecrank) {
+		var preferChart = ecrank.init(document.getElementById('tag-container'));
+
+			preferoption = {
+			    title : {
+				text: '',
+			        subtext: '',
+			        x:'right',
+			        y:'bottom'
+			    },
+			    tooltip : {
+			        trigger: 'item',
+			        formatter: '{a} : {b}'
+			    },
+			    toolbox: {
+			        show : true,
+			        feature : {
+			            restore : {show: true},
+			            magicType: {show: true, type: ['force', 'chord']},
+			            saveAsImage : {show: true}
+			        }
+			    },
+			    legend: {
+			        x: 'left',
+			        data:['特征','分类2','分类3'],
+			        selected: {
+			            '特征' : true,
+			            '分类2' : true,
+			            '分类3' : true
+			        },
+			    },
+			    series : [
+			        {
+			            type:'force',
+			            name : "用户标签",
+			            ribbonType: false,
+			            categories : [
+			                {
+			                    name: '特征'
+			                },
+			                {
+			                    name: '分类2'
+			                },
+			                {
+			                    name: '分类3'
+			                }
+			            ],
+			            itemStyle: {
+			                normal: {
+			                    label: {
+			                        show: true,
+			                        textStyle: {
+			                            color: '#333'
+			                        }
+			                    },
+			                    nodeStyle : {
+			                        brushType : 'both',
+			                        borderColor : 'rgba(255,215,0,0.4)',
+			                        borderWidth : 1
+			                    },
+			                    linkStyle: {
+			                        type: 'curve'
+			                    }
+			                },
+			                emphasis: {
+			                    label: {
+			                        show: false
+			                        // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+			                    },
+			                    nodeStyle : {
+			                        //r: 30
+			                    },
+			                    linkStyle : {}
+			                }
+			            },
+			            useWorker: false,
+			            minRadius : 20,
+			            maxRadius : 40,
+						coolDown: 0.995,
+			            gravity: 1.5,
+			            scaling: 1.1,
+			            roam: 'move',
+			            nodes:tagnodes,
+			
+			            links : [
+			            ]
+			        }
+			    ]
+				};
+
+				preferChart.setOption(preferoption);
+            }
+	
+        );
+
+</script>

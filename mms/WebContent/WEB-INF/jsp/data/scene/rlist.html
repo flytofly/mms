@@ -1,0 +1,111 @@
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>人群管理</title>
+<link href="#(BasePath)/public/css/list.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<form name="form" id="form" action="./rlist">
+ <input type="hidden" id="type" name="type" value="search" />
+<table class="searchtb">
+  <tbody>
+    <tr class="searchtr2">
+      <td colspan="3"> 
+  
+  	 <img src="#(BasePath)/public/images/yue-icon.png" style="margin-bottom:-2px;margin-left:20px;">  场景搜索  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       
+      场景名:&nbsp;&nbsp;
+      <input type="text" name="record.sname" size="12" value="#(record.sname)" id="search" class="input"/>
+        <input type="submit" name="Submit" value="查询 " class="search"/>
+       </td>
+    </tr>
+  </tbody>
+</table>
+<!-- <div style="width: 100% ;height:5px"></div> -->
+<table class="searchtb" >
+ 
+    <tr class="searchtr1">
+      <td class="searchtd1"></td>
+      <td class="searchtd2">
+			<img src="#(BasePath)/public/images/biaoti-icon.png"/>场景列表
+        	<img src="#(BasePath)/public/images/icon-xiangxia.png" width="11" height="11" />
+	  </td>
+      <td class="searchtd3"></td>
+    </tr>
+    <tr>
+      <td colspan="3" id="yue-nr"><table class="datatb"  cellpadding="3" cellspacing="1" >
+          <tbody>
+            <tr class="listth" >
+             <td width="5%">选择</td>
+            <td width="30%">场景名</td>
+           <td width="40%">场景描述</td>
+           <td width="25%">状态</td>
+            </tr>
+            #for(record:records.getList())
+            <tr class="listtr" onmouseout="this.style.backgroundColor='#ffffff';" onmouseover="this.style.backgroundColor='#E6F2FF'">
+             <td><input type="checkbox" onclick="check('#(record.sid)','#(record.sname)');"/></td>
+             <td> #(record.sname)</td>
+	           <td> #(record.sdesc)</td>
+	           	   <td> 
+                	#if(record.status == 0)待审核#end 
+                	#if(record.status == 1)正常#end 
+                	#if(record.status == 2)审核中#end 
+                	#if(record.status == 3)审核未通过#end 
+                	#if(record.status == 4)停用#end 
+             
+	           	</td>
+            </tr>
+            #end
+          </tbody>
+        </table></td>
+    </tr>
+</table>
+   <div>  
+       
+       <!--分页-->
+   	    #@paginate(records.pageNumber, records.totalPage, "")
+   	    <!--分页 END-->
+
+    
+</div>
+ </form>
+<!--    	    <%@include file="/public/files/loading.jsp"%>  -->
+
+
+
+<script>
+function isCon(array, val){
+	if(array.length == 1){
+		return false;
+	}
+	for(var i=0; i<array.length; i++){
+		if(array[i] == val && array[i] != "undefined"){
+			return true;
+		}
+	}
+	return false;
+}
+
+function check(cid,cname){
+	var openercid = window.opener.document.getElementById("sids");
+	var openercidarray = openercid.value.split(",");
+	var ttaskcrowd = window.opener.document.getElementById("task");
+	if (cid && (!isCon(openercidarray, cid))) {
+		openercid.value = openercid.value.trim() + cid+"," ;
+		//添加行
+		var newTr = ttaskcrowd.insertRow();
+		newTr.className ='listtr'; //添加class
+		//添加两列
+		var newTd0 = newTr.insertCell();
+		var newTd1 = newTr.insertCell();
+		//设置列内容和属性
+		newTd0.innerHTML = '<input type=hidden  name="cid" value='+cid+' class="cl_cid"/>'
+				+ cname + '';
+		newTd1.innerHTML = '<input type=button value="删除"  class="minbtn" onclick="removebus(this)"/>';
+		 
+	}
+
+}
+</script>
+
+</body>
+</html> 

@@ -1,0 +1,177 @@
+package cn.mmdata.mms.analysis.basic.matrix;
+
+import java.util.ArrayList;
+
+import cn.mmdata.mms.util.DataUtil;
+
+public class AppMatrix
+{
+	private static final String _RANK_TYPE = "rank";
+	private static final String _RELE_TYPE = "rele";
+
+	private String _domain;
+	private int _count;
+
+	private ArrayList _rank_app_array;
+	private ArrayList _rele_app_array;
+
+	public String getDomain() {
+		return _domain;
+	}
+
+	public void setDomain(String _domain) {
+		this._domain = _domain;
+	}
+
+	public int getCount() {
+		return _count;
+	}
+
+	public void setCount(int _count) {
+		this._count = _count;
+	}
+
+	/**
+	* 过滤APP结点
+	*/
+	private AppNode[] filterNode(AppNode[] nodeArray)
+	{
+		if (nodeArray == null) { return null; }
+
+		ArrayList results = new ArrayList();
+		for (int i=0; i < nodeArray.length; i++)
+		{
+			AppNode node = nodeArray[i];
+			node.setDomain( DataUtil.parseDomainByHost(node.getDomain()) );
+			if (!DomainUnit.invalid( node.getDomain() )) {
+				results.add(node);
+			}
+		}
+
+		return (AppNode[]) results.toArray(new AppNode[0]);
+	}
+	
+	public AppNode[] getRankAppNodes()
+	{
+		if (_rank_app_array == null) {
+			return null;
+		} else {
+			AppNode[] nodeArray = (AppNode[]) _rank_app_array.toArray(new AppNode[0]);
+			return filterNode(nodeArray);
+		}
+	}
+
+	public AppNode[] getReleAppNodes()
+	{
+		if (_rele_app_array == null) {
+			return null;
+		} else {
+			AppNode[] nodeArray = (AppNode[]) _rele_app_array.toArray(new AppNode[0]);
+			return filterNode(nodeArray);
+		}
+	}
+
+	/**
+	* 获取域名名称前缀
+	*/
+	private String getDomainPrefix(String domain)
+	{
+		int pos = domain.indexOf(".");
+		if (pos >= 0) {
+			return domain.substring(0, pos);
+		} else {
+			return domain;
+		}
+	}
+
+	/**
+	* 判断域名串是否相似
+	*/
+	private boolean similar(String domain1, String domain2)
+	{
+		String prefix1 = getDomainPrefix(domain1);
+		String prefix2 = getDomainPrefix(domain2);
+		if (prefix1.indexOf(prefix2) >= 0 || prefix2.indexOf(prefix1) >= 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	* 判断域名是否噪声
+	*/
+	private boolean invalid(String domain)
+	{
+		if (DomainUnit.invalid(domain)) {
+			return true; 
+		}
+
+		// 判断域名串是否相似
+		if (similar(domain, getDomain())) {
+			return true;
+		}
+
+		if (domain.indexOf(".") < 0) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	* 增加交差人群量排名维度的对象
+	*/
+	private void addRankApp(String domain, int count, int cross, String relevency)
+	{
+		if (invalid(domain)) { return; }
+
+		if (_rank_app_array == null) {
+			_rank_app_array = new ArrayList();
+		}
+
+		AppNode node = new AppNode();
+		node.setDomain(domain);
+		node.setTotalCount(count);
+		node.setCrossCount(cross);
+		node.setHostCount(getCount());
+		node.setRelevency(relevency);
+		
+		_rank_app_array.add(node);
+	}
+
+	/**
+	* 增加交差人群量排名维度的对象
+	*/
+	private void addReleApp(String domain, int count, int cross, String relevency)
+	{
+		if (invalid(domain)) { return; }
+
+		if (_rele_app_array == null) {
+			_rele_app_array = new ArrayList();
+		}
+
+		AppNode node = new AppNode();
+		node.setDomain(domain);
+		node.setTotalCount(count);
+		node.setCrossCount(cross);
+		node.setHostCount(getCount());
+		node.setRelevency(relevency);
+		
+		_rele_app_array.add(node);
+	}
+
+	/**
+	* 增加关联的APP域名、人群数量和交差数量
+	*/
+	public void addMatrixApp(String domain, int count, int cross, String relevency, String type)
+	{
+		if (type.equalsIgnoreCase(_RANK_TYPE)) {
+			addRankApp(domain, count, cross, relevency);
+		} else if (type.equalsIgnoreCase(_RELE_TYPE)) {
+			addReleApp(domain, count, cross, relevency);
+		}
+	}
+
+
+}

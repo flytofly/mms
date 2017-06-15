@@ -1,0 +1,81 @@
+#@layout()
+#define main()
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>统计优化</title>
+<script src="#(BasePath)/public/jquery/js/jqsel.js"></script>
+<script src="#(BasePath)/public/My97DatePicker/WdatePicker.js"></script>
+
+</head>
+<body>
+    <div class="tf-tabs clearfix">
+        <ul>
+            <li class="current"><a href="#(BasePath)/statis/statopti/detailList?detail_id=#(record.detail_id)&out_type=#(record.out_type)"><span><strong>按日期统计</strong></span></a></li>
+            <li><a href="#(BasePath)/statis/statopti/detailRuleList?detail_id=#(record.detail_id)&out_type=#(record.out_type)"><span>按规则统计</span></a></li>
+            <li><a href="#(BasePath)/statis/statopti/detailYhjy?detail_id=#(record.detail_id)&out_type=#(record.out_type)"><span>优化建议</span></a></li>
+        </ul>
+    </div>
+    <div class="main-box">
+       <div class="filter clearfix">
+           <ul>
+               <li>
+					<input style="width:185px; text-align:center; padding-left:0;" type="text" name="pickday" size="10" readonly onClick="WdatePicker({el:'pickday'})" value='#(record.pickday)'   placeholder="选择统计日期"  id="pickday" class="scinput validate[required] tx-con-form-tet" />
+                   <input type="submit" class="search-icon">
+               </li>
+           </ul>
+       </div>
+        <div class="datas">
+	 <!-- 条件筛选框的位置 -->
+	  <form action="#(BasePath)/statis/statopti/detailList" id="form" method="post">
+		  <input type="hidden" name="out_type" value="#(record.out_type)">
+		  <input type="hidden" name="detail_id" value="#(record.detail_id)">
+			<table cellspacing="0" cellpadding="0">
+				<tr style="height:40px;">
+					<th style="width:40px;">序号</th>
+					<th>统计日期</th>
+					<th>投放数</th>
+					<th>反馈数</th>
+					<th>意向量</th>
+					<th>转化率</th>
+					<th>意向A</th>
+					<th>意向B</th>
+					<th>意向C</th>
+					<th>停机</th>
+					<th>关机</th>
+					<th>无意向</th>
+					<th>未接听</th>
+					<th>空号</th>
+					<th>其他</th>
+				</tr>
+				#for(record:records.getList())
+				 <tr  onmouseout="this.style.backgroundColor='#ffffff';"
+					onmouseover="this.style.backgroundColor='#E6F2FF'">
+					<td>#(for.index+1)</td>
+					<td>#(record.pickday)</td>
+					<td>#(record.picknumber)</td>
+					<td>#(record.fb_count)</td>
+					<td>#(record.yx_count )</td>
+					<td>#(record.zhl) %</td>
+					<td>#(record.yxa_count)</td>
+					<td>#(record.yxb_count)</td>
+					<td>#(record.yxc_count)</td>
+					<td>#(record.tj_count)</td>
+					<td>#(record.gj_count)</td>
+					<td>#(record.wyx_count)</td>
+					<td>#(record.wjt_count)</td>
+					<td>#(record.kh_count)</td>
+					<td>#(record.qt_count)</td>
+					</td>
+				</tr>
+				#end
+			</table>
+		</div>
+<!--分页-->
+#@paginate(records.pageNumber, records.totalPage, "")
+<!--分页 END-->
+		</div>
+    </form>
+</div>
+</body>
+
+#end
