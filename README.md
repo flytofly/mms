@@ -1,5 +1,6 @@
 # mms
-  后台使用了jFinal3技术;
-  前台页面：freemark模板引擎;
+  此系统后台采用了jfinal框架
+  业务层采用了mybatis框架
+  表示层采用了freemark框架
   
   
